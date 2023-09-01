@@ -54,4 +54,6 @@ rsconnect/
 *.LOG
 *.MCM
 
-
+# saved wham model fit files
+Bridge.Runs/*/wham/*/*.RDS
+!Bridge.Runs/*/wham/*/res_tables/*.RDS
