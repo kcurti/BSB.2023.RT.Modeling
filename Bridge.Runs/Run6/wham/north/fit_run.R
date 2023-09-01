@@ -21,9 +21,25 @@ sel$fix_pars <- c(rep(list(NULL),4), list(
 )
 temp <- prepare_wham_input(north, selectivity = sel, NAA_re = list(N1_model = "equilibrium"))
 tfit <- fit_wham(temp, do.retro=F, do.osa=F)
-tfit$sdrep #small gradient and no big standard errors.
+tfit$sdrep #age 4 of NEAMAP wants to be 1
+sel <- list(model = rep(c("logistic","age-specific"),c(4,4)))
+sel$initial_pars <- c(rep(list(c(5,1)),4), list( 
+	c(rep(c(0.5,1), c(1,7))), #spring Alb
+	c(rep(c(0.5,1), c(3,5))), #neamap
+	c(rep(c(0.5,1), c(1,7))), #rec cpa
+	c(rep(c(0.5,1), c(1,7)))) #Bigelow
+)
+sel$fix_pars <- c(rep(list(NULL),4), list(
+  2:8, #5
+  4:8, #5
+  2:8, #11
+  2:8) #12
+)
+temp <- prepare_wham_input(north, selectivity = sel, NAA_re = list(N1_model = "equilibrium"))
+tfit <- fit_wham(temp, do.retro=F, do.osa=F)
+tfit$sdrep #age 4 of NEAMAP wants to be 1
+
 north_input <- prepare_wham_input(north, selectivity = sel, NAA_re = list(N1_model = "equilibrium"))
-north_fit <- fit_wham(north_input, do.retro=T, do.osa=T)#, do.brps = T)
 north_fit <- fit_wham(north_input, do.retro=T, do.osa=T, do.brps = T)
 mohns_rho(north_fit)
 setwd(here("Bridge.runs","Run6", "wham","north"))
