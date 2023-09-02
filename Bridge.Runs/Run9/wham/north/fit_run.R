@@ -3,53 +3,29 @@
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "c:/work/wham/old_packages/multi_wham", INSTALL_opts=c("--no-multiarch"))
 library(wham, lib.loc = "c:/work/wham/old_packages/multi_wham")
 library(here)
-north <- read_asap3_dat(here("Bridge.runs", "Run7", "NORTH.BRIDGE.RUN.7.DAT"))
+north <- read_asap3_dat(here("Bridge.runs", "Run9", "NORTH.RUN.9.DAT"))
 temp <- prepare_wham_input(north, NAA_re = list(N1_model = "equilibrium"))
 
-sel <- list(model = rep(c("logistic","age-specific"),c(4,8)))
+sel <- list(model = rep(c("logistic","age-specific"),c(4,2)))
 sel$initial_pars <- c(rep(list(c(5,1)),4), list( 
-	c(rep(c(0.5,1), c(1,7))), #spring Alb
-	c(rep(c(0.5,1), c(4,4))), #neamap
-	c(rep(c(0.5,1), c(2,6))), #MA
-	c(rep(c(0.5,1), c(2,6))), #RI
-	c(rep(c(0.5,1), c(2,6))), #CT
-	c(rep(c(1,0), c(1,7))), #NY
-	c(rep(c(0.5,1), c(1,7))), #rec cpa
-	c(rep(c(0.5,1), c(1,7)))) #Bigelow
+	c(rep(c(0.5,0.5), c(4,4))), #rec cpa
+	c(rep(c(0.5,0.5), c(1,7)))) #vast spring
 )
 sel$fix_pars <- c(rep(list(NULL),4), list(
-  2:8, #spring alb
-  5:8, #neamap
-  3:8, #MA
-  3:8, #RI
-  3:8, #CT
-  1:8, #NY
-  2:8, #rec cpa
-  2:8) #bigelow
+  NULL,# 5:8, #rec cpa
+  NULL)#,# 1) #vast spring
 )
 temp <- prepare_wham_input(north, selectivity = sel, NAA_re = list(N1_model = "equilibrium"))
-tfit <- fit_wham(temp, do.retro=F, do.osa=F)
-tfit$sdrep #age 4 of NEAMAP wants to be 1
-sel <- list(model = rep(c("logistic","age-specific"),c(4,8)))
+tfit <- fit_wham(temp, do.retro=F, do.osa=F, do.sdrep = F)
+tfit$parList$logit_selpars #shows highest selectivity of vast spring is at age 4
+sel <- list(model = rep(c("logistic","age-specific"),c(4,2)))
 sel$initial_pars <- c(rep(list(c(5,1)),4), list( 
-	c(rep(c(0.5,1), c(1,7))), #spring Alb
-	c(rep(c(0.5,1), c(3,5))), #neamap
-	c(rep(c(0.5,1), c(2,6))), #MA
-	c(rep(c(0.5,1), c(2,6))), #RI
-	c(rep(c(0.5,1), c(2,6))), #CT
-	c(rep(c(1,0), c(1,7))), #NY
-	c(rep(c(0.5,1), c(1,7))), #rec cpa
-	c(rep(c(0.5,1), c(1,7)))) #Bigelow
+	c(rep(c(0.5,1), c(7,1))), #rec cpa
+	c(rep(c(0.5,1,0.5), c(3,1,4)))) #vast spring
 )
 sel$fix_pars <- c(rep(list(NULL),4), list(
-  2:8, #spring alb
-  4:8, #neamap
-  3:8, #MA
-  3:8, #RI
-  3:8, #CT
-  1:8, #NY
-  2:8, #rec cpa
-  2:8) #bigelow
+  8, #rec cpa
+  4) #vast spring
 )
 temp <- prepare_wham_input(north, selectivity = sel, NAA_re = list(N1_model = "equilibrium"))
 tfit <- fit_wham(temp, do.retro=F, do.osa=F)
@@ -57,7 +33,7 @@ tfit$sdrep
 north_input <- prepare_wham_input(north, selectivity = sel, NAA_re = list(N1_model = "equilibrium"))
 north_fit <- fit_wham(north_input, do.retro=T, do.osa=T, do.brps = T)
 mohns_rho(north_fit)
-setwd(here("Bridge.runs","Run7", "wham","north"))
+setwd(here("Bridge.runs","Run9", "wham","north"))
 plot_wham_output(north_fit)
 saveRDS(north_fit,"north_fit.RDS")
 setwd(here())
