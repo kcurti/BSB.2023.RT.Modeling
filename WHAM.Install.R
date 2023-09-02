@@ -21,7 +21,18 @@ install.packages("TMB")
 
 devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "C:/Users/Kiersten.Curti/AppData/Local/R/win-library/4.3/multi_wham", INSTALL_opts=c("--no-multiarch"))
 
+
+##### WHEN LOADING WHAM
+
+library(kableExtra)
+library(rmarkdown)
+library(png)
 library(wham, lib.loc = "C:/Users/Kiersten.Curti/AppData/Local/R/win-library/4.3/multi_wham")
-library(wham, lib.loc = "C:/Users/Kiersten.Curti/AppData/Local/R/win-library/4.3/wham")
+# library(wham, lib.loc = "C:/Users/Kiersten.Curti/AppData/Local/R/win-library/4.3/wham")
+
+
+saveRDS(north_input, "north_input.RDS")
+saveRDS(south_input, "south_input.RDS")
+
 
 
