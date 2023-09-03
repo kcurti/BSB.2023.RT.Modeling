@@ -13,8 +13,8 @@ ls()
 
 ### Run details
 
-run.no <- 'Run9'
-reg <- 'south'
+run.no <- 'Run1'
+reg <- 'north'
 
 run.dir <- file.path("Bridge.Runs",run.no, "wham", reg)
 model.rds <- paste(reg, "fit.RDS", sep="_")
