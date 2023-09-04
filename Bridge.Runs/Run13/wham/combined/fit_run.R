@@ -1,11 +1,11 @@
+#Rec fleet and REC CPA will share the same selectivity
+#add prior movement rate of 0.1 (with sd = 0.5) from north to south and south to north for north stock as in previous explorations with data from last assessment.
+
 #devtools::install_github("timjmiller/wham", dependencies=TRUE)
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "~/tmiller_net/work/wham_packages/multi_wham")
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "c:/work/wham/old_packages/multi_wham", INSTALL_opts=c("--no-multiarch"))
 library(wham, lib.loc = "c:/work/wham/old_packages/multi_wham")
 library(here)
-#add fixed movement rate of 0.1 from north to south for north stock as in previous explorations with data from last assessment.
-#Rec fleet and REC CPA will share the same selectivity, but
-#reexplore max selectivity for VAST indices given this.
 asap <- read_asap3_dat(c(here("Bridge.runs", "Run9", "NORTH.RUN.9.DAT"), here("Bridge.runs", "Run9", "SOUTH.RUN.9.DAT")))
 sel <- list(model = rep(c("age-specific","logistic","age-specific","logistic","age-specific"),c(1,1,1,5,4)))
 sel$initial_pars <- c(
@@ -31,7 +31,6 @@ sel$fix_pars <- c(
 NAA_re = list(sigma = list("rec+1","rec+1"), N1_model = rep("equilibrium",2))
 
 basic_info <- list(region_names = c("North", "South"), stock_names = paste0("BSB_", c("North", "South"))) #, NAA_where = array(1, dim = c(2,2,6)))
-
 
 #11 seasons each 1 month long except a 2 month interval in the model (June,July)
 seasons = c(rep(1,5),2,rep(1,5))/12
