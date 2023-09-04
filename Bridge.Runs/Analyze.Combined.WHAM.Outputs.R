@@ -77,18 +77,18 @@ MSYproxy <- MSYproxy.vec$est
 
 
 # Abundance and F at age
-NAA.1 <- WHAM_output$rep$NAA[1,1,,]
+NAA.north <- WHAM_output$rep$NAA[1,1,,]
 # NAA <- exp(WHAM_output.ests$log_NAA_rep[1,1,,])  # These two NAA estimates are the same
-  rownames(NAA.1) <- as.character(model.yrs)
-  colnames(NAA.1) <- ages.labels
-NAA.2 <- WHAM_output$rep$NAA[2,2,,]
+  rownames(NAA.north) <- as.character(model.yrs)
+  colnames(NAA.north) <- ages.labels
+NAA.south <- WHAM_output$rep$NAA[2,2,,]
 # NAA <- exp(WHAM_output.ests$log_NAA_rep[2,2,,])  # These two NAA estimates are the same
-  rownames(NAA.2) <- as.character(model.yrs)
-  colnames(NAA.2) <- ages.labels
+  rownames(NAA.south) <- as.character(model.yrs)
+  colnames(NAA.south) <- ages.labels
   
 FAA <- exp(WHAM_output$rep$log_FAA_tot)
 # FAA <- exp(WHAM_output.ests$log_FAA_tot)         # These two FAA estimates are the same
-rownames(FAA) <- as.character(model.yrs)
+  rownames(FAA) <- as.character(model.yrs)
   colnames(FAA) <- ages.labels
 
 
@@ -135,13 +135,13 @@ F.yr <-
 
   
 # Annual SSB
-SSB.yr.1 <- 
+SSB.yr.north <- 
   bind_cols(Year = model.yrs,
             log.est = as.vector(WHAM_output.ests[['log_SSB']][,1]),
             log.se = as.vector(WHAM_output.sd[['log_SSB']][,1])
   ) %>%
   calc.uncertainty()
-SSB.yr.2 <- 
+SSB.yr.south <- 
   bind_cols(Year = model.yrs,
             log.est = as.vector(WHAM_output.ests[['log_SSB']][,2]),
             log.se = as.vector(WHAM_output.sd[['log_SSB']][,2])
@@ -154,13 +154,13 @@ SSB.yr.2 <-
 
 
 # Recruitment
-Rect.yr.1 <- 
+Rect.yr.north <- 
   bind_cols(Year = model.yrs,
             log.est = as.vector(WHAM_output.ests[['log_NAA_rep']][1,1,,1]),
             log.se  = as.vector(WHAM_output.sd[['log_NAA_rep']][1,1,,1])
   ) %>%
   calc.uncertainty() 
-Rect.yr.2 <- 
+Rect.yr.south <- 
   bind_cols(Year = model.yrs,
             log.est = as.vector(WHAM_output.ests[['log_NAA_rep']][2,2,,1]),
             log.se  = as.vector(WHAM_output.sd[['log_NAA_rep']][2,2,,1])
