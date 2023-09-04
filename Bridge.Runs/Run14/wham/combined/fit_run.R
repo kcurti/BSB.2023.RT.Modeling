@@ -99,13 +99,6 @@ input <-prepare_wham_input(asap, basic_info = basic_info, selectivity = sel, mov
 input$data$selblock_pointer_indices[,c(1,3)] <- input$data$selblock_pointer_fleets[,c(2,4)]
 fit <- fit_wham(input, do.retro=T, do.osa=T, do.brps = T)
 
-run13 <- readRDS(here("Bridge.runs","Run13", "wham","combined", "fit.RDS"))
-input$par <- run13$parList
-
-#start at run 13 estimates
-fit <- fit_wham(input, do.retro = F, do.osa = F)
-
-fit$sdrep #looks good
 
 input$par <- fit$parList
 fit <- fit_wham(input, do.retro=T, do.osa=T, do.brps = T)
