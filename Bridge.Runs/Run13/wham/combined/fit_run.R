@@ -73,20 +73,3 @@ plot_wham_output(fit)
 saveRDS(fit,"fit.RDS")
 setwd(here())
 
-
-dlogitnorm <- function(x, p, sigma){
-
-	y <- log(x/(1-x))
-	mu <- log(p/(1-p))
-	fx <- dnorm(y, mu, sigma, log = F) /(x*(1-x)) 
-	return(fx)
-}
-
-ps <- seq(0,1,0.001)
-plot(ps, dlogitnorm(ps,0.1, 0.5), type = 'l', lwd = 2)
-abline(v=0.1, lwd =2)
-lines(ps, dlogitnorm(ps, p = fit$rep$mu[1,8,1,1,1,2], sigma = as.list(fit$sdrep, "Std")$mu_prior_re[1,1,1,1]), lwd = 2, col = "red")
-abline(v=fit$rep$mu[1,8,1,1,1,2], col = "red", lwd = 2)
-
-lines(ps, dlogitnorm(ps, p = fit$rep$mu[1,8,1,1,2,1], sigma = as.list(fit$sdrep, "Std")$mu_prior_re[1,1,2,1]), lwd = 2, col = "blue")
-abline(v=fit$rep$mu[1,8,1,1,2,1], col = "blue", lwd = 2)

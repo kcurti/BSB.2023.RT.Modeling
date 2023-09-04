@@ -1,11 +1,12 @@
+#add prior movement rate of 0.1 (with sd = 0.5) from north to south and south to north for north stock as in previous explorations with data from last assessment.
+#yearly ar1 random effects on north to south, south to north is constant
+#Rec fleet and REC CPA will share the same selectivity
+
 #devtools::install_github("timjmiller/wham", dependencies=TRUE)
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "~/tmiller_net/work/wham_packages/multi_wham")
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "c:/work/wham/old_packages/multi_wham", INSTALL_opts=c("--no-multiarch"))
 library(wham, lib.loc = "c:/work/wham/old_packages/multi_wham")
 library(here)
-#add fixed movement rate of 0.1 from north to south for north stock as in previous explorations with data from last assessment.
-#Rec fleet and REC CPA will share the same selectivity, but
-#reexplore max selectivity for VAST indices given this.
 asap <- read_asap3_dat(c(here("Bridge.runs", "Run9", "NORTH.RUN.9.DAT"), here("Bridge.runs", "Run9", "SOUTH.RUN.9.DAT")))
 sel <- list(model = rep(c("age-specific","logistic","age-specific","logistic","age-specific"),c(1,1,1,5,4)))
 sel$initial_pars <- c(
@@ -72,7 +73,7 @@ fit$sdrep #looks good
 input$par <- fit$parList
 fit <- fit_wham(input, do.retro=T, do.osa=T, do.brps = T)
 mohns_rho(fit)
-setwd(here("Bridge.runs","Run13", "wham","combined"))
+setwd(here("Bridge.runs","Run14", "wham","combined"))
 plot_wham_output(fit)
 saveRDS(fit,"fit.RDS")
 setwd(here())
