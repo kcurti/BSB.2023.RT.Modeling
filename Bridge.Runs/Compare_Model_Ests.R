@@ -1,6 +1,10 @@
 ### Compare model estimates across runs
 
 library(tidyverse)
+library(kableExtra)
+library(rmarkdown)
+library(png)
+library(wham, lib.loc = "C:/Users/Kiersten.Curti/AppData/Local/R/win-library/4.3/multi_wham")
 
 rm(list=ls())
 ls()
