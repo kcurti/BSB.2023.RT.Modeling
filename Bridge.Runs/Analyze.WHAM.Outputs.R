@@ -125,6 +125,8 @@ calc.rho.adj.ests <- function(series, rho)  {
 mohns.rho <- mohns_rho(WHAM_output)
   # names(mohns.rho)[names(mohns.rho)=='Fbar'] <- 'F'
   # names(mohns.rho)[names(mohns.rho)=='R'] <- 'Rect'
+mohns.rho.table <- tibble(Fmort=round(mohns.rho$Fbar,3), SSB=round(mohns.rho$SSB,3), Rect=round(mohns.rho$naa[,,'R'],3))
+View(mohns.rho.table)
 
 
 # Annual F

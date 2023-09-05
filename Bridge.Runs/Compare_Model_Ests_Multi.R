@@ -10,11 +10,11 @@ rm(list=ls())
 ls()
 
 comp.dir <- 'Bridge.Runs'
-run.nos <- 9:10
+run.nos <- 11:14
 run.list <- paste("Run",run.nos,sep='')
   names(run.nos) <- run.list
-fig.basename <- 'Runs9-10'
-reg <- 'north'
+fig.basename <- 'Runs11-14'
+reg <- 'south'
 
 F.yr <- tibble()
 SSB.yr <- tibble()
