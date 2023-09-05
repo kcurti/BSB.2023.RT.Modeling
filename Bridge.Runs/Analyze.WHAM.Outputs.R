@@ -1,5 +1,6 @@
 ### Ask Tim about dimensions in multi_wham
 
+
 library(tidyverse)
 library(kableExtra)
 library(rmarkdown)
@@ -49,6 +50,16 @@ ages.labels <- input$ages.lab
 WHAM_output.ests <- as.list(WHAM_output$sdrep, what = "Est", report = TRUE)
 WHAM_output.sd <- as.list(WHAM_output$sdrep, what = "Std", report = TRUE)
 sort(names(WHAM_output.ests))
+
+dim(WHAM_output.ests$log_F)             # 31 x 2
+dim(WHAM_output.ests$log_F_tot)         # 31
+dim(WHAM_output.ests$log_FAA)           # 2 x 31 x 8
+dim(WHAM_output.ests$log_FAA_by_region) # 1 x 31 x 8
+dim(WHAM_output.ests$log_FAA_tot)       # 31 x 8
+dim(WHAM_output.ests$log_Fbar)          # 31 x 1
+dim(WHAM_output.ests$log_NAA_rep)       # 1 x 1 x 31 x 8
+dim(WHAM_output.ests$log_SSB)           # 31 x 1
+dim(WHAM_output.ests$log_SSB_all)       # 31
 
 
 # Reference points
