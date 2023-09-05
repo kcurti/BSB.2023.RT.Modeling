@@ -91,6 +91,28 @@ FAA <- exp(WHAM_output$rep$log_FAA_tot)
   rownames(FAA) <- as.character(model.yrs)
   colnames(FAA) <- ages.labels
 
+# as.list(run14$sdrep, "Est", report = T)$log_FAA_by_region
+# gives you the log_FAA by region, then just find the max by region, year across age
+# as.list(run14$sdrep, "Std", report = T)$log_FAA_by_region
+# gives you the standard errors
+
+names(WHAM_output.ests)  
+apply(WHAM_output.ests$log_FAA_by_region[1,,],1,max)
+
+dim(WHAM_output.ests$log_F)             # 33 x 4 - region and fleet? - but which column is which
+dim(WHAM_output.ests$log_F_tot)         # 33    
+dim(WHAM_output.ests$log_FAA)           # 4 x 33 x 8 - so two regions, two fleets
+dim(WHAM_output.ests$log_FAA_by_region) # 2 x 33 x 8
+dim(WHAM_output.ests$log_FAA_tot)       # 33 x 8 
+dim(WHAM_output.ests$log_Fbar)          # 33 x 2
+dim(WHAM_output.ests$log_NAA_rep)       # 2 x 2 x 31 x 8
+dim(WHAM_output.ests$log_SSB)           # 31 x 2
+dim(WHAM_output.ests$log_SSB_all)       # 31
+
+# Annual average over ages 6-7
+rowMeans(WHAM_output.ests$log_FAA_by_region[1,,6:7])
+WHAM_output.ests$log_Fbar[,1]  # Very close but not exactly equal to the rowMeans
+
 
 # Function to calculate CVs and CIs for estimated time series    
 calc.uncertainty <- function(series)  {
@@ -122,12 +144,38 @@ mohns.rho <- mohns_rho(WHAM_output)
 
 
 # Annual F
-F.yr <- 
-  bind_cols(Year = model.yrs, 
-            log.est = as.vector(WHAM_output.ests[['log_F_tot']]),
-            log.se = as.vector(WHAM_output.sd[['log_F_tot']])
-  ) %>%
-  calc.uncertainty() 
+maxF.age.north <- apply(WHAM_output.ests$log_FAA_by_region[1,,],1,function(x) which(x == max(x))[1])
+maxF.age.south <- apply(WHAM_output.ests$log_FAA_by_region[2,,],1,function(x) which(x == max(x))[1])
+
+F.yr.north <- tibble(Year=integer(), log.est=numeric(), log.se=numeric())
+F.yr.south <- tibble(Year=integer(), log.est=numeric(), log.se=numeric())
+for (yr.no in 1:model.nyrs)
+{
+  # yr.no <- 1
+  yr <- model.yrs[yr.no]
+  
+  maxFage <- maxF.age.north[yr.no]
+  log.est <- WHAM_output.ests$log_FAA_by_region[1,yr.no,maxFage]
+  log.se  <- WHAM_output.sd$log_FAA_by_region[1,yr.no,maxFage]
+  F.yr.north <- bind_rows(F.yr.north, tibble(Year=yr, log.est=log.est, log.se=log.se))
+  
+  rm(maxFage, log.est, log.se)
+  
+  maxFage <- maxF.age.south[yr.no]
+  log.est <- WHAM_output.ests$log_FAA_by_region[2,yr.no,maxFage]
+  log.se  <- WHAM_output.sd$log_FAA_by_region[2,yr.no,maxFage]
+  F.yr.south <- bind_rows(F.yr.south, tibble(Year=yr, log.est=log.est, log.se=log.se))
+}
+
+F.yr.north <- calc.uncertainty(F.yr.north) 
+F.yr.south <- calc.uncertainty(F.yr.south) 
+
+# F.yr <- 
+#   bind_cols(Year = model.yrs, 
+#             log.est = as.vector(WHAM_output.ests[['log_F_tot']]),
+#             log.se = as.vector(WHAM_output.sd[['log_F_tot']])
+#   ) %>%
+#   calc.uncertainty() 
 # %>%
 #   mutate( relF = est/Fproxy ) %>%
 #   calc.rho.adj.ests(., mohns.rho['F']) %>%
@@ -196,5 +244,6 @@ save.image(file.path(output.dir, paste(run.no,reg,"WHAM.Outputs.RDATA",sep='.'))
 # write.csv(Rect.yr, file.path(output.dir, "Rect.ests.csv"), row.names = FALSE)
 # write.csv(termyr.ests.cis, file.path(output.dir, "Terminal.yr.ests.csv"), row.names = FALSE)
 
-
-
+# Provides an indicator that can be used for both indicator est and se
+# apply(obj, 1, function(x) which(x = max(x))[1])
+# apply(WHAM_output.ests$log_FAA_by_region[1,,],1,function(x) which(x == max(x))[1])
