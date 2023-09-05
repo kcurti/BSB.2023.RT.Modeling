@@ -59,6 +59,9 @@ move$use_prior[1,1,2,1] <- 1
 move$prior_sigma <- array(0.5, dim = c(2,length(seasons),2,1))
 
 input <-prepare_wham_input(asap, basic_info = basic_info, selectivity = sel, move = move, NAA_re = NAA_re)
+input$fleet_names = paste0(rep(c("North_", "South_"),each = 2), input$fleet_names)
+input$index_names = paste0(rep(c("North_", "South_"),each = 2), input$index_names)
+input$region_names <- c("north", "south")
 input$data$selblock_pointer_indices[,c(1,3)] <- input$data$selblock_pointer_fleets[,c(2,4)]
 
 fit <- fit_wham(input, do.retro = F, do.osa = F)

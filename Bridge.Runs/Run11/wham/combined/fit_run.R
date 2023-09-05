@@ -57,6 +57,9 @@ sel$fix_pars <- c(
   3) #south vast spring
 )
 input <-prepare_wham_input(asap, basic_info = basic_info, selectivity = sel, NAA_re = NAA_re)
+input$fleet_names = paste0(rep(c("North_", "South_"),each = 2), input$fleet_names)
+input$index_names = paste0(rep(c("North_", "South_"),each = 2), input$index_names)
+input$region_names <- c("north", "south")
 #REC CPA selectivity matches Rec fleets
 input$data$selblock_pointer_indices[,c(1,3)] <- input$data$selblock_pointer_fleets[,c(2,4)]
 #fit <- fit_wham(input, do.fit = F)
@@ -73,32 +76,4 @@ setwd(here("Bridge.runs","Run11", "wham","combined"))
 plot_wham_output(fit)
 saveRDS(fit,"fit.RDS")
 setwd(here())
-
-#11 seasons each 1 month long except a 2 month interval in the model (June,July)
-seasons = c(rep(1,5),2,rep(1,5))/12
-basic_info$fracyr_seasons <- seasons
-#each age other than 1 (recruitment) for north stock can be in either region on Jan 1 
-basic_info$NAA_where <- array(1, dim = c(2,2,8))
-basic_info$NAA_where[1,2,1] = 0 #stock 1, age 1 can't be in region 2 
-basic_info$NAA_where[2,1,] = 0 #stock 2, any age can't be in region 1 (stock 2 doesn't move) 
-
-move = list(stock_move = c(TRUE,FALSE), separable = TRUE) #north moves, south doesn't
-
-move$must_move = array(0,dim = c(2,length(seasons),2))	
-
-#if north stock in region 2 (south) must move back to region 1 (north) at the end of interval 5 right before spawning
-move$must_move[1,5,2] <- 1 
-move$can_move = array(0, dim = c(2,length(seasons),2,2))
-move$can_move[1,c(1:4,7:11),,] <- 1 #only north stock can move and in seasons prior to spawning and after spawning
-move$can_move[1,5,2,] <- 1 #north stock can (and must) move in last season prior to spawning back to north 
-
-move$mean_vals <- array(0.1, dim = c(2,length(seasons),2,1)) #movement rate is 0.1 (for now)
-#fix movement rate
-temp <- array(as.integer(input$map$trans_mu), dim = dim(input$par$trans_mu))
-temp[] <- NA
-input$map$trans_mu <- factor(temp)
-
-#fit <- fit_wham(input, do.fit = F)
-fit <- fit_wham(input, do.retro = F, do.osa = F)
-fit$sdrep
 

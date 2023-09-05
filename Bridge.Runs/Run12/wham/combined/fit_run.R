@@ -54,6 +54,9 @@ move$can_move[1,5,2,] <- 1 #north stock can (and must) move in last season prior
 move$mean_vals <- array(0.1, dim = c(2,length(seasons),2,1)) #movement rate is 0.1 (for now)
 
 input <-prepare_wham_input(asap, basic_info = basic_info, selectivity = sel, move = move, NAA_re = NAA_re)
+input$fleet_names = paste0(rep(c("North_", "South_"),each = 2), input$fleet_names)
+input$index_names = paste0(rep(c("North_", "South_"),each = 2), input$index_names)
+input$region_names <- c("north", "south")
 #REC CPA selectivity matches Rec fleets
 input$data$selblock_pointer_indices[,c(1,3)] <- input$data$selblock_pointer_fleets[,c(2,4)]
 #fix movement rate
@@ -73,37 +76,3 @@ fit$opt$obj + length(fit$opt$par) #run11 AIC is better
 plot_wham_output(fit)
 saveRDS(fit,"fit.RDS")
 setwd(here())
-
-
-
-#prior distribution on movement parameters 
-move$use_prior <- array(0, dim = c(2,length(seasons),2,1))
-move$use_prior[1,1,1,1] <- 1
-move$use_prior[1,1,2,1] <- 1
-move$prior_sigma <- array(0.5, dim = c(2,length(seasons),2,1))
-
-
-#fit <- fit_wham(input, do.fit = F)
-fit$parList$logit_selpars # it looks like ages 4-6 in north VAST can be 1
-sel <- list(model = rep(c("age-specific","logistic","age-specific"),c(1,7,4)))
-sel$initial_pars <- c(
-	list(rep(c(0.5,1), c(1,7))),
-	rep(list(c(5,1)),7), list( 
-	c(rep(c(0.5,1), c(7,1))), #north rec cpa 
-	c(rep(c(0.5,1,0.5), c(3,3,2))), #north vast spring
-	c(rep(c(0.5,1,0.5), c(2,1,5))), #south rec cpa
-	c(rep(c(0.5,1,0.5), c(2,1,5)))) #south vast spring
-)
-sel$fix_pars <- c(
-	list(2:8),
-	rep(list(NULL),7), list(
-  1:8, #north rec cpa
-  4:6, #north vast spring
-  1:8, #south rec cpa
-  3) #south vast spring
-)
-input <-prepare_wham_input(asap, basic_info = basic_info, selectivity = sel, move = move, NAA_re = list(N1_model = rep("equilibrium",2)))
-input$data$selblock_pointer_indices[,c(1,3)] <- input$data$selblock_pointer_fleets[,c(2,4)]
-fit <- fit_wham(input, do.retro = F, do.osa = F)
-fit$sdrep #looks ok
-
