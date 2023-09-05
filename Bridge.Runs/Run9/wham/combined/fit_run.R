@@ -22,6 +22,8 @@ temp <- prepare_wham_input(asap, selectivity = sel, NAA_re = list(N1_model = rep
 tfit <- fit_wham(temp, do.retro=F, do.osa=F)
 tfit$sdrep 
 input <- prepare_wham_input(asap, selectivity = sel, NAA_re = list(N1_model = rep("equilibrium",2)))
+input$fleet_names = paste0(rep(c("North_", "South_"),each = 2), input$fleet_names)
+input$index_names = paste0(rep(c("North_", "South_"),each = 2), input$index_names)
 input$region_names <- c("north", "south")
 fit <- fit_wham(input, do.retro=T, do.osa=T, do.brps = T)
 mohns_rho(fit)
