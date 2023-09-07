@@ -20,7 +20,8 @@ Error in packageVersion("wham") : there is no package called ?wham?
 install.packages("TMB")
 
 devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "C:/Users/Kiersten.Curti/AppData/Local/R/win-library/4.3/multi_wham", INSTALL_opts=c("--no-multiarch"))
-
+devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "C:/Users/Kiersten.Curti/AppData/Local/R/win-library/4.3/multi_wham", INSTALL_opts=c("--no-multiarch"))
+                                                                                   
 
 ##### WHEN LOADING WHAM
 
