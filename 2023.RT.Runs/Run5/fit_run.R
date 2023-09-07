@@ -44,20 +44,30 @@ sel$fix_pars <- c(rep(list(NULL),8), list(
 )
 temp <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info)
 temp$fleet_names = paste0(rep(c("North_", "South_"),each = 2), temp$fleet_names)
-temp$index_names = paste0(rep(c("North_", "South_"),c(8,9)), temp$index_names)
-temp$map$log_index_sig_scale <- factor(c(NA,NA,1,NA,NA,NA,2,NA))
+temp$index_names = paste0(rep(c("North_", "South_"),c(4,4)), temp$index_names)
+Run3 <- readRDS(here("2023.RT.Runs","Run3", "fit.RDS"))
+#doesn't converge when estimating CVs 
+temp$par$log_index_sig_scale[c(3,7)] <- Run3$parList$log_index_sig_scale[c(7,16)]
+
+#temp$map$log_index_sig_scale <- factor(c(NA,NA,1,NA,NA,NA,2,NA))
 tfit <- fit_wham(temp, do.retro=F, do.osa=F, do.sdrep =T)
 tfit$sdrep 
 
+#estimate REC CPA CVs in a second phase
+temp$par <- tfit$parList
+temp$map$log_index_sig_scale <- factor(c(NA,NA,1,NA,NA,NA,2,NA))
+tfit2 <- fit_wham(temp, do.retro=F, do.osa=F, do.sdrep =T) #
+#still doesn't converge
+
 input <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info)
 input$fleet_names = paste0(rep(c("North_", "South_"),each = 2), input$fleet_names)
-input$index_names = paste0(rep(c("North_", "South_"),c(8,9)), input$index_names)
-input$par <- tfit$parList
-input$map$log_index_sig_scale <- factor(c(rep(NA,6),1,rep(NA,8),2,rep(NA,1)))
+input$index_names = paste0(rep(c("North_", "South_"),c(4,4)), input$index_names)
+input$par$log_index_sig_scale[c(3,7)] <- Run3$parList$log_index_sig_scale[c(7,16)]
 fit <- fit_wham(input, do.retro=T, do.osa=T, do.brps = T)
 mohns_rho(fit)
-setwd(here("2023.RT.Runs","Run3"))
+setwd(here("2023.RT.Runs","Run5"))
 saveRDS(fit,"fit.RDS")
+#fit <- readRDS("fit.RDS")
 plot_wham_output(fit)
 setwd(here())
 
