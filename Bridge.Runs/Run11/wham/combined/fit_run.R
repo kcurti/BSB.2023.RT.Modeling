@@ -3,7 +3,6 @@
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "c:/work/wham/old_packages/multi_wham", INSTALL_opts=c("--no-multiarch"))
 library(wham, lib.loc = "c:/work/wham/old_packages/multi_wham")
 library(here)
-#add fixed movement rate of 0.1 from north to south for north stock as in previous explorations with data from last assessment.
 #Rec fleet and REC CPA will share the same selectivity, but
 #reexplore max selectivity for VAST indices given this.
 asap <- read_asap3_dat(c(here("Bridge.runs", "Run9", "NORTH.RUN.9.DAT"), here("Bridge.runs", "Run9", "SOUTH.RUN.9.DAT")))
