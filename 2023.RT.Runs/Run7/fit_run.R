@@ -112,7 +112,7 @@ temp$map$log_index_sig_scale <- factor(c(1,NA, NA, 4,NA, NA))
 tfit <- fit_wham(temp, do.retro=F, do.osa=F, do.sdrep =T)
 t(sapply(tfit$rep$selAA, function(x) x[1,]/max(x[1,])))
 
-input <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info)
+input <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, age_comp = "logistic-normal-miss0")
 input$fleet_names = paste0(rep(c("North_", "South_"),each = 2), input$fleet_names)
 input$index_names = paste0(rep(c("North_", "South_"),c(3,3)), input$index_names)
 input$par <- tfit$parList
