@@ -84,7 +84,7 @@ input$par <- tfit$parList
 input$map$log_index_sig_scale <- factor(c(1,NA, NA, 4,NA, NA))
 fit <- fit_wham(input, do.retro=T, do.osa=T, do.brps = T)
 mohns_rho(fit)
-setwd(here("2023.RT.Runs","Run4"))
+setwd(here("2023.RT.Runs","Run6"))
 saveRDS(fit,"fit.RDS")
 plot_wham_output(fit)
 setwd(here())
