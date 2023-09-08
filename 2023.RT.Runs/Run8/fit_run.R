@@ -56,29 +56,103 @@ move$must_move = array(0,dim = c(2,length(seasons),2))
 #if north stock in region 2 (south) must move back to region 1 (north) at the end of interval 5 right before spawning
 move$must_move[1,5,2] <- 1 
 move$can_move = array(0, dim = c(2,length(seasons),2,2))
-move$can_move[1,c(1:4,7:11),1,] <- 1 #only north stock can move, in seasons prior to spawning and after spawning, and no back movement until spawning
+move$can_move[1,c(1:4,7:11),,] <- 1 #only north stock can move and in seasons prior to spawning and after spawning
 move$can_move[1,5,2,] <- 1 #north stock can (and must) move in last season prior to spawning back to north 
 
-move$mean_vals <- array(0.1, dim = c(2,length(seasons),2,1)) #movement rate is 0.1 (for now)
+mus <- array(0, dim = c(2,length(seasons),2,1))
+mus[1,,1,1] <- 0.01259255
+mus[1,,2,1] <- 0.02647096
+move$mean_vals <- mus #movement rate is 0.1 (for now)
 
+#phase 1
 temp <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, age_comp = "logistic-normal-miss0")
 temp$fleet_names = paste0(rep(c("North_", "South_"),each = 2), temp$fleet_names)
 temp$index_names = paste0(rep(c("North_", "South_"),c(3,3)), temp$index_names)
 temp$map$log_index_sig_scale <- factor(c(1,NA, NA, 4,NA, NA))
 est_mu_map <- temp$map$trans_mu #try to estimate in a second phase
 temp$map$trans_mu <- factor(rep(NA,length(temp$par$trans_mu)))
-#tfit <- fit_wham(temp, do.fit = F)
+Run7 <- readRDS(here("2023.RT.Runs","Run7","fit.RDS"))
+parnms <- sort(names(Run7$parList))
+#t(sapply(parnms, function(x) c(length(Run7$parList[[x]]), length(temp$par[[x]]))))
+parnms_use <- grep("mu", parnms, invert = T, value = T) #all but those for movement
+temp$par[parnms_use] <- Run7$parList[parnms_use]
+temp$map$log_index_sig_scale <- factor(rep(NA,length(temp$par$log_index_sig_scale)))
+# temp$map$F_pars <- factor(rep(NA,length(temp$par$F_pars)))
+# temp$map$catch_paa_pars <- factor(rep(NA,length(temp$par$catch_paa_pars)))
+# temp$map$index_paa_pars <- factor(rep(NA,length(temp$par$index_paa_pars)))
+temp$map$log_NAA_sigma <- factor(rep(NA,length(temp$par$log_NAA_sigma)))
+tfit <- fit_wham(temp, do.fit = F)
+tfit$rep$mu[1,8,1,1,,]
 tfit <- fit_wham(temp, do.retro=F, do.osa=F, do.sdrep =T)
-t(sapply(tfit$rep$selAA, function(x) x[1,]/max(x[1,])))
+tfit$sdrep #some sel pars going to 1
+tfit$parList$logit_selpars
+saveRDS(tfit,here("2023.RT.Runs","Run8","phase1.RDS"))
 
-input <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, age_comp = "logistic-normal-miss0")
-input$fleet_names = paste0(rep(c("North_", "South_"),each = 2), input$fleet_names)
-input$index_names = paste0(rep(c("North_", "South_"),c(3,3)), input$index_names)
-input$par <- tfit$parList
-input$map$log_index_sig_scale <- factor(c(1,NA, NA, 4,NA, NA))
-fit <- fit_wham(input, do.retro=T, do.osa=T, do.brps = T)
+sel <- list(model = rep(c("logistic","age-specific", "logistic",
+	"age-specific"),
+	c(4,1,3,
+		6)))
+sel$initial_pars <- c(rep(list(c(5,1)),4), list(rep(c(0.5,1),c(1,7))), rep(list(c(5,1)),3), list( 
+	### begin north
+	c(rep(c(0.5,1,0.5), c(2,4,2))), #rec cpa age-specfic
+	c(rep(c(0.5,1,0.5), c(2,2,4))), #VAST spring age-specfic
+	c(rep(c(0.5,1,0.5), c(2,1,5))),#) #VAST fall age-specfic
+	####end north, begin south
+	c(rep(c(0.5,1,0.5,1), c(2,1,4,1))), #rec cpa age-specific
+	c(rep(c(0.5,1,0.5), c(1,1,6))), #VAST spring age-specific
+	c(rep(c(0.5,1,0.5), c(1,1,6)))) #VAST fall age-specific
+)
+sel$fix_pars <- c(rep(list(NULL),4), list(2:8), rep(list(NULL),3), list(
+	###begin north
+  3:6, #rec cpa
+  3:4, #VAST spring
+  3, #VAST fall
+	####end north, begin south
+  c(3,8), #rec cpa
+  2, #VAST spring
+  2) #VAST fall
+)
+
+
+#phase 2
+temp <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, age_comp = "logistic-normal-miss0")
+temp$fleet_names = paste0(rep(c("North_", "South_"),each = 2), temp$fleet_names)
+temp$index_names = paste0(rep(c("North_", "South_"),c(3,3)), temp$index_names)
+est_mu_map <- temp$map$trans_mu #try to estimate in a second phase
+temp$map$trans_mu <- factor(rep(NA,length(temp$par$trans_mu)))
+lgsps <- tfit$parList$logit_selpars
+lgsps[9,3:6] <- Inf
+lgsps[12,8] <- Inf
+
+temp$par <- tfit$parList
+temp$par$logit_selpars <- lgsps
+#temp$map$F_pars <- factor(rep(NA,length(temp$par$F_pars)))
+# temp$map$catch_paa_pars <- factor(rep(NA,length(temp$par$catch_paa_pars)))
+# temp$map$index_paa_pars <- factor(rep(NA,length(temp$par$index_paa_pars)))
+x <- temp$par$log_NAA_sigma
+x[] <- as.integer(temp$map$log_NAA_sigma)
+x[1,-1] <- NA
+temp$map$log_NAA_sigma <- factor(x) #don't estimates sig for north 2+
+#tfit2 <- fit_wham(temp, do.fit = F)
+tfit2 <- fit_wham(temp, do.retro=F, do.osa=F, do.sdrep =T)
+saveRDS(tfit2,here("2023.RT.Runs","Run8","phase2.RDS"))
+
+
+#phase 3 try to estimate the last NAA sig par
+temp <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, age_comp = "logistic-normal-miss0")
+temp$fleet_names = paste0(rep(c("North_", "South_"),each = 2), temp$fleet_names)
+temp$index_names = paste0(rep(c("North_", "South_"),c(3,3)), temp$index_names)
+est_mu_map <- temp$map$trans_mu #try to estimate in a second phase
+temp$map$trans_mu <- factor(rep(NA,length(temp$par$trans_mu)))
+temp$par <- tfit2$parList
+tfit3 <- fit_wham(temp, do.retro=F, do.osa=F, do.sdrep =T)#doesn't converge. CV for 2+ north stock is large ~0.8
+
+
+input <- tfit2$input
+input$par <- tfit2$parList
+fit <- fit_wham(input, do.retro=T, do.osa=T, do.sdrep =T, do.brps=T)
 mohns_rho(fit)
-setwd(here("2023.RT.Runs","Run7"))
+setwd(here("2023.RT.Runs","Run8"))
 saveRDS(fit,"fit.RDS")
 plot_wham_output(fit)
 setwd(here())
