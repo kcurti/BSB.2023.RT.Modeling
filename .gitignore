@@ -61,3 +61,5 @@ Bridge.Runs/*/wham/*/*.RDS
 !2023.RT.Runs/*/res_tables/*.RDS
 2023.RT.Runs/Run1/bad_selex/*.RDS
 !2023.RT.Runs/Run1/bad_selex/res_tables/*.RDS
+
+2023.RT.Runs/KLC_Run1/
