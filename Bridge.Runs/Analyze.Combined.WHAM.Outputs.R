@@ -13,7 +13,7 @@ ls()
 
 ### Run details
 
-run.no <- 'Run9'
+run.no <- 'Run7'
 reg <- 'combined'
 
 # run.dir <- file.path("Bridge.Runs",run.no, "wham", reg)
