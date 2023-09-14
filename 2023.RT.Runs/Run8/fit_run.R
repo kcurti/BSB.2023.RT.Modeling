@@ -9,6 +9,7 @@
 #devtools::install_github("timjmiller/wham", dependencies=TRUE)
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "~/tmiller_net/work/wham_packages/multi_wham")
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "c:/work/wham/old_packages/multi_wham", INSTALL_opts=c("--no-multiarch"))
+#library(wham, lib.loc = "~/tmiller_net/work/wham_packages/multi_wham")
 library(wham, lib.loc = "c:/work/wham/old_packages/multi_wham")
 library(here)
 asap <- read_asap3_dat(c(here("Bridge.runs", "Run8", "NORTH.RUN.8.DAT"), here("Bridge.runs", "Run8", "SOUTH.RUN.8.DAT")))
@@ -157,23 +158,52 @@ saveRDS(fit,"fit.RDS")
 plot_wham_output(fit)
 setwd(here())
 
+source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
+library(snowfall)
+library(parallel)
 #jitter
-set.seed(8675309)
 library("mvtnorm")
+fit_file <-here("2023.RT.Runs","Run8","fit.RDS")
 fit <- readRDS(here("2023.RT.Runs","Run8","fit.RDS"))
+
 jit_input <- fit$input
 jit_input$par <- fit$parList
-jit_input$data$do_SPR_BRPs <- 0
+jit_input$data$do_SPR_BRPs[] <- 0
 jit_mod <- fit_wham(jit_input, do.fit = F)
+set.seed(8675309)
 init_vals <- rmvnorm(100,mean = fit$opt$par, sigma = fit$sdrep$cov.fixed)
-jit_res <- list(obj = rep(NA,NROW(init_vals)), par = matrix(NA, NROW(init_vals), NCOL(init_vals)))
-for(i in 1:100){
-	jit_mod$par <- init_vals[i,]
-	x <- wham:::fit_tmb(jit_mod, n.newton = 0, do.sdrep = F)
-	jit_res$obj[i] <- x$opt$obj
-	jit_res$par[i,] <- x$opt$par
-}
+jit_res <- jitter_fn(init_vals[1:50,], fit_file = fit_file)
+# jit_res <- list(obj = rep(NA,NROW(init_vals)), par = matrix(NA, NROW(init_vals), NCOL(init_vals)))
+# for(i in 1:100){
+# 	jit_mod$par <- init_vals[i,]
+# 	x <- wham:::fit_tmb(jit_mod, n.newton = 0, do.sdrep = F)
+# 	jit_res$obj[i] <- x$opt$obj
+# 	jit_res$par[i,] <- x$opt$par
+# }
 saveRDS(jit_res, here("2023.RT.Runs","Run8","jitter_res.RDS"))
+jit_res2 <- jitter_fn(init_vals[51:100,], fit_file = fit_file)
+x <- c(jit_res,jit_res2)
+sapply(order(sapply(x, function(x) x$obj))[1:6], function(z) {
+  max(abs(jit_mod$gr(x[[z]]$par)))
+})
+for(i in 1:length(x)){
+  x[[i]]$max_gr <- max(abs(jit_mod$gr(x[[i]]$par)))
+}
+
+saveRDS(x, here("2023.RT.Runs","Run8","jitter_res.RDS"))
+
+sort(sapply(x, function(y) y$obj))
+temp <- 1+ (sapply(x, function(y) y$max_gr) < 5)
+difnll <- sapply(x, function(y) y$obj) - fit$opt$obj 
+png(here("2023.RT.Runs","Run8","jitter_results.png"), width=7, height=7, units='in', res = 300)
+plot(difnll, ylab = "nll - fit", xlab = "jitter sample", ylim = min(difnll) + c(0,4), col = c("red", "black")[temp])
+legend("top", legend = c("max abs gradient > 5", "max abs gradient < 5"), col = c("red","black"), pch = 1)
+dev.off()
+
+sapply(order(sapply(x, function(x) x$obj))[7:12], function(z) {
+  max(abs(jit_mod$gr(x[[z]]$par)))
+})
+max(abs(jit_mod$gr(x[[54]]$par)))
 
 #conditional sims
 set.seed(8675309)
