@@ -10,15 +10,16 @@ rm(list=ls())
 ls()
 
 comp.dir <- '2023.RT.Runs'
-run.nos <- c(7:9)
+run.nos <- c(6:9)
 run.list <- paste("Run",run.nos,sep='')
   names(run.nos) <- run.list
-fig.basename <- 'Runs7-9'
+fig.basename <- 'Runs6-9'
 reg <- 'south'
 
 F.yr <- tibble()
 SSB.yr <- tibble()
 Rect.yr <- tibble()
+mohns.rho <- tibble()
 
 for (run in run.list)
 {
@@ -30,6 +31,8 @@ for (run in run.list)
   SSB.yr <- bind_rows(SSB.yr, run.env[[paste("SSB.yr",reg,sep='.')]] %>% mutate(Run = run))
   F.yr   <- bind_rows(F.yr,   run.env[[paste("F.yr",reg,sep='.')]]   %>% mutate(Run = run))
   Rect.yr <- bind_rows(Rect.yr, run.env[[paste("Rect.yr",reg,sep='.')]] %>% mutate(Run = run))
+  if(reg=='north') {mohns.rho <- bind_rows(mohns.rho, run.env$mohns.rho.table[1,] %>% mutate(Run = run, .before=1))}
+  if(reg=='south') {mohns.rho <- bind_rows(mohns.rho, run.env$mohns.rho.table[2,] %>% mutate(Run = run, .before=1))}
 }
 
 
