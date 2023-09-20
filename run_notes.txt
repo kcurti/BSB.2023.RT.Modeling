@@ -1,0 +1,111 @@
+Bridge Runs
+
+
+Run 1: Turn off all indices but NEFSC Spring BTS and Rec CPA
+
+Run 2: Update fishery catches, fishing fleets and catch WAA estimates to comm/rec fleets
+
+Run 3: Update Spring BTS and Rec CPA – Note that input CVs for RecCPA are unrealistically small and these had to be modified in order for the ASAP models to converge
+
+Run 4: Add 2020-2021
+
+Run 5: Update maturity
+
+Run 6: Add NEAMAP
+
+Run 7: Update remaining spring state indices (added VAST as well but didn’t turn them on)
+
+Run 8: Rec CPA and both spring and fall VAST
+
+Run 9: Rec CPA and VAST spring only (also a combined stock run that matches the single stock results. This combined run will be used for later runs.)
+
+Run 10: same selectivity for Recreational and Rec CPA (done. Run9 AIC is better but there are a lot more selectivity explorations that could be done. This selectivity assumption will be taken forward.)
+
+Run 11:  switch to RE for recruitment and survival (“rec+1”) (done) Retro in north is gone.
+
+Run 12: add mixing with p move north to south and south to north fixed at 0.1 (done. AIC is worse than Run11)
+
+Run 13: add prior p move north to south (and south to north) at 0.1(done)
+
+Run 14: switch to logistic-normal for age comp 
+
+Run 15: estimate sd scalar for aggregate rec cpa indices (doesn’t converge)
+
+Run 16: add AR1 on p move north to south (doesn’t converge)
+
+Run 17: go back to RE only on recruitment (“rec”) with AR1 on movement to see if it gets better AIC than no RE on movement and “rec+1”. “rec+1” has better aic, but didn’t complete the script.
+
+
+
+
+
+
+Run 7: Update remaining spring state indices (added VAST as well but didn’t turn them on)
+
+
+TO DO (starting from run 7, 8 or 9):
+1)	Use RE instead of selectivity block for Rec fleets (use run 8 or 9) (Run 2 based off of Run 1) (DONE. Did not converge. selpars hitting upper bounds and variance of Sel re is going to 0)
+a.	K: Summarize big commercial management changes and in minimum size of rec fishery
+2)	Examine VAST selectivity (done) Run 1
+3)	Turn on all indices and estimate RecCPA CV (Run 3 based off of Run 2. DONE. CVs for north and south are 10 and 7 times input CVs)
+4)	Random effects (rec+1)
+a.	All state and federal indices + RecCPA (done) Run 1
+b.	VAST + RecCPA (Run 4 based off of Run 3)
+c.	NEFSC + RecCPA + NEAMAP (Run 5 based off of Run 3)
+d.	Compare 3 anf 4 b,c.
+5)	Pick best of #3, and then…..
+a.	Estimate S-R relationship?
+b.	Estimate temperature impacts (recruitment)
+c.	Estimate M random effects (i.e. time-varying M)
+d.	Movement?
+
+Run 1: 4a (all indices with selectivities of indices that are not just for age 1 reexamined. Results in domed selectivity for several indices. Fleet selectivity (blocks, logistic) left as is. (DONE)
+
+Run 2: (1) above. Given Run 1 configuration, removed blocking for recreational fleet and assumed iid time varying random effects on logistic parameters. Variance of RE went to zero implying time-varying selectivity was not supported by data. (DONE)
+
+Run 3: (3) above. Given Run 1 configuration, estimated scalar multiplier for Rec CPA indices for north and south. Estimated multipliers were about 10 and 7 times for north and south input CVs. (DONE)
+
+Run 4: (4b) above. Given Run 3 config, exchange all indices (other than Rec CPA) for VAST indices. Use bridge run 9 dat file. (DONE)
+
+Run 5: (4c) above. Given Run 3 config, remove all indices other than NEFSC, Rec CPA and NEAMAP. Use bridge run 6 dat file. (DONE)
+
+Run 6: Given Run 3 config, exchange all indices (other than Rec CPA) for VAST indices (spring AND FALL). Use bridge run 8 dat file. (DONE)
+
+
+
+
+TO DO
+a.	Distribution assumptions for age comps
+b.	Movement
+i.	Currently using 0.1 probability of movement (based on semi-annual time step of SS) but WHAM has monthly 
+ii.	Directional movement
+iii.	Time-varying component
+c.	Estimate S-R relationship?
+d.	Estimate temperature impacts (recruitment); Keeping in mind that already incorporated into VAST
+e.	Estimate M random effects (i.e. time-varying M)
+
+
+Run 7: switch age comp ll for all fleets, indices to logistic-normal-miss0 (re-examine selectivity for all indices) (DONE)
+
+Run 8: Include movement from north to south and north to south for north pop during non spawning seasons. Fix parameters at estimates from SS run. Had to fix CVs for Rec CPA indices and sigma for North 2+ survival at values from Run 7.
+
+Run 9: Use priors with mean and sigma from SS. Had to fix sigma for North 2+ survival like Run 8 and had to fix CVs for Rec CPA back to original smaller values.
+
+Run 10: Try estimating ar1 time-varying north-south movement. Does not converge. Tried multinomial and Dirichlet-multinomial likelihoods. Tried using original Rec CPA CVs.
+
+Run 11: Same as Run 8 except include time-varying selectivity for VAST indices. (Better AIC than Run 8)
+
+Run 12: Same as Run 11 except try to estimate AR1 correlations for survival deviations. Doesn’t converge.
+
+Run 13: Same as Run 11, but try to estimate M. Could get convergence, but M estimate is about 0.07.
+
+Run 14: Same as Run 11, but use priors for movement rates instead of fixed. Could get convergence.
+
+Run 15: Same as Run 8, but make selectivity logistic for everything (not done)
+
+Run 16: like Run 8 but simplify selectivities. Put selblock 5 back to logistic, simplify age-specific selectivities for Vast indices. Make Rec CPA logistic. (DONE)
+
+Run 17: like Run 16 but use Dirichlet. (DONE)
+
+
+
