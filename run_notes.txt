@@ -107,5 +107,11 @@ Run 16: like Run 8 but simplify selectivities. Put selblock 5 back to logistic, 
 
 Run 17: like Run 16 but use Dirichlet. (DONE)
 
+Run 18: Like 17, but set max age of fall VAST in North to age 1. (Done)
+
+Run 19: Just spring VAST and rec CPA as indices. Use Dirichlet. (Done)
+
+Run 20: Like 19, but use Dirichlet-multinomial. Expanded input sample sizes to 1000. Initially tried logistic normal with and without AR1 assumption, but those did not converge.  (Donee)
+
 
 
