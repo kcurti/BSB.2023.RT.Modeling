@@ -258,3 +258,7 @@ setwd(here("2023.RT.Runs","Run22"))
 saveRDS(fit,"fit.RDS")
 plot_wham_output(fit)
 setwd(here())
+Run22 <- readRDS(here("2023.RT.Runs","Run22", "fit.RDS"))
+Run20 <- readRDS(here("2023.RT.Runs","Run20", "fit.RDS"))
+Run20$opt$obj + length(Run20$opt$par)
+Run22$opt$obj + length(Run22$opt$par) #lower AIC

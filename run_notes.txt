@@ -117,5 +117,7 @@ Run 21: Like 20, but use ar1 time-varying selectivity for north vast index. didn
 
 Run 22: back to basics like Run 19, but just "rec" NAA re, D-M age comp, and get to time-varying selectivity for all indices. (Done)
 
-Run 23: like Run 22, but go to "rec+1", try 2dar1 cor.
+Run 23: like Run 22, but go to "rec+1", tried 2dar1 cor. didn't work. even with just North. there becomes a scale problem. I reverted back to none-time-varying selectivity but ar1 with age to keep the number of fixed effects down. With iid RE for rec+1 (Done).
+
+Run 24: Like 23, but trying time-varying movement rate for north-south.
 
