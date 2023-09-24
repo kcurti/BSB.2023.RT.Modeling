@@ -111,7 +111,11 @@ Run 18: Like 17, but set max age of fall VAST in North to age 1. (Done)
 
 Run 19: Just spring VAST and rec CPA as indices. Use Dirichlet. (Done)
 
-Run 20: Like 19, but use Dirichlet-multinomial. Expanded input sample sizes to 1000. Initially tried logistic normal with and without AR1 assumption, but those did not converge.  (Donee)
+Run 20: Like 19, but use Dirichlet-multinomial. Expanded input sample sizes to 1000. Initially tried logistic normal with and without AR1 assumption, but those did not converge. (Done). OSA residuals look same as 19.
 
+Run 21: Like 20, but use ar1 time-varying selectivity for north vast index. didn't converge for south vast index, but does for north vast index.
 
+Run 22: back to basics like Run 19, but just "rec" NAA re, D-M age comp, and get to time-varying selectivity for all indices. (Done)
+
+Run 23: like Run 22, but go to "rec+1", try 2dar1 cor.
 
