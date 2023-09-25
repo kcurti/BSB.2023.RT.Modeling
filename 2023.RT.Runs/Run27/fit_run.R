@@ -90,16 +90,14 @@ temp$map$log_index_sig_scale <- factor(c(1,NA, 2, NA)) #try to estimate CVs
 fit <- fit_wham(temp, do.fit =F)
 lapply(fit$rep$selAA[1:4])
 fit$env$tracepar <- TRUE
-fit$opt <- nlminb(fit$par, fit$fn, fit$gr)#, control = list(iter.max = 200, eval.max = 200))
+fit$opt <- nlminb(fit$par, fit$fn, fit$gr)
+#, control = list(iter.max = 200, eval.max = 200))
 #population size for the north goes crazy
 temp$map$mean_rec_pars <- factor(c(1,1, NA, NA)) #make the mean the same
+fit <- fit_wham(temp, do.fit =F)
+fit$env$tracepar <- TRUE
+fit$opt <- nlminb(fit$par, fit$fn, fit$gr)
+fit$opt2 <- nlminb(fit$opt$par, fit$fn, fit$gr)
+fit$opt3 <- nlminb(fit$opt2$par, fit$fn, fit$gr)
+#doesn't converge
 
-fit <- fit_wham(temp, do.retro=F, do.osa=F, do.sdrep =F)
-temp$par <- fit$parList
-fit <- fit_wham(temp, do.retro=T, do.osa=T, do.sdrep =T, do.brps = T)
-
-mohns_rho(fit) #big retro
-setwd(here("2023.RT.Runs","Run25"))
-saveRDS(fit,"fit.RDS")
-plot_wham_output(fit)
-setwd(here())
