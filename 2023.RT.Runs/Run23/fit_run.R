@@ -1,5 +1,5 @@
-#Run 22:
-#like Run 21, but try random effects for all surveys, reduce NAA_re to "rec"
+#Run 23:
+#like Run 22, but try random effects for all surveys, reduce NAA_re to "rec"
 #originally tried to do ar1 re for NAA, but no convergence
 
 #devtools::install_github("timjmiller/wham", dependencies=TRUE)

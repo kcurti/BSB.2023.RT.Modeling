@@ -1,5 +1,5 @@
 #Run 20:
-#like Run 19 but logistic-normal age comp
+#like Run 19 but dirichlet-multinomial (not logistic-normal) age comp
 
 #devtools::install_github("timjmiller/wham", dependencies=TRUE)
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "~/tmiller_net/work/wham_packages/multi_wham")

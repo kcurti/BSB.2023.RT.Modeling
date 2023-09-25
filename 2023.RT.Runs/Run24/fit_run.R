@@ -1,6 +1,5 @@
-#Run 22:
-#like Run 21, but try random effects for all surveys, reduce NAA_re to "rec"
-#originally tried to do ar1 re for NAA, but no convergence
+#Run 24:
+#like Run 23, but time-varying movement from North to south
 
 #devtools::install_github("timjmiller/wham", dependencies=TRUE)
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "~/tmiller_net/work/wham_packages/multi_wham")
