@@ -121,3 +121,5 @@ Run 23: like Run 22, but go to "rec+1", tried 2dar1 cor. didn't work. even with 
 
 Run 24: Like 23, but trying time-varying movement rate for north-south.
 
+Run 25: Like run 24, but dirichlet instead of D-M.
+
