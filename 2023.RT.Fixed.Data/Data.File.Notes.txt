@@ -1,0 +1,2 @@
+Run 1: New VAST Fall indices
+Run 2: ALL age comps (including fishery) rounded to two digit props
