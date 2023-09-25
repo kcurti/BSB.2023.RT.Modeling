@@ -204,7 +204,7 @@ temp <- tfit4$input
 temp$par <- tfit4$parList
 fit <- fit_wham(temp, do.retro=T, do.osa=T, do.sdrep =T, do.brps = T)
 mohns_rho(fit) #big retro
-setwd(here("2023.RT.Runs","Run22"))
+setwd(here("2023.RT.Runs","Run23"))
 saveRDS(fit,"fit.RDS")
 plot_wham_output(fit)
 setwd(here())

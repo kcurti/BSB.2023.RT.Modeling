@@ -82,6 +82,25 @@ temp$map$log_index_sig_scale <- factor(c(1,NA, 4, NA)) #try to estimate CVs
 tfit1 <- fit_wham(temp, do.fit=F)
 tfit1$env$tracepar <- TRUE
 tfit1$opt <- nlminb(tfit1$par, tfit1$fn, tfit1$gr, control = list(iter.max = 1000, eval.max = 1000))
+tfit1$opt <- nlminb(tfit1$opt$par, tfit1$fn, tfit1$gr, control = list(iter.max = 1000, eval.max = 1000))
+tfit1$par <- tfit1$opt$par
+tfit1 <- wham:::fit_tmb(tfit1, do.sdrep=F)
+temp$map$log_index_sig_scale <- factor(c(1,NA, 4, NA)) #try to estimate CVs
+#The issue is that the estimated CV for south Rec CPA is going to zero.
+
+temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, age_comp = "dir-mult")
+temp$fleet_names = paste0(rep(c("North_", "South_"),each = 2), temp$fleet_names)
+temp$index_names = paste0(rep(c("North_", "South_"),c(2,2)), temp$index_names)
+est_mu_map <- temp$map$trans_mu #try to estimate in a second phase
+temp$map$trans_mu <- factor(rep(NA,length(temp$par$trans_mu)))
+Run23 <- readRDS(here("2023.RT.Runs","Run23", "fit.RDS"))
+temp$par$log_index_sig_scale[3] <- Run23$parList$log_index_sig_scale[3]
+temp$map$log_index_sig_scale <- factor(c(1,NA, NA, NA)) #try to estimate CVs
+fit <- fit_wham(temp, do.retro=T, do.osa=T, do.sdrep =T, do.brps = T)
+
+
+
+x <- TMB::sdreport(tfit1)
 saveRDS(tfit1,here("2023.RT.Runs","Run23","try3.RDS"))
 temp$par <- tfit1$env$parList()
 fit <- fit_wham(temp, do.retro=T, do.osa=T, do.sdrep =T, do.brps = T)
