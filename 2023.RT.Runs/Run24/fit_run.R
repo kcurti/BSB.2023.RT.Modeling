@@ -98,12 +98,11 @@ temp$par$log_index_sig_scale[3] <- Run23$parList$log_index_sig_scale[3]
 temp$map$log_index_sig_scale <- factor(c(1,NA, NA, NA)) #try to estimate CVs
 fit <- fit_wham(temp, do.retro=T, do.osa=T, do.sdrep =T, do.brps = T)
 
-
-
-x <- TMB::sdreport(tfit1)
-saveRDS(tfit1,here("2023.RT.Runs","Run23","try3.RDS"))
-temp$par <- tfit1$env$parList()
-fit <- fit_wham(temp, do.retro=T, do.osa=T, do.sdrep =T, do.brps = T)
+mohns_rho(fit) #big retro
+setwd(here("2023.RT.Runs","Run24"))
+saveRDS(fit,"fit.RDS")
+plot_wham_output(fit)
+setwd(here())
 
 png(here("2023.RT.Runs","Run22","north_reccpa_sel_better.png"), width = 8, height = 9, units = "in", res = 300)
 x <- t(tfit4$rep$selAA[[9]])
