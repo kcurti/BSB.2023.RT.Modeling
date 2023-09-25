@@ -119,7 +119,11 @@ Run 22: back to basics like Run 19, but just "rec" NAA re, D-M age comp, and get
 
 Run 23: like Run 22, but go to "rec+1", tried 2dar1 cor. didn't work. even with just North. there becomes a scale problem. I reverted back to none-time-varying selectivity but ar1 with age to keep the number of fixed effects down. With iid RE for rec+1 (Done).
 
-Run 24: Like 23, but trying time-varying movement rate for north-south.
+Run 24: Like 23, but trying time-varying movement rate for north-south. (Done)
 
-Run 25: Like run 24, but dirichlet instead of D-M.
+Run 25: Like run 24, but dirichlet instead of D-M. (Done)
+
+Run 26: Like 25, but try rounded age comp. makes time-varying movement flat. doesn't converge.
+
+Run 27: Back to run 25. Try time-varying sel on fleets.
 

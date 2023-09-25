@@ -87,7 +87,7 @@ sel$fix_pars <- c(
 	list(2)
 )
 sel$re <- rep(c("none","ar1_y","none","ar1_y","ar1"), c(8,1,1,1,1)) 
-temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, age_comp = "logistic-normal-miss0")
+temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, age_comp = "dir-mult")
 #doesn't converge. problem with scale (estimates very high abundances)
 #temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, age_comp = "dirichlet-miss0")
 #temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, age_comp = "logistic-normal-ar1-miss0")
@@ -98,14 +98,19 @@ temp$map$trans_mu <- factor(rep(NA,length(temp$par$trans_mu)))
 
 #From run 22, the issue is that the estimated CV for south Rec CPA is going to zero.
 Run23 <- readRDS(here("2023.RT.Runs","Run23", "fit.RDS"))
-temp$par$log_index_sig_scale[3] <- Run23$parList$log_index_sig_scale[3]
-temp$map$log_index_sig_scale <- factor(c(1,NA, NA, NA)) #try to estimate CVs
-fit <- fit_wham(temp, do.fit =F)
-fit$env$tracepar <- TRUE
-fit$opt <- nlminb(fit$par, fit$fn, fit$gr)#, control = list(iter.max = 200, eval.max = 200))
+# temp$map$log_index_sig_scale <- factor(c(1,NA, NA, NA)) #try to estimate CVs
+# fit <- fit_wham(temp, do.fit =F)
+# fit$env$tracepar <- TRUE
+# fit$opt <- nlminb(fit$par, fit$fn, fit$gr)#, control = list(iter.max = 200, eval.max = 200))
 fit <- fit_wham(temp, do.retro=F, do.osa=F, do.sdrep =F)
+temp$map$log_index_sig_scale <- factor(c(1,NA, 2, NA)) #try to estimate CVs
+temp$map$log_index_sig_scale <- factor(c(1,NA, NA, NA)) #try to estimate CVs
 temp$par <- fit$parList
+temp$par$log_index_sig_scale[3] <- Run23$parList$log_index_sig_scale[3]
+fit <- fit_wham(temp, do.retro=F, do.osa=F, do.sdrep =F)
 fit <- fit_wham(temp, do.retro=T, do.osa=T, do.sdrep =T, do.brps = T)
+plot(fit$rep$mu[1,8,1,,1,2])
+#var of migration rate goes to zero
 
 temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, age_comp = "dir-mult")
 temp$fleet_names = paste0(rep(c("North_", "South_"),each = 2), temp$fleet_names)
