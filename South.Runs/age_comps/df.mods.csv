@@ -1,0 +1,11 @@
+"","Model","age_comp","Block1_re","opt_converged","pd_hessian","NLL","Runtime","dAIC","AIC","rho_R","rho_SSB","rho_Fbar"
+"1","m1","multinomial","multinomial","Yes","Yes",14823.681,0.04,33928.9,29895.4,-0.0044,-0.1123,0.3749
+"2","m2","dir-mult","dir-mult","Yes","Yes",4043.761,0.09,12377,8343.5,0.0494,-0.0105,0.0146
+"3","m3","dirichlet-miss0","dirichlet-miss0","Yes","Yes",-1995.467,0.06,298.6,-3734.9,0.0488,0.0035,0.0061
+"4","m4","dirichlet-pool0","dirichlet-pool0","Yes","Yes",-1987.588,0.06,314.3,-3719.2,0.0474,-0.0028,0.0077
+"5","m5","logistic-normal-miss0","logistic-normal-miss0","No","No",-1851.864,0.04,585.8,-3447.7,0.0165,-0.0487,0.0906
+"6","m6","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0","Yes","No",-2148.767,0.07,0,-4033.5,0.0535,0.0264,-0.0571
+"7","m7","logistic-normal-pool0","logistic-normal-pool0","No","No",-1821.315,0.11,646.9,-3386.6,0.0828,0.1382,-0.0967
+"8","m8","logistic-normal-01-infl","logistic-normal-01-infl","No","No",-1861.297,0.07,582.9,-3450.6,0.0413,-0.0237,0.0956
+"9","m9","logistic-normal-01-infl-2par","logistic-normal-01-infl-2par","No","No",-1861.297,0.05,574.9,-3458.6,0.0413,-0.0237,0.0956
+"10","m10","mvtweedie","mvtweedie","Yes","Yes",4798.853,0.52,13895.2,9861.7,0.039,-0.0172,0.0406
