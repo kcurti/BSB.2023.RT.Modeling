@@ -362,7 +362,7 @@ wham:::plot.index.age.comp.resids(tfit2, osa = TRUE, use.i = 2)
 #helps with VAST!!!
 
 #lets see if dialing down the selectivity random effects is ok
-sel <- list(model = rep(c("age-specific","logistic"),
+sel <- list(model = rep(c("age-specific","age-specific"),
 	c(5,1)))
 sel$initial_pars <- c(
 	list(rep(c(0.5,1),c(3,5))),
@@ -370,7 +370,7 @@ sel$initial_pars <- c(
 	list(rep(0.5,8)),
 	list(rep(0.5,8)),
 	list(rep(c(0.5,1,1),c(1,1,6))),
-	list(c(5,1))
+	list(rep(c(0.5,1),c(4,4)))
 )
 sel$fix_pars <- list(
 	4:8,
@@ -378,9 +378,9 @@ sel$fix_pars <- list(
 	1:8,
 	1:8,
 	2:8,
-	NULL
+	5:8
 )
-sel$re <- rep(c("2dar1","2dar1","none","ar1_y","ar1"), c(1,1,2,1,1))
+sel$re <- rep(c("2dar1","2dar1","none","ar1_y","2dar1"), c(1,1,2,1,1))
 temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, 
 	age_comp = list(fleets = c("dir-mult","logistic-normal-miss0"), indices = c("logistic-normal-miss0","dir-mult")))
 temp$data$selblock_pointer_fleets[] <- rep(1:2, each = length(temp$years))
@@ -397,18 +397,10 @@ wham:::plot.catch.age.comp.resids(tfit, osa = TRUE, use.i = 1)
 wham:::plot.catch.age.comp.resids(tfit, osa = TRUE, use.i = 2)
 wham:::plot.index.age.comp.resids(tfit, osa = TRUE, use.i = 1)
 wham:::plot.index.age.comp.resids(tfit, osa = TRUE, use.i = 2)
-
-
-
-
-
-
-
-
-
 temp$par <- tfit$parList
-fit <- fit_wham(temp, do.sdrep =T, do.osa =T, do.retro = T)
-setwd(here("North.runs"))
-saveRDS(fit, "sel_re_logistic_normal_fit_4.RDS")
+fit <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T)
+mohns_rho(fit)
+saveRDS(fit, here("North.Runs", "fit_best.RDS"))
+setwd(here("North.Runs"))
 plot_wham_output(fit)
-system("mv wham_figures_tables.html sel_re_logistic_normal_fit_4_figures_tables.html")
+system("mv wham_figures_tables.html fit_best_figures_tables.html")
