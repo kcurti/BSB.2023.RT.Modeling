@@ -127,3 +127,5 @@ Run 26: Like 25, but try rounded age comp. makes time-varying movement flat. doe
 
 Run 27: Back to run 25. Try time-varying sel on fleets.
 
+Run 28: Based on examinations of separate runs for north and south in North.Runs and South.Runs
+

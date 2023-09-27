@@ -1,6 +1,3 @@
-#Run 25:
-#like Run 24, but try different age comp likelihoods to bring down retro. dirichlet worked, logistic-normal did not.
-
 #devtools::load_all("c:/work/wham/wham")
 #devtools::install_github("timjmiller/wham", dependencies=TRUE)
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "~/tmiller_net/work/wham_packages/multi_wham")
