@@ -1,5 +1,5 @@
 #like run 28: combine "best" models from North.Runs and South.Runs
-# buth with movement
+# buth with movement fixed based on estimates from SS runs
 
 #devtools::load_all("c:/work/wham/wham")
 #devtools::install_github("timjmiller/wham", dependencies=TRUE)
@@ -46,12 +46,12 @@ move$can_move[1,c(1:4,7:11),,] <- 1 #only north stock can move and in seasons pr
 move$can_move[1,5,2,] <- 1 #north stock can (and must) move in last season prior to spawning back to north 
 
 mus <- array(0, dim = c(2,length(seasons),2,1))
-mus[1,7:11,1,1] <- 0.02214863
-mus[1,1:5,2,1] <- 0.2594621
+mus[1,7:11,1,1] <- 0.02214863 #see here("2023.RT.Runs","transform_SS_move_rates.R") for how these numbers are derived.
+mus[1,1:5,2,1] <- 0.3130358
 move$mean_vals <- mus #movement rate is 0.1 (for now)
 
-move$year_re = matrix("none", 2,1)
-move$year_re[1,1] <- "ar1" #just for north to south.
+# move$year_re = matrix("none", 2,1)
+# move$year_re[1,1] <- "ar1" #just for north to south.
 move$mean_model = matrix("constant", 2,1)
 
 
@@ -68,7 +68,7 @@ sel$initial_pars <- list(
 	rep(0.5,8), #not used
 	rep(c(0.5,1,1),c(1,1,6)), #north rec cpa
 	rep(c(0.5,1),c(4,4)), #north vast
-	rep(c(0.5,1, 1),c(3,3,2)), #south rec cpa
+	rep(c(0.5,1,1),c(2,4,2)), #south rec cpa
 	c(5,1)	#south vast
 )
 sel$fix_pars <- list(
@@ -82,38 +82,28 @@ sel$fix_pars <- list(
 	1:8, #not used
 	2:8, #north rec cpa
 	5:8, #north vast
-	4:8, #south rec cpa
+	3:8, #south rec cpa
 	NULL #south vast
 )
 sel$re <- rep(c("2dar1","2dar1","none","ar1_y","2dar1","none"), c(1,1,2+4,1,1,2))
-temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, 
+temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, 
 	age_comp = list(
 		fleets = c("dir-mult","logistic-normal-miss0","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0"), 
 		indices = c("logistic-normal-miss0","dir-mult","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0")))
+temp$fleet_names = paste0(rep(c("North_", "South_"),each = 2), temp$fleet_names)
+temp$index_names = paste0(rep(c("North_", "South_"),c(2,2)), temp$index_names)
+temp$map$trans_mu <- factor(rep(NA,length(temp$par$trans_mu)))
 temp$data$selblock_pointer_fleets[] <- rep(1:4, each = length(temp$years))
-temp$par$logit_selpars
-x <- temp$par$logit_selpars
-x[] <- as.integer(temp$map$logit_selpars)
 temp <- wham:::set_selectivity(temp,sel)
 temp$data$agg_index_sigma[,c(1,3)] <- 5*temp$data$agg_index_sigma[,c(1,3)]
-#temp$map$log_index_sig_scale <- factor(c(1,NA)) #try to estimate CVs
 tfit <- fit_wham(temp, do.fit =F)
+tfit$rep$mu[1,8,1,1,,]
 tfit$rep$selAA[c(1:4,9:12)]
 tfit$rep$selpars_re_mats[[6]] #same thing as above
 tfit <- fit_wham(temp, do.sdrep =F, do.osa =F, do.retro = F)
-#sel for age 3 in south rec cpa is 1
 
-sel$initial_pars[[11]] <- rep(c(0.5,1),c(2,6))
-sel$fix_pars[[11]] <- 3:8
-temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, 
-	age_comp = list(
-		fleets = c("dir-mult","logistic-normal-miss0","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0"), 
-		indices = c("logistic-normal-miss0","dir-mult","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0")))
-temp$data$selblock_pointer_fleets[] <- rep(1:4, each = length(temp$years))
-temp <- wham:::set_selectivity(temp,sel)
-temp$data$agg_index_sigma[,c(1,3)] <- 5*temp$data$agg_index_sigma[,c(1,3)]
 fit <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 mohns_rho(fit)
-saveRDS(fit, here("2023.RT.Runs","Run28", "fit.RDS"))
-setwd(here("2023.RT.Runs","Run28"))
+saveRDS(fit, here("2023.RT.Runs","Run29", "fit.RDS"))
+setwd(here("2023.RT.Runs","Run29"))
 plot_wham_output(fit)

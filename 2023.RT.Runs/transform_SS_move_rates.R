@@ -9,11 +9,11 @@ P1 %*% P1
 P2 <- matrix(c(1,p2,0,1-p2),2,2)
 
 eigs <- eigen(P1)
-D <- diag(eigs$val^(1/5))
+D <- diag(eigs$val^(1/5)) #5 monthly seasons in WHAM model where this movement occurs
 P1t <- eigs$vec %*% D %*% solve(eigs$vec)
 
 eigs <- eigen(P2)
-D <- diag(eigs$val^(1/5))
+D <- diag(eigs$val^(1/4)) #4 monthly seasons in WHAM model where this movement occurs
 P2t <- eigs$vec %*% D %*% solve(eigs$vec)
 
 P <- P1 %*% P2
@@ -30,12 +30,15 @@ transform_fn <- function(xsim){
 	#P <- matrix(c(1-p1,1-p2,p1,p2),2,2)
 	P1 <- matrix(c(1-p1,0,p1,1),2,2)
 	P2 <- matrix(c(1,p2,0,1-p2),2,2)
-	eigs <- eigen(P)
-	D <- diag(eigs$val^(1/10))
-	Pt 1<- eigs$vec %*% D %*% solve(eigs$vec)
-	xt1 <- log(Pt[1,2]/(1-Pt[1,2]))
-	xt2 <- log(Pt[2,1]/(1-Pt[2,1]))
-	return(c(Pt[1,2],Pt[2,1],xt1,xt2))
+	eigs <- eigen(P1)
+	D <- diag(eigs$val^(1/5))
+	Pt1 <- eigs$vec %*% D %*% solve(eigs$vec)
+	eigs <- eigen(P2)
+	D <- diag(eigs$val^(1/4))
+	Pt2 <- eigs$vec %*% D %*% solve(eigs$vec)
+	xt1 <- log(Pt1[1,2]/(1-Pt1[1,2]))
+	xt2 <- log(Pt2[2,1]/(1-Pt2[2,1]))
+	return(c(Pt1[1,2],Pt2[2,1],xt1,xt2))
 }
 
 
