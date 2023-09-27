@@ -107,3 +107,7 @@ mohns_rho(fit)
 saveRDS(fit, here("2023.RT.Runs","Run29", "fit.RDS"))
 setwd(here("2023.RT.Runs","Run29"))
 plot_wham_output(fit)
+
+fit <- readRDS(here("2023.RT.Runs","Run29", "fit.RDS"))
+
+project_wham(fit, proj.opts = list(proj_F_opt = c(5,3,3), proj_Fcatch = c(10000,10000,10000)))

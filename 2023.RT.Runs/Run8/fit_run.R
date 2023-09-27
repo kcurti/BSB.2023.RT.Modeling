@@ -173,13 +173,6 @@ jit_mod <- fit_wham(jit_input, do.fit = F)
 set.seed(8675309)
 init_vals <- rmvnorm(100,mean = fit$opt$par, sigma = fit$sdrep$cov.fixed)
 jit_res <- jitter_fn(init_vals[1:50,], fit_file = fit_file)
-# jit_res <- list(obj = rep(NA,NROW(init_vals)), par = matrix(NA, NROW(init_vals), NCOL(init_vals)))
-# for(i in 1:100){
-# 	jit_mod$par <- init_vals[i,]
-# 	x <- wham:::fit_tmb(jit_mod, n.newton = 0, do.sdrep = F)
-# 	jit_res$obj[i] <- x$opt$obj
-# 	jit_res$par[i,] <- x$opt$par
-# }
 saveRDS(jit_res, here("2023.RT.Runs","Run8","jitter_res.RDS"))
 jit_res2 <- jitter_fn(init_vals[51:100,], fit_file = fit_file)
 x <- c(jit_res,jit_res2)
@@ -207,29 +200,16 @@ max(abs(jit_mod$gr(x[[54]]$par)))
 
 #conditional sims
 set.seed(8675309)
-library("mvtnorm")
-fit <- readRDS(here("2023.RT.Runs","Run8","fit.RDS"))
-sim_input <- fit$input
-sim_input$par <- fit$parList
-sim_input$data$do_SPR_BRPs <- 0
-temp <- c("do_simulate_Ecov_re", "do_simulate_L_re", "do_simulate_M_re", "do_simulate_mu_prior_re", "do_simulate_mu_re", "do_simulate_N_re",
- "do_simulate_q_prior_re", "do_simulate_q_re", "do_simulate_sel_re")
-sim_input$data[temp] <- lapply(temp, function(x) jit_input$data[[x]][] <- 0)
-sim_mod <- fit_wham(sim_input, do.fit = F)
-nsims <- 100
-x <- sim_mod$simulate(complete=T)
-sim_res <- list(obj = rep(NA,nsims), par = matrix(NA, nsims, length(sim_mod$par)), grad = matrix(NA, nsims, length(sim_mod$par)), SSB = list(), F = list(), NAA = list())
-set.seed(8675309)
-for(i in 1:nsims){
-	sim_input$data <- sim_mod$simulate(complete=T)
-	x <- fit_wham(sim_input, do.sdrep = F)
-	sim_res$obj[i] <- x$opt$obj
-	sim_res$par[i,] <- x$opt$par
-	sim_res$grad[i,] <- x$final_gradient
-	sim_res$SSB[[i]] <- x$rep$SSB
-	sim_res$F[[i]] <- x$rep$F
-	sim_res$NAA[[i]] <- x$rep$NAA
-}
-saveRDS(sim_res, here("2023.RT.Runs","Run8","self_test_res.RDS"))
+seeds <- sample(1e-9:1e9, 100)
+sim_res <- cond_sim_fn(fit_file=fit_file, seeds = seeds[1], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham")
+sim_res2 <- cond_sim_fn(fit_file=fit_file, seeds = seeds[2:50], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham")
+sim_res_all <- c(sim_res,sim_res2)
+SSB_n <- sapply(sim_res_all, function(x) x$SSB[,1])
+diff <- SSB_n - fit$rep$SSB[,1]
+apply(diff,1,mean)
+sim_res3 <- cond_sim_fn(fit_file=fit_file, seeds = seeds[51:100], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham")
+
+sim_res_all <- c(sim_res,sim_res2,sim_res3)
+saveRDS(sim_res_all, here::here("2023.RT.Runs","Run8","self_test_res.RDS"))
 
 
