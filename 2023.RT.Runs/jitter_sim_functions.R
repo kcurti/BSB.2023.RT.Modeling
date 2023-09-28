@@ -35,8 +35,8 @@ cond_sim_fn <- function(fit_file, seeds, wham.lab.loc = "~/tmiller_net/work/wham
 		}
 		return(out)
   })
-  return(sim_res)
   snowfall::sfStop()
+  return(sim_res)
 }
 
 jitter_fn <- function(init_vals, n.cores  = NULL, fit_file, wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham"){
