@@ -110,4 +110,24 @@ plot_wham_output(fit)
 
 fit <- readRDS(here("2023.RT.Runs","Run29", "fit.RDS"))
 
-project_wham(fit, proj.opts = list(proj_F_opt = c(5,3,3), proj_Fcatch = c(10000,10000,10000)))
+fit_proj <- project_wham(fit, proj.opts = list(proj_F_opt = c(5,3,3), proj_Fcatch = c(10000,10000,10000)), check.version = F)
+setwd(here("2023.RT.Runs","Run29", "projection"))
+saveRDS(fit_proj, "fit_proj.RDS")
+plot_wham_output(fit_proj)
+
+#conditional sims in container on server
+source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
+fit_file <-here("2023.RT.Runs","Run29","fit.RDS")
+set.seed(8675309)
+seeds <- sample(1e-9:1e9, 100)
+sim_res_all <- cond_sim_fn(fit_file=fit_file, seeds = seeds[1:10], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham")
+saveRDS(sim_res_all, here::here("2023.RT.Runs","Run29","self_test_res.RDS"))
+sim_res_all <- c(sim_res_all, 
+  cond_sim_fn(fit_file=fit_file, seeds = seeds[11:50], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham"))
+saveRDS(sim_res_all, here::here("2023.RT.Runs","Run29","self_test_res.RDS"))
+sim_res2 <- cond_sim_fn(fit_file=fit_file, seeds = seeds[51:100], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham")
+sim_res_all <- c(sim_res_all,sim_res2)
+saveRDS(sim_res_all, here::here("2023.RT.Runs","Run29","self_test_res.RDS"))
+SSB_n <- sapply(sim_res_all, function(x) x$SSB[,1])
+diff <- SSB_n - fit$rep$SSB[,1]
+apply(diff,1,mean)
