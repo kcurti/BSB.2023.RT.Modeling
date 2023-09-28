@@ -1,12 +1,12 @@
-cond_sim_fn <- function(fit_file, seeds, wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham"){
-  #seeds = readRDS(file.path(here::here(), "Project_0", "inputs","seeds.RDS"))
-  #n_oms = length(om_inputs)
+cond_sim_fn <- function(fit_file, seeds, wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham", n.cores = NULL){
+  print("here")
   #library(snowfall) # used for parallel computing
   parallel::detectCores()
-  if(is.null(n.cores)) n.cores = parallel::detectCores()/2
+  print("here")
+  if(is.null(n.cores)) n.cores <- parallel::detectCores()/2
+  print("here")
   snowfall::sfInit(parallel=TRUE, cpus=n.cores)
-  #oms = 1:n_oms
-  #temp = expand.grid(om = oms, sim = sims)
+  print("here")
   snowfall::sfExportAll()
   sim_res <- snowfall::sfLapply(1:length(seeds), function(i){
     library(wham, lib.loc = wham.lab.loc)
@@ -16,7 +16,7 @@ cond_sim_fn <- function(fit_file, seeds, wham.lab.loc = "~/tmiller_net/work/wham
     sim_input$data$do_SPR_BRPs[] <- 0
     temp <- c("do_simulate_Ecov_re", "do_simulate_L_re", "do_simulate_M_re", "do_simulate_mu_prior_re", "do_simulate_mu_re", "do_simulate_N_re",
               "do_simulate_q_prior_re", "do_simulate_q_re", "do_simulate_sel_re")
-    sim_input$data[temp] <- lapply(temp, function(x) jit_input$data[[x]][] <- 0)
+    sim_input$data[temp] <- lapply(temp, function(x) sim_input$data[[x]][] <- 0)
     sim_mod <- fit_wham(sim_input, do.fit = F)
     set.seed(seeds[i])
 		sim_input$data <- sim_mod$simulate(complete=T)
@@ -36,6 +36,7 @@ cond_sim_fn <- function(fit_file, seeds, wham.lab.loc = "~/tmiller_net/work/wham
 		return(out)
   })
   return(sim_res)
+  snowfall::sfStop()
 }
 
 jitter_fn <- function(init_vals, n.cores  = NULL, fit_file, wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham"){
