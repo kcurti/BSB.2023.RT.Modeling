@@ -1,0 +1,427 @@
+---
+title:  "Initial steps with WHAM"
+subtitle: "Black sea bass Research Track"
+author: "Tim Miller<br>NOAA Fisheries, NEFSC<br> 2023-07-13"
+output:
+  xaringan::moon_reader:
+    self_contained: true
+    css: ["xaringan-themer_16_9.css", "slides-style_TMB201.css"]
+    lib_dir: libs
+    nature:
+      ratio: '16:9'
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      slideNumberFormat: |
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: calc( (%current% - 1) / (%total% - 1) * 100%);">
+          </div>
+        </div>`
+---
+
+layout: true
+
+.footnote[U.S. Department of Commerce | National Oceanic and Atmospheric Administration | National Marine Fisheries Service]
+
+
+<style type="text/css">
+
+code.cpp{
+  font-size: 14px;
+}
+code.r{
+  font-size: 14px;
+}
+
+
+</style>
+
+```{css, echo=FALSE}
+pre {
+  max-height: 400px;
+  max-width: 800px;
+  overflow-y: auto;
+}
+
+```
+
+
+```{r setup, include=FALSE}
+#options(htmltools.dir.version = FALSE)
+#library(knitr)
+#knitr::opts_chunk$set(cache = TRUE)
+#knitr::opts_knit$set(root.dir = here::here())
+#library(kableExtra)
+#library(imager)
+#here::i_am("c:/work/BSB_RT")
+
+#library(here)
+
+```
+
+```{r xaringan-tile-view, echo=FALSE}
+# this gives you a tile navigation if you type "O" at any time
+#xaringanExtra::use_tile_view()
+```
+
+---
+#ASAP3 to (single stock) WHAM <br>
+
+Starting with 2021 management track model inputs
+* First fit ASAP3-like SCAA models (no random effects)
+
+* Using the same indices? VAST for inshore indices?
+* Index CVs are not based on designs 
+  * will use any design-based estimates when asap3 inputs are updated.
+* Effective sample sizes for any age composition observations have been adjusted 
+  * using self-weighting likelihoods makes this a non-issue.
+
+Confirm that results are similar to ASAP3 and that results are similar between single-stock and multi-stock wham.
+1. Fit models for north and south separately in single-stock version of wham  
+2. Fit models for north and south separately in multi-stock version of wham  
+3. Fit model for north and south simultaneously in multi-stock wham (no migration)
+
+---
+
+
+#North only<br>
+
+Read in data, set up input, and fit model. Same R code for both versions of wham.
+```{r, eval = FALSE}
+north <- read_asap3_dat("NORTH.MT.2021.FINAL.DAT")
+sel = list(model = rep(c("logistic","age-specific"),c(4,8)))
+sel$initial_pars <- c(rep(list(c(5,1)),4), list( 
+  c(rep(c(0.5,1), c(2,6))), #5
+  c(rep(c(0.5,1), c(3,5))), #6
+  c(rep(c(0.5,1), c(2,6))), #7
+  c(rep(c(0.5,1), c(2,6))), #8
+  c(rep(c(0.5,1), c(2,6))), #9
+  c(1, rep(0,7)), #10
+  c(rep(c(0.5,1), c(1,7))), #11
+  c(rep(c(0.5,1), c(2,6)))) #12
+)
+sel$fix_pars <- c(rep(list(NULL),4), list(
+  3:8, #5
+  4:8, #6
+  3:8, #7
+  3:8, #8
+  3:8, #9
+  1:8, #10
+  2:8, #11
+  3:8) #12
+)
+
+north_scaa_input = prepare_wham_input(north, basic_info = list(bias_correct_process = 0, bias_correct_observation = 0), selectivity = sel)
+north_scaa_fit = fit_wham(north_scaa_input, do.retro=TRUE, do.osa=TRUE)
+saveRDS(north_scaa_fit, here("wham", "north", "north_scaa_fit.RDS"))
+```
+---
+
+#South only<br>
+
+```{r, eval = FALSE}
+south <- read_asap3_dat("SOUTH.MT.2021.FINAL.DAT")
+
+sel = list(model = rep(c("logistic","age-specific"),c(4,9)))
+sel$initial_pars <- c(rep(list(c(5,1)),4), list( 
+  c(rep(0.5,3), rep(1,5)), #5
+  c(1, rep(0,7)), #6
+  c(rep(0.5,1), rep(1,7)), #7
+  c(1, rep(0,7)), #8
+  c(1, rep(0,7)), #9
+  c(1, rep(0,7)), #10
+  c(rep(0.5,1), rep(1,7)), #11
+  c(rep(0.5,2), rep(1,6)), #12
+  c(rep(0.5,1), rep(1,7))) #13
+)
+sel$fix_pars <- c(rep(list(NULL),4), list(
+  4:8, #5
+  1:8, #6
+  2:8, #7
+  1:8, #8
+  1:8, #9
+  1:8, #10
+  2:8, #11
+  3:8, #12
+  2:8) #13
+)
+
+south_scaa_input = prepare_wham_input(south, selectivity = sel, basic_info = list(bias_correct_process = 0, bias_correct_observation = 0))
+south_scaa_fit = fit_wham(south_scaa_input, do.retro=TRUE, do.osa=TRUE)
+saveRDS(south_scaa_fit, here("wham","south","south_scaa_fit.RDS"))
+```
+
+---
+#Similar estimates
+```{r, echo = FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","compare_one_stock_models.png"))
+```
+
+---
+
+#Simplify North and South
+
+* When combining the stocks, there would be 17 indices and 4 fleets with 25 selectivity models (blocks)
+  * when moving to random effects, the estimation of these parameters change which can cause convergence issues or other parameterizations to become more appropriate
+* When moving to movement models, estimating initial numbers at age in each region for each stock can be difficult
+* **Doing further explorations with slimmed down data and model configurations**
+  * just the Bigelow, Albatross, and Rec CPA indices
+  * equilibrium assumption for initial numbers at age
+
+---
+
+#Reduced North and South
+
+```{r, eval = FALSE}
+north <- read_asap3_dat("NORTH.MT.2021.FINAL_less.DAT")
+sel = list(model = rep(c("logistic","age-specific"),c(4,3)))
+sel$initial_pars <- c(rep(list(c(5,1)),4), list( 
+  c(rep(c(0.5,1), c(2,6))), #5
+  c(rep(c(0.5,1), c(1,7))), #11
+  c(rep(c(0.5,1), c(2,6)))) #12
+)
+sel$fix_pars <- c(rep(list(NULL),4), list(
+  3:8, #5
+  2:8, #11
+  3:8) #12
+)
+
+north_scaa_less_input = prepare_wham_input(north_less, selectivity = sel, NAA_re = list(N1_model = "equilibrium"))
+north_scaa_less_fit = fit_wham(north_scaa_less_input, do.retro=T, do.osa=F)
+saveRDS(north_scaa_less_fit, here("wham", "combined", "north_scaa_fit_less_multi.RDS"))
+
+south_less <- read_asap3_dat(here("SOUTH.MT.2021.FINAL_less.DAT"))
+sel = list(model = rep(c("logistic","age-specific"),c(4,3)))
+sel$initial_pars <- c(rep(list(c(5,1)),4), list( 
+	c(rep(0.5,3), rep(1,5)), #5
+	c(rep(0.5,2), rep(1,6)), #12
+	c(rep(0.5,1), rep(1,7))) #13
+)
+sel$fix_pars <- c(rep(list(NULL),4), list(
+  4:8, #17
+  3:8, #24
+  2:8) #25
+)
+south_scaa_less_input = prepare_wham_input(south_less, selectivity = sel, NAA_re = list(N1_model = "equilibrium"))
+south_scaa_less_fit = fit_wham(south_scaa_less_input, do.retro=T, do.osa=F)
+saveRDS(south_scaa_less_fit, here("wham", "combined", "south_scaa_fit_less_multi.RDS"))
+
+```
+---
+#Similar estimates
+```{r, echo = FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","compare_two_stock_less.png"))
+```
+
+---
+
+#North and South simultaneously <br>
+
+Cobble the two inputs together
+```{r, eval = FALSE}
+north_south_less <- read_asap3_dat(c("NORTH.MT.2021.FINAL_less.DAT","SOUTH.MT.2021.FINAL_less.DAT"))
+sel = list(model = rep(c("logistic","age-specific"),c(8,6)))
+sel$initial_pars <- c(
+	rep(list(c(5,1)),8), #north and south fleets
+	list( 
+	c(rep(c(0.5,1), c(2,6))), #9 begin north indices
+	c(rep(c(0.5,1), c(1,7))), #15
+	c(rep(c(0.5,1), c(2,6))), #16 end north indices
+	c(rep(0.5,3), rep(1,5)), #17 begin south indices
+	c(rep(0.5,2), rep(1,6)), #24
+	c(rep(0.5,1), rep(1,7))) #25 end south indices
+)
+sel$fix_pars <- c(
+	rep(list(NULL),8), #north and south fleets
+	list(
+  3:8, #9 begin north indices
+  2:8, #15
+  3:8, #16 end north indices
+  4:8, #17 begin south indices
+  3:8, #24
+  2:8) #25 end south indices
+)
+input0_less <- prepare_wham_input(north_south_less, selectivity = sel, NAA_re = list(N1_model = c("equilibrium","equilibrium")))
+fit0_less = fit_wham(input0_less, do.retro=T, do.osa=F)
+saveRDS(fit0_less, here("wham","combined","north_south_scaa_fit_less.RDS"))
+
+```
+---
+
+#Bad starting values for combined model...
+```{r, echo = FALSE}
+north_scaa_less_fit <- readRDS(here::here("wham","combined","north_scaa_fit_less_multi.RDS"))
+south_scaa_less_fit <- readRDS(here::here("wham","combined","south_scaa_fit_less_multi.RDS"))
+fit0_less <- readRDS(here::here("wham","combined","north_south_scaa_fit_less.RDS"))
+```
+```{r, echo = TRUE}
+fit0_less$opt$obj
+north_scaa_less_fit$opt$obj + south_scaa_less_fit$opt$obj
+```
+---
+
+#Bad starting values for combined model...
+```{r, echo = FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","compare_two_stock_less_multi_bad.png"))
+```
+
+---
+
+#Jittering initial values for combined model
+
+Create an unfitted model and use random draws around default initial values for fitting.
+.pull-left[
+```{r, eval = FALSE}
+temp <- fit_wham(input0_less, do.fit=F) 
+set.seed(123)
+jit.nll <- sapply(1:100, function(x){
+	nlminb(rnorm(length(temp$par), mean = temp$par, sd = 0.1), temp$fn, temp$gr, control = list(iter.max = 1000, eval.max = 1000))$obj	
+})
+```
+]
+.pull-right[
+```{r, echo = FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","jitter_plot_scaa.png"))
+```
+]
+---
+
+#Use a good set of starting values
+
+```{r, eval = FALSE}
+good.seed <- min(which(round(jit.nll,5) == min(round(jit.nll,5))))
+set.seed(123)
+for(i in 1:good.seed) x <- rnorm(length(temp$par), mean = temp$par, sd = 0.1)
+input0_less$par <- temp$env$parList(x)
+fit0_less.good = fit_wham(input0_less, do.retro=F, do.osa=F)
+saveRDS(fit0_less.good, here("wham", "combined", "north_south_scaa_fit_less_good.RDS"))
+```
+```{r, echo = FALSE}
+fit0_less.good <- readRDS(here::here("wham","combined","north_south_scaa_fit_less_good.RDS"))
+north_scaa_less_fit <- readRDS(here::here("wham","combined","north_scaa_fit_less_multi.RDS"))
+south_scaa_less_fit <- readRDS(here::here("wham","combined","south_scaa_fit_less_multi.RDS"))
+```
+```{r, echo = TRUE}
+fit0_less.good$opt$obj
+north_scaa_less_fit$opt$obj + south_scaa_less_fit$opt$obj
+```
+---
+#Success!
+```{r, echo = FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","compare_two_stock_less_multi_good.png"))
+```
+---
+
+#Recruitment as random effect
+```{r, eval = FALSE}
+NAA_re <- list(N1_model = c("equilibrium","equilibrium"))
+NAA_re$sigma <- list("rec","rec")
+NAA_re$cor <- list("iid","iid")
+input.rec <-prepare_wham_input(north_south_less, NAA_re = NAA_re, basic_info = basic_info, selectivity = sel)
+input.rec$fleet_names = paste0(rep(c("North_", "South_"),each = 2), c("Trawl", "Non-Trawl"))
+m1 <- fit_wham(input.rec, do.retro = F, do.osa = F, do.sdrep = T, do.brps = F)
+saveRDS(m1, here("wham","combined","north_south_R_less_fit.RDS"))
+```
+---
+
+#Recruitment as random effect
+```{r, echo = FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","compare_scaa_R.png"))
+```
+
+---
+
+#All NAA as random effect
+```{r, eval = FALSE}
+NAA_re$sigma <- list("rec+1","rec+1")
+input.RS <-prepare_wham_input(north_south_less, NAA_re = NAA_re, basic_info = basic_info, selectivity = sel)
+input.RS$fleet_names = paste0(rep(c("North_", "South_"),each = 2), c("Trawl", "Non-Trawl"))
+m2 <- fit_wham(input.RS, do.retro = F, do.osa = F, do.sdrep = T, do.brps = F)
+saveRDS(m2, here("wham","combined","north_south_RS_less_fit.RDS"))
+```
+---
+
+#All NAA as random effect
+```{r, echo = FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","compare_R_RS.png"))
+```
+
+---
+
+#Movement hypothesis 1
+```{r, echo = FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","migration_diagram_1.jpg"))
+```
+Currently:
+* All Jan 1 recruitment for a given stock only in respective regions
+* All North fish move back to their spawning region at end of season 5
+* All North fish remain in spawning region until end of season 7
+* Spawning season is only time when whole North population is in spawning region
+* South population is only in South.
+
+---
+
+#Movement hypothesis 1
+1. Fit model with assumed movement prob = 0.1 both north to south and south to north (done)
+2. Fit model with prior on movement (mean = 0.1, sd = 0.5?) (not done)
+  * movement probabilities can be different from north to south and south to north 
+3. Fit model with yearly RE on movement. (not done)
+4. Fit model with covariate effects and yearly RE. (not done)
+
+
+---
+
+#1. p(move) = 0.1
+
+```{r, eval = FALSE}
+seasons = c(rep(1,5),2,rep(1,5))/12
+basic_info$fracyr_seasons <- seasons
+basic_info$NAA_where <- array(1, dim = c(2,2,8))
+basic_info$NAA_where[1,2,1] = 0
+basic_info$NAA_where[2,1,] = 0
+
+move = list(stock_move = c(TRUE,FALSE), separable = TRUE) #north moves, south doesn't
+move$must_move = array(0,dim = c(2,length(seasons),2))
+	
+#if north stock in region 2 (south) must move back to region 1 (north) at the end of interval 5 right before spawning
+move$must_move[1,5,2] <- 1 
+move$can_move = array(0, dim = c(2,length(seasons),2,2))
+move$can_move[1,c(1:4,7:11),,] <- 1 #only north stock can move and in seasons prior to spawning and after spawning
+move$can_move[1,5,2,] <- 1 #north stock can (and must) move in last season prior to spawning back to north 
+
+move$mean_vals <- array(0.1, dim = c(2,length(seasons),2,1))
+input.RS.move <-prepare_wham_input(north_south_less, NAA_re = NAA_re, 
+	basic_info = basic_info, selectivity = sel, move = move)
+temp <- array(as.integer(input.RS.move$map$trans_mu), dim = dim(input.RS.move$par$trans_mu))
+temp[] <- NA
+input.RS.move$map$trans_mu <- factor(temp)
+input.RS.move$fleet_names = paste0(rep(c("North_", "South_"),each = 2), c("Trawl", "Non-Trawl"))
+m3 <- fit_wham(input.RS.move, do.retro = F, do.osa = F, do.sdrep = T, do.brps = F)
+saveRDS(m3, here("wham","combined","north_south_RS_move_less_fit.RDS"))
+```
+
+---
+
+#1. p(move) = 0.1
+```{r, echo = FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","compare_RS_RSm.png"))
+```
+---
+
+#2. prior on p(move). E(p) = 0.1
+```{r, echo = FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","compare_RSm_RSmp.png"))
+```
+
+---
+
+#Movement hypothesis 2?
+```{r, echo = FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","migration_diagram_2.jpg"))
+```
+
+* All Jan 1 recruitment for a given stock only in respective regions
+* All fish move back to their spawning region at end of season 5 (both stocks)
+* All fish remain in spawning region until end of season 7 (both stocks)
+* Spawning season is only time when whole both populations are only in spawning region
+* Would need similar SS3 model to get prior for movement for South population
