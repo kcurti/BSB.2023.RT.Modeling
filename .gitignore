@@ -58,6 +58,7 @@ rsconnect/
 Bridge.Runs/*/wham/*/*.RDS
 !Bridge.Runs/*/wham/*/res_tables/*.RDS
 2023.RT.Runs/*/*.RDS
+2023.RT.Runs/*/*/*.RDS
 !2023.RT.Runs/*/res_tables/*.RDS
 2023.RT.Runs/Run1/bad_selex/*.RDS
 !2023.RT.Runs/Run1/bad_selex/res_tables/*.RDS
