@@ -123,11 +123,20 @@ seeds <- sample(1e-9:1e9, 100)
 sim_res_all <- cond_sim_fn(fit_file=fit_file, seeds = seeds[1:10], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham")
 saveRDS(sim_res_all, here::here("2023.RT.Runs","Run29","self_test_res.RDS"))
 sim_res_all <- c(sim_res_all, 
-  cond_sim_fn(fit_file=fit_file, seeds = seeds[11:50], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham"))
+  cond_sim_fn(fit_file=fit_file, seeds = seeds[9:50], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham"))
 saveRDS(sim_res_all, here::here("2023.RT.Runs","Run29","self_test_res.RDS"))
-sim_res2 <- cond_sim_fn(fit_file=fit_file, seeds = seeds[51:100], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham")
-sim_res_all <- c(sim_res_all,sim_res2)
+sim_res_all <- c(sim_res_all, cond_sim_fn(fit_file=fit_file, seeds = seeds[51:100], 
+  wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham", n.cores = 12))
 saveRDS(sim_res_all, here::here("2023.RT.Runs","Run29","self_test_res.RDS"))
 SSB_n <- sapply(sim_res_all, function(x) x$SSB[,1])
-diff <- SSB_n - fit$rep$SSB[,1]
-apply(diff,1,mean)
+fit <- readRDS(fit_file)
+reldiff <- (SSB_n - fit$rep$SSB[,1])/fit$rep$SSB[,1]
+good_grad <- which(sapply(sim_res_all, function(x) max(abs(x$grad))<1e-6))
+bias_est <- apply(reldiff[,good_grad],1,mean)
+bias_se <- apply(reldiff[,good_grad],1,sd)/sqrt(length(good_grad))
+bias_lo <- bias_est - qnorm(0.975)*bias_se
+bias_hi <- bias_est + qnorm(0.975)*bias_se
+plot(fit$years, bias_est, ylim = range(c(bias_lo,bias_hi)))
+polygon(c(fit$years,rev(fit$years)), c(bias_lo, rev(bias_hi)))
+grid()
+
