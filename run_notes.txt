@@ -129,3 +129,12 @@ Run 27: Back to run 25. Try time-varying sel on fleets.
 
 Run 28: Based on examinations of separate runs for north and south in North.Runs and South.Runs
 
+Run 29: Include movement (fixed parameters). Has projections. Sim testing completed.
+
+Run 30: Use priors for movement parameters. Fine tune variance paramters for populations. I.e., North pop in the south is set to be ~SCAA. 2dar1 now converges for north and south pops. Has projections. SSB40 now just uses avg recruitment from years 2000 onward.
+
+Run 31: Attempt AR1 on north to south movement rate for north pop. Doesn't converge.
+
+Run 32: Attempt B-H SR curves for North and South Populations. Converges ok, but steepness goes to 1.
+
+Run 33: Attempt temperature effects on recruitment. Fit with no effect (but temp included) complete, but latent temp is flat because of large observation error.
