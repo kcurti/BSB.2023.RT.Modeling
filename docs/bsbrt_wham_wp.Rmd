@@ -1,0 +1,335 @@
+---
+title: "Multi-WHAM: A mullti-stock, multi-region extension of the Woods Hole Assessment Model"
+author: "Timothy J. Miller^1^"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document:
+    keep_tex: no
+    fig_caption: yes
+    number_sections: yes
+    includes:
+      in_header: options.sty
+  html_document:
+    df_print: paged
+csl: fisheries-research.csl
+bibliography: bsb-wham.bib
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, tidy=FALSE, tidy.opts=list(width.cutoff=60), warning = FALSE, message = FALSE, fig.align = "center")
+#knitr::opts_knit$set(root.dir = '../')
+library(knitr)
+library(tidyverse)
+library(pander)
+library(kableExtra)
+library(wham)
+#library(ggplotFL)
+library(viridis)
+```
+
+$^1$timothy.j.miller@noaa.gov, Northeast Fisheries Science Center, National Marine Fisheries Service, 166 Water Street, Woods Hole, MA 02543, USA\
+
+\pagebreak
+
+## Summary {-}
+
+The Woods Hole Assessment Model (WHAM) software package is maintained and developed at the Northeast Fisheries Science Center to enable state-space stock assessments, i.e. where processes such as the annual transitions in numbers-at-age (survival), natural mortality, selectivity, and catchability are treated as time- and/or age-varying random effects. WHAM can also be configured without random effects as a traditional statistical catch-at-age model in order to bridge from current assessments which use Age-Structured Assessment Program (ASAP). Here, we present an extension of WHAM (Multi-WHAM) to model multiple stocks and/or regions and allow movement of stocks among regions.
+
+The new features of Multi-WHAM include
+
+* seasonal intervals within years
+* variation in movement rates by stock, region-to-region, season, age, and year
+* effects of environmental covariates on movement rates by stock, region-to-region, season, and age
+* effects of environmental covariates on mortality rates by stock, region, and age
+* effects of environmental covariates on recruitment by stock
+* stock-specific stock-recruitment models
+* priors for movement rates
+* seasonal operation of fleets
+* mortality and movement modeled sequentially or simultaneously
+* options for weighting of stock-specific SSB/R for global SPR-based reference points
+
+Currently, the age and year differences in movement rates are modeled as autoregressive random effects similar to how WHAM models corresponding variation in survival, and M. Although Multi-WHAM includes several new features, it can still be configured for fitting single-stock, single-region models identically to the current version of WHAM.
+<!--
+The extension of WHAM is still considered developmental. It is branch of the WHAM repository ("lab") that has not been merged in with the main branch of the WHAM repository because documentation of new functions and updating of software tests are yet to be completed. 
+-->
+
+\pagebreak
+
+# Introduction {-}
+
+The Woods Hole Assessment Model (WHAM) is an R package developed at the Northeast Fisheries Science Center [https://timjmiller.github.io/wham, @millerstock20; @stockmiller21]. Primary data structures (catch and index observations) are similar to ASAP and can be configured to fit SCAA models nearly identically. There is functionality built into WHAM to migrate ASAP input files to R inputs needed for WHAM, and WHAM uses many of the same types of data inputs, such as empirical weight-at-age, so that existing assessments in the U.S. Northeast can be replicated and tested against models with state-space and environmental effects in a single framework. WHAM primarily differs from ASAP through inclusion of random effects options and implementation via the Template Model Builder package [TMB, @kristensenetal16]. In this respect it is similar to the State-space Assessment Model [SAM, @nielsenberg14], which is currently used to manage many stocks in the ICES region. WHAM is currently used to manage 5 stocks and likey 4 more after the final report of the Atlantic cod research track assessment. It has been reviewed in the literature and simulation tested [@stocketal21; @stockmiller21]. It has also been used as the operating model in the index-based assessment methods research track assessment [@legaultetal23] and is also the main tool for simulation studies in the research track on state-space assessment models. 
+
+Here, we describe a multi-stock and multi-region extension of the WHAM package. This extension currently resides in the "lab" branch of the WAM repository (https://github.com/timjmiller/wham/tree/lab). The Multi-WHAM package can be installed in R by running
+
+```{r, eval=FALSE}
+devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", 
+  INSTALL_opts=c("--no-multiarch"))
+```
+
+# Methods {-}
+
+Many of the equations for the multi-wham version are the same as @stockmiller21 including selectivity options, catch, index and age composition observations, and processes and observations for environmental covariates. Differences from the single-stock version are described below.
+
+## Model description {-}
+
+### Population {-}
+
+For a single region and stock the numbers at age $a$ surviving, dying from fishing, and dying from other causes over time interval $\delta$ are
+$$N_{L,t+\delta,a} = N_{t,a} S(\delta,a) = N_{t,a} e^{-Z_{t,a}\delta},$$
+$$N_{C,t+\delta} = N_{t,a} H(\delta,a) = N_t \frac{F_{t,a}}{Z_{t,a}}\left(1 - e^{-Z_{t,a}\delta}\right),$$
+and
+$$N_{K,t+\delta} = N_{t,a} D(\delta,a) = N_t {M_{t,a}}{Z_{t,a}}\left(1 - e^{-Z_{t,a}\delta}\right).$$
+
+In the single-stock version of WHAM, these intervals are $\delta = 1$ year and $t$ is January 1 of each year 
+
+These outcomes can be defined in vector-matrix form using probability transition matrices. If we define
+\begin{equation*}
+\mathbf{P}_{t,\delta,a} = 
+  \begin{bmatrix}
+     S(\delta,a) & H(\delta,a) & D(\delta,a) \\
+     0 & 1 & 0\\
+     0 & 0 & 1\\
+  \end{bmatrix}
+\end{equation*}
+then, for $$\mathbf{N}_{t,a} = (N_{L,t,a}, N_{C,t,a}, N_{K,t,a})'$$
+\begin{equation*}
+  \mathbf{N}_{t+\delta,a} = \mathbf{P}_{t,\delta,a}' \textbf{N}_{t,a}
+\end{equation*}
+Also, 
+$$ \mathbf{P}_{t,\delta_1 + \delta_2,a} = \mathbf{P}_{t,\delta_1,a} \mathbf{P}_{t,\delta_2,a}$$
+
+When there are $n_R$ regions and $n_F$ fleets, 
+
+$$\mathbf{N}_{t,a} = (N_{L,t,a,1}, \ldots, N_{L,t,a,n_R}, N_{C,t,a,1}, \ldots, N_{C,t,a,n_F}, N_{K,t,a})' = (\mathbf{N}_{L,t,a}',\mathbf{N}_{C,t,a}',N_{K,t,a})'$$
+and
+
+\begin{equation*}
+\mathbf{P}_{t,\delta,a} = \begin{bmatrix}
+ \mathbf{O}(\delta,a) & \mathbf{H}(\delta,a) & \mathbf{D}(\delta,a) \\
+ 0 & \mathbf{I}_{H} & 0\\
+ 0 & 0 & \mathbf{I}_{D}
+\end{bmatrix}
+\end{equation*}
+
+Also, 
+
+$$\mathbf{N}_{L,t+\delta,a} = \mathbf{O}(\delta,a)' \mathbf{N}_{L,t,a}$$
+$$\mathbf{N}_{C,t+\delta,a} = \mathbf{H}(\delta,a)' \mathbf{N}_{L,t,a}$$
+$$N_{K,t+\delta,a} = \mathbf{D}(\delta,a)' \mathbf{N}_{L,t,a}$$
+
+
+\begin{equation*}
+  \mathbf{O}(\delta,a) = 
+  \begin{bmatrix}
+    O_{1,1}(\delta,a) & \cdots & O_{1,n_R}(\delta,a) \\
+    \vdots & \ddots & \vdots \\
+    O_{n_R,1}(\delta,a) & \cdots & O_{n_R,n_R}(\delta,a)
+  \end{bmatrix}
+\end{equation*}
+is the $n_R \times n_R$ matrix defining survival and movement from one region to another over the interval.
+\begin{equation*} 
+  \mathbf{H}(\delta,a) = 
+  \begin{bmatrix}
+    H_{1,1}(\delta,a) & \cdots & H_{1,n_F}(\delta,a) \\
+    \vdots & \ddots & \vdots \\
+    H_{n_R,1}(\delta,a) & \cdots & H_{n_R,n_F}(\delta,a)
+  \end{bmatrix}
+\end{equation*}
+is the $n_R \times n_F$ matrix defining proportions captured in each fleet given alive in each region at the begining of the interval. Multi-WHAM currently assumes each fleet operates in a single region.
+
+Multi-WHAM can assume survival and movement are sequential or simultaneous. When sequential survival and death processes occur over the interval and movement is assumed to happen instantly at the end of the interval:
+\begin{equation*}
+  \mathbf{O}(\delta,a) = \mathbf{S}(\delta,a)\boldsymbol{\mu}(\delta,a)
+\end{equation*}
+$\mathbf{S}$ is a diagonal matrix of proportions surviving in each region (given they start in that region) 
+
+\begin{equation*}
+\mathbf{S}(\delta,a) = 
+  \begin{bmatrix}
+    e^{-Z_1(\delta,a)} & 0 & \cdots & 0 \\
+    0 & e^{-Z_2(\delta,a)} & \cdots & 0 \\
+    \vdots & \vdots & \ddots & \vdots \\
+    0 & \cdots & 0 & e^{-Z_R(\delta,a)}
+  \end{bmatrix}
+\end{equation*}
+
+$\boldsymbol{\mu}$ is matrix of proportions moving from one region to another or staying (given they start in that region) 
+\begin{equation*}
+\boldsymbol{\mu}(\delta,a) = 
+  \begin{bmatrix}
+    1-\sum_{r' \neq 1} \mu_{1\rightarrow r'} & \mu_{1\rightarrow 2} & \cdots & \mu_{1\rightarrow R} \\
+    \mu_{2\rightarrow 1} & 1-\sum_{r' \neq 2} \mu_{2\rightarrow r'} & \cdots & \mu_{2\rightarrow R} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    \mu_{R\rightarrow 1} & \cdots & \mu_{R\rightarrow R-1} & 1-\sum_{r' \neq R} \mu_{R\rightarrow r'}
+  \end{bmatrix}
+\end{equation*}
+
+  When survival and movement are assumed to occur simultaneously, all movement and mortality parameters are instantaneous rates. We obtain the probability transition matrix over an interval $\delta$ by exponentiating the instantaneous rate matrix [@millerandersen08]
+\begin{equation*}
+{\bf P}_{s,t,a}(\delta) = e^{{\bf A}_{s,t,a}\delta}
+\end{equation*}
+The instantaneous rate matrix takes rates of movement between regions and the mortality rates for each fleet and region. Along the diagonal is the - sum of the other rates (the hazard). For two regions and two fleets:
+ \begin{equation*}
+ \mathbf{A}_{s,t,a} = \begin{bmatrix}
+ -(\mu_{1\rightarrow 2} + F_{t,a,1} + M_{t,a,1}) & \mu_{1\rightarrow 2} & F_{t,a,1} & 0 & M_{t,a,1} \\
+ \mu_{2\rightarrow 1} & -(\mu_{2 \rightarrow 1} + F_{t,a,2} + M_{t,a,2}) & 0 & F_{t,a,2} & M_{t,a,2} \\
+ 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0
+ \end{bmatrix}.
+\end{equation*}
+
+  For example, when there is one region and $\delta = 1$, exponentiating the instantaneous rate matrix 
+ \begin{equation*}
+ \mathbf{A}_{s,t,a} = \begin{bmatrix}
+ -Z_{t,a} & F_{t,a} & M_{t,a} \\
+ 0 & 0 & 0 \\ 
+ 0 & 0 & 0 
+ \end{bmatrix}.
+\end{equation*}
+results in the Baranov equations 
+ \begin{equation*}
+e^{\mathbf{A}_{s,t,a}\delta} = \begin{bmatrix}
+ e^{-Z_{t,a}} & \frac{F_{t,a}}{Z_{t,a}}\left(1-e^{-Z_{t,a}}\right) & \frac{M_{t,a}}{Z_{t,a}}\left(1-e^{-Z_{t,a}}\right) \\
+ 0 & 1 & 0 \\
+ 0 & 0 & 1 
+ \end{bmatrix}.
+\end{equation*}
+<!--\textbf{Still needs work because it is slow.}-->
+
+There are at most $n_R-1$ parameters for each stock, season, region for either the sequential or simultaneous configurations. Movement parameters are estimated on a transformed scale. If survival and movement are occur simultaneously, the parameters are estimated on log scale and if they are separable, an additive logit link transformation (like a multinomial regression) is used.
+
+Random effects are normally distributed on the transformed scale
+\begin{equation*}
+f(\mu_{s,r,r',t,y,a}) = \theta_{s,r,r',t} + \epsilon_{s,r,r',t,y,a} 
+\end{equation*}
+ \begin{equation*}
+    Cov\left(\epsilon_{s,r,r',t,y,a},\epsilon_{s,r,r',t,y',a'}\right) =      \frac{\rho_{s,r,r',t,A}^{|a-a'|}\rho_{s,r,r',t,Y}^{|y-y'|}\sigma^2_{s,r,r',t}}{\left(1 - \rho_{s,r,r',t,A}^2\right)\left(1 - \rho_{s,r,r',t,Y}^2\right)}
+  \end{equation*}
+  for moving from region $r$ to $r'$
+
+Covariate effects can be stock-, age-, season-, and/or region-to-region-specific:
+  \begin{equation*}
+  f(\mu_{s,r,r',t,y,a}) = \theta_{s,r,r',t} + \sum^{n_E}_{k=1} \beta_{s,a,t,r,r',k} E_k 
+  \end{equation*}
+and the same orthogonal polynomial options in the standard WHAM package are available. Movement parameters can including both random and environmental effects:
+  \begin{equation*}
+  f(\mu_{s,r,r',t,y,a}) = \theta_{s,r,r',t} + r_{s,r,r',t,y,a} + \sum^{n_E}_{k=1} \beta_{s,r,r',t,k} E_{k,y} 
+  \end{equation*}
+
+There is currently no likelihood component for tagging data. Therefore, it is likely that movement parameters would either need to be fixed or assumed to have some prior distribution, possibly based on external parameter estimates. When prior distributions are used, the (mean) movement parameters are random effects with the mean defined by the user-defined fixed effect counterpart and standard deviation
+  \begin{equation*}
+  \gamma_{s,r,r',t} \sim \text{N}\left(\theta_{s,r,r',t}, \sigma^2_{s,r,r',t}\right)
+  \end{equation*}
+When priors are used, the movement is defined instead as
+  \begin{equation*}
+  f(\mu_{s,r,r',t,y,a}) = \gamma_{s,r,r',t} + r_{s,r,r',t,y,a} + \sum^{n_E}_{k=1} \beta_{s,r,r',t,k} E_{k,y} 
+  \end{equation*}
+
+The default setting in Multi-WHAM is no movement for any stocks even when the number of regions is greater than 1. Also, multiple ASAP `*.dat` files can be read in simultaneously:
+```{r, eval = FALSE}
+asap <- read_asap3_dat(c("file_1.DAT", "file_2.DAT","file_3.DAT","file_4.DAT")))
+```
+which can be used to quickly structure a model with each stock isolated in its own region. This set up can, for many configurations, provide equivalent results to fitting separate models for each stock.
+
+For each stock, recruitment is assumed to occur on January 1 each year only in the user-defined spawning region for that stock. Abundance at older ages is allowed in all regions on January 1. The user also defines which older ages can be where using the `prepare_wham_input` element `basic_info$NAA_where`. Other elements of `move` argument to `prepare_wham_input`, `move$can_move` and `move$must_move`,  define if and where fish can move each season.
+
+
+### Seasons {-}
+
+Seasonality can be configured to accomodate characteristics of spawning, migration, and fleet-specific behavior. The matrix of transition probabilities over the year $y$, is a product of seasonal matrices
+      \begin{equation*}
+	\mathbf{P}_{s,y,a} = \prod^{n_s}_{t=1} \mathbf{P}_{s,a,y,t} 
+      \end{equation*}
+where each of the seasonal matrices can be configured depending on assumptions of migration timing and whether fleets are operating.
+  
+Each year can be divided into any number of seasons. For example, `basic_info$fracyr_seasons = rep(0.1,10)` would create 10 intervals of equal length for the year ($\delta = 1/10$).
+
+### Numbers at age {-}
+
+The numbers at age for a given stock are vector analogs of the equations for numbers at age in the standard WHAM model [@stockmiller21] and
+options for configuring recruitment are the same. If recruitment is assumed to be a function of SSB, it is only the SSB in the stock-region at the time of spawning. That is, spawning individuals from the stock may be in other regions at the time of spawning, but only those in the region where the stock recruits to will constitute the spawning stock. Stock-recruit options may differ for each stock.
+
+For ages 2 to A-1, where A is the plus group, The vector of numbers at age a in year y by region is 
+\begin{equation*}
+\log\left(\mathbf{N}_{s,y,a}\right) =  \log\left(\mathbf{O}_{s,y,a-1}' \mathbf{N}_{s,y-1,a-1}\right) + \boldsymbol{\varepsilon}_{s,y,a}
+\end{equation*}
+and for the plus group
+\begin{equation*}
+\log\left(\mathbf{N}_{s,y,A}\right) =  \log\left(\mathbf{O}_{s,y,A-1}' \mathbf{N}_{s,y-1,A-1} + \mathbf{O}_{s,y,A}' \mathbf{N}_{s,y-1,A}\right) + \boldsymbol{\varepsilon}_{s,y,A}.
+\end{equation*}
+
+The region-specific errors $\boldsymbol{\varepsilon}_{s,y,a}$ are independent with the same variance $\sigma_{s,a}$. The same autoregressive options as the standard WHAM package are available for the numbers at age for each stock and region, but, currently, the variance and correlation parameters are the same across regions for a given stock.
+
+### Initial numbers at age {-}
+
+The options for parameterizing initial numbers at age have been expanded in Multi-WHAM:
+
+* `age-specific`: $\log N_{s,r,1,a}$ are fixed effects. 
+* `equilibrium`: $\log N_{s,r,1,1}$ and $\log F_{s}$ are fixed effects defining equilibrium numbers at age in the first year.
+* `iid`: $\log N_{s,r,1,a} \sim \text{N}\left(\eta_{s,r},\sigma^2_{s,r}\right)$ are iid random effects.
+* `ar1`: $\log N_{s,r,1,a} \sim \text{N}\left(\eta_{s,r},\frac{\sigma^2_{s,r}}{\left(1-\rho_{s,r}^2\right)}\right)$ are AR1 random effects.
+
+The first two options were previously available, but the `age-specific` option will likely be difficult to estimate when there is movement and individuals can be in multiple regions on January 1 due to the number of parameters for abundances at older ages that may not be well observed in isolation from other stocks. The `equilibrium` option is analogous to the option in the standard WHAM model, but is generalized for vectors of abundances by regions and matrices of survival and movement $\mathbf{O}$ at a given age. The last two options treat the initial abundances as random effects with or without autocorrelation with age.
+
+### Natural mortality {-}
+
+Natural mortality options have been expanded in the Mulit-WHAM version. When not estimated, (mean) mortality rates may be stock-, region-, and age-specific. When random effects are allowed, variance and correlation parameters can be stock and region specific. The options for each stock and region are
+
+* `none`: (default) No random effects by age or year.
+* `iid_a`: uncorrelated M by age, constant in time.
+* `iid_y`: uncorrelated M by year, constant all ages.
+* `ar1_a`: M correlated by age (AR1), constant in time.
+* `ar1_y`: M correlated by year (AR1), constant all ages.
+* `iid_ay`: M uncorrelated by year and age (2D).
+* `ar1_ay`: M correlated by year and age (2D AR1), as in @cadigan16.
+
+Any environmental covariate effects can be stock-, region-, and age-specific.
+
+### Weight and Maturity at age {-}
+
+Weight at age is treated similarly to the standard WHAM package. Annual weight at age matrices for each fleet are used to calculate total catch and the weight at age is applied to catch numbers at age for any stocks caught by the fleet. Similarly, when indices and/or associated age composition observations are measured in biomass, the weight at age matrices for the index are applied to predicted numbers at age of all stocks observed by the survey. Unique weight at age and maturity at age matrices are allowed for each stock to calculate spawning stock biomass.
+
+### Reference points {-}
+
+Currently a single F reference point is estimated across stocks and regions. Selectivity is determined as before when there are multiple fleets: 
+  $\tilde F_{f,a} = \tilde F \text{sel}_{f,a}$
+  where $\text{sel}_{f,a}$ is determined by averaging F at age over a user-defined set of years
+\begin{equation*}
+  \text{sel}_{f,a} = \frac{\overline F_{f,a}}{\max {\overline F}_{a}}
+\end{equation*}
+
+As in the standard WHAM package, ``static'' reference points, typically meant to be defined for prevailing conditions, average all of the inputs to the SSB/R or Y/R calculations over the user-specified years (e.g., last 5 years of the model). This same averaging is also applied to possibly time-varying movement parameters. 
+
+For $X\%$ SPR-based reference points, we use a Newton method and iterate
+\begin{equation*}
+  \tilde F^{(i)} = \tilde F^{(i-1)} - \frac{g\left(\tilde F^{(i-1)}\right)}{\tilde F^{(i-1)}g'\left(\tilde F^{(i-1)}\right)}
+\end{equation*}
+where $g(F)$ is the difference between the weighted spawning biomass per recruit at $F$ and X\% of the weighted unfished spawning biomass per recruit:
+\begin{equation*}
+  g(F) = \sum^S_{s=1} w_s\left(\text{SSB/R}(F) - \frac{X}{100}\text{SSB/R}(F=0)\right)
+\end{equation*}
+A similar method is used to find F that maximizes yield for MSY-based reference points.
+
+$F$ reference points by stock and/or region are not currently implemented because a unique solution is not guaranteed when there is movement.
+
+### Projections {-}
+
+The projection options for Multi-WHAM are the same as those for the standard WHAM package. When there is movement of any stocks, the user has the option to project and use any random effects for time-varying movement or use the average over user specified years, analogous to how natural mortality can be treated in the projection period. The projections of any environmental covariates has been revised to better include error in the estimated latent covariate in any effects on the population.
+
+<!--
+## Model configurations  {-}
+
+We compared the base models for each stock in the single-stock and multi-stock versions of wham. 
+
+```{r, echo = FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","compare_one_stock_models.png"))
+```
+-->
+
+
+# References {-}
+
+<div id="refs"></div>
+
+\pagebreak

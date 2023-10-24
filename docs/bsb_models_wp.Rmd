@@ -1,0 +1,569 @@
+---
+title: Application of the Woods Hole Assessment Model to Black Sea Bass
+author: 
+  - Timothy J. Miller^1^
+  - Kiersten Curti
+  - Alex Hansell
+date: ""
+output:
+  pdf_document:
+    keep_tex: no
+    fig_caption: yes
+    number_sections: yes
+    includes:
+      in_header: options.sty
+  html_document:
+    df_print: paged
+csl: fisheries-research.csl
+bibliography: bsb-wham.bib
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, tidy=FALSE, tidy.opts=list(width.cutoff=60), warning = FALSE, message = FALSE, fig.align = "center")
+#knitr::opts_knit$set(root.dir = '../')
+library(knitr)
+library(tidyverse)
+library(pander)
+library(kableExtra)
+library(TMB)
+#library(ggplotFL)
+library(viridis)
+library(wham, lib.loc = "c:/work/wham/old_packages/multi_wham")
+type <- "latex"
+if(knitr::is_latex_output()) type <- "latex"
+if(knitr::is_html_output()) type <- "html"
+options(knitr.kable.NA = '')
+
+```
+
+$^1$timothy.j.miller@noaa.gov, Northeast Fisheries Science Center, National Marine Fisheries Service, 166 Water Street, Woods Hole, MA 02543, USA\
+
+\pagebreak
+
+# Summary {-}
+
+The Woods Hole Assessment Model (WHAM) software package is maintained and developed at the Northeast Fisheries Science Center to enable state-space stock assessments, i.e. where processes such as the annual transitions in numbers-at-age (survival), natural mortality, selectivity, and catchability are treated as time- and, in some cases, age-varying random effects. 
+
+The current proposed model for management uses the Multi-WHAM version of WHAM [@miller_bsb_wham_wp] and models northern and souther components of the stock simultaneously. It includes movement of the northern stock to and from the southern region, VAST  and Recreational CPA indices in the north and south, commercial and recreational fleets in the north and south and age composition observations for all fleets and indices. Process errors in recruitment, survival, and fleet and index selectivity are estimated. 
+
+The proposed model exhibits no retrospective patterns in fishing mortality or SSB and OSA residuals appear adequate for most of the data components.
+
+
+\pagebreak
+
+# Introduction
+
+Black sea bass is currently assessed using ASAP, the Age-Structured Assessment Program [@legaultrestreppo98; @millerlegault15]. ASAP is a statistical catch-at-age (SCAA) model which estimates all model parameters as fixed effects. 
+
+We fit a series of models using the multi-stock, multi-region extension of WHAM for black sea bass [https://github.com/timjmiller/wham/tree/lab, @miller_bsb_wham_wp]. 
+
+# Methods
+
+
+All code used for model fits along with results summaries can be found at https://github.com/kcurti/BSB.2023.RT.Modeling.
+
+## Early runs
+
+The development of the multi-stock, multi-area version of WHAM was driven primarily by the needs of black sea bass and NEUS stocks of Atlantic cod. Because this extension to WHAM represents a major change to the code used to configure and estimate models, we compared results from fits of separate ASAP models, separate base WHAM models to the two regional components, as well as combined fits of these components in the new extension of WHAM without any movement (Figure \ref{fig:compare-asap-wham}). The latter fit will provide independent fits of the two components simultaneously.  
+
+Then we fit models treating recruitment as random effects and then also included random effects on survival for the older age classes. 
+
+Comparing separate fits for north and south using ASAP files from the last management track assessment in basic wham and multi-wham.
+
+\blandscape
+```{r compare-asap-wham, echo = FALSE, out.width="75%", fig.align="center", fig.cap = "Comparison of recruitment, spawning stock biomass, and fishing mortality estimates from ASAP and WHAM fits to each regional component separately as well as simultaneoulsy in the multi-stock extension of WHAM using ASAP3 model input files from the most recent management track assessment."}
+knitr::include_graphics(here::here("docs","plots","compare_one_stock_models.png"))
+```
+\elandscape
+
+## Model configurations
+
+We compared the base models for each stock in the single-stock and multi-stock versions of wham. 
+
+
+## Configuring selectivity of fleets and indices
+
+Early model runs kept the same selectivity blocks for the fleets as in latest management track assessment, but we found substantial patterns in OSA residuals for age composition observations for some fleets and/or indices. Furthermore, it is possible to estimate time-varying selectivity in WHAM, so we explored alternative configurations of mean selectivity models, selectivity random effects, and age composition likelihoods. We did these explorations in separate models for the north and south components of the stock for efficiency reasons (i.e., faster run times and iterating through models).
+
+These explorations culminated in configurations in Table \ref{tab:age-comp-sel-table}.
+
+```{r, echo = F, eval = T}
+age_comp_names <- c("North Commercial", "North Recreational", "South Commercial", "South Recreational",
+  "North Recreational CPA", "North VAST", "South Recreational CPA", "South VAST")
+age_comp_mod <- c("Dirichlet-Multinomial", "Logistic-normal (0s as missing)", "Logistic-normal (AR1, 0s as missing)","Logistic-normal (AR1, 0s as missing)", "Logistic-normal (0s as missing)","Dirichlet-Multinomial","Logistic-normal (AR1, 0s as missing)","Logistic-normal (AR1, 0s as missing)")
+mean_sel_mod <- c("age-specific (flat-topped at ages > 3)",
+  "age-specific (flat-topped at ages > 6)",
+  "logistic", "logistic",
+  "age-specific (flat-topped at ages > 1)",
+  "age-specific (flat-topped at ages > 4)",
+  "age-specific (flat-topped at ages > 2)",
+  "age-specific (flat-topped at ages > 1)")
+sel_re_mod <- c("2D-AR1 (age and year)", 
+  "2D-AR1 (age and year)",
+  "None",
+  "None",
+  "AR1 (year)",
+  "2D-AR1 (age and year)",
+  "None",
+  "None")
+out <- cbind.data.frame("Data component" = age_comp_names,  "Age Composition Likelihood" = age_comp_mod,  
+  "Mean Selectivity model" = mean_sel_mod, "Random effects configuration" = sel_re_mod)
+
+out <- kable(out, format = type, booktabs = T, escape=F, row.names = F, label = "age-comp-sel-table",
+    caption="Configuration of Age composition likelihood, mean selectivity model, and selectivity random effects for each age composition data component in Run 34.", align = c(rep("l",4)))
+knitr::knit_print(kableExtra::landscape(out))
+
+```
+
+
+## Seasonality and movement
+
+The WHAM model assumes 11 intervals within each calendar year: 5 monthly time intervals from Jan 1 to May 31, a spawning season from June 1 to July 31, and 5 monthly intervals from August 1 to December 31. All southern fish are assumed to never move to the northern region. Northern fish are all in the northern region during the spawning period. A proportion $p_1$ of northern fish can move to the south each month during the last 5 months of the year, but no movement is allows from the south to the north during this period. For the first 4 months of the year a proportion $p_2$ of northern fish in the south can move back to the north, but no movement from the north to south is allowed during this period. In the fifth month any northern fish still in the south are assumed to move back to the north for the subsequent spawning period. We configured survival and movement to occur sequentially in each interval. Each of the two proportions are assumed constant across intervals, age, and year.
+
+\
+\
+\
+```{r, echo = FALSE, out.width="80%", fig.align="center", fig.cap = "Diagram of intervals within the year and configuation of the dynamics of each component of the BSB population."}
+knitr::include_graphics(here::here("docs","plots","migration_diagram_1.jpg"))
+```
+\
+\
+\
+
+The monthly movement matrices are
+\begin{equation*}
+\mathbf{p}_{1} = 
+  \begin{bmatrix}
+     1-p_1 & p_1 \\
+     0 & 1 \\
+  \end{bmatrix}
+\end{equation*}
+for portion of the year after spawning and
+\begin{equation*}
+\mathbf{p}_{2} = 
+  \begin{bmatrix}
+     1 &  0 \\
+     p_2 & 1-p_2 \\
+  \end{bmatrix}
+\end{equation*}
+for portion of the year before spawning.
+
+### Prior distribution for movement rates
+
+The Stock Synthesis model has 2 seasons (6 months each) where a proportion $P_1$ of the northern component moves to the south in one season and some proportion  $P_2$ move back to the south in the second season. The movement matrices for each season is
+\begin{equation*}
+\mathbf{P}_{1} = 
+  \begin{bmatrix}
+     1-P_1 & P_1 \\
+     0 & 1 \\
+  \end{bmatrix}
+\end{equation*}
+and
+\begin{equation*}
+\mathbf{P}_{2} = 
+  \begin{bmatrix}
+     1 &  0 \\
+     P_2 & 1-P_2 \\
+  \end{bmatrix}
+\end{equation*}
+
+We approximate the monthly movement matrices as the roots $\mathbf{P}_1$ and $\mathbf{P}_2$ defined by the number of months of movement for each season (5 and 4, respectively): $\mathbf{p}_1 = \mathbf{P}_1^{\frac{1}{5}}$ and $\mathbf{p}_2 = \mathbf{P}_2^{\frac{1}{4}}$. Given the proportion parameter, the eigen decomposition of the matricies can be used to define the roots
+$$  \mathbf{P}_1^{1/5} = \mathbf{V}_1 \mathbf{D}_1^{\frac{1}{5}} \mathbf{V}_1^{-1}$$
+$$  \mathbf{P}_2^{1/4} = \mathbf{V}_2 \mathbf{D}_2^{\frac{1}{4}} \mathbf{V}_2^{-1}$$
+where $\mathbf{V}_i$ and $\mathbf{D}_i$ are the matrix of eigenvectors (columnwise) and the diagonal matrix of corresponding eigenvalues of $\mathbf{P}_i$ for parameter $P_i$. Note, for diagonal matrices, $\mathbf{D}_i^k$ is equal to the diagonal matrix with the elements raised to the power $k$.
+
+We used a parametric bootstrap approach to determine an appropriate standard deviation for the prior distribution for the movement parameters. 
+The actual parameters $x_1$ and $x_2$ estimated in the SS model are transformations of $P_1$ and $P_2$ such that
+$$
+P_i = \frac{1}{1 + 2e^{-x_i}}
+$$
+In WHAM a logit transformation is used 
+$$
+p_i = \frac{1}{1+e^{-y_i}}
+$$
+We simulated 1000 values from a normal distribution with mean and standard deviation defined by the SS parameter estimate and standared error
+$\tilde x_i \sim N(x_i, SE(x_i))$. For each simulated value we constructed $\mathbf{P}_i$, took the appropriate root and calculated inverse logit for $\tilde y_i$. We calculated the mean and standard deviation of the values $y_i$. The mean values did not differ meaningfully from the transformation of the original estimates and the standard deviation was approximately 0.2 for both parameters.
+
+## Recruitment and Survival
+
+For the northern population abundance at age 1 on January 1 (recruitment) is only allowed in the northern region, but given the monthly movement described above, older individuals that previously recruited in the northern region may occur in the southern region on January 1. Therefore, a model with survival random effects will model the transitions (survival/movement) of abundances at age of northern origin fish in each region. All of the initial runs assumed variance parameters for these random effects to be the same for northern origin fish occurring in both regions on January 1. The base model assumes very small variance for the transitions of northern fish in the southern region, which is essentially the same as the deterministic transition assumptions of a statistical catch at age model. We also allow 2DAR1 correlation for recruitment and survival for both the northern and southern components. Variance and correlation parameters for the recruitment and survival random effects are different for the northern and southern components.
+
+### Uncertainty recreational CPA index observations
+
+The CVs provided by the analyses for the recreational catch per angler ranged between 0.02 and 0.06 which the working group felt did not capture the true uncertainty in the index with regard to its relationship to stock abundance. In many of the initial runs as well as the base model we allowed a scalar multiple of the standard deviation of the log aggregate index to be estimated for these indices in the northern and southern regions. Models that successfully estimated these scalars indicated standard deviations for these surveys to be  approximately 5 times the input value and this value was fixed in many preliminary runs to avoid dealing with convergence problems. However, the base model successfully estimated these scalars. The model estimates are negligibly affected by estimating these scalars, but we felt estimating these parameters allowed uncertainty in model output to be more properly conveyed.
+
+## Bottom Temperature effects on recruitment
+
+We have bottom temperature observations for the northern and southern regions from 1963 to 2021 and estimated standard errors of those observations. We assumed AR1 models for the latent bottom temperature covariates in each region. We fit models with the bottom temperature covariate observations in the model, but without effects on recruitment. This is the null model which can be compared with models with effects on recruitment using AIC because the observations included in each model are the same. We also fit a model with effects of the regional bottom temperatures on the respective stock components. The hypothesis is that bottom temperature affects overwinter survival of fish where the fish turn from age 0 to age 1 on January 1. 
+
+We assume the covariate in year $y$ affects recruitment in the same years because the covariate observations are from months January to March. The fish are technically already 1 year old, but there are no observations of these individuals until later in the year except possibly in fishery catches which are accumulated over the whole year. Expected log-recruitment is a linear function of log-recruitment at the previous time step and bottom temperature
+
+\begin{equation}
+\log R_y = \mu_R + \beta x_y + \epsilon_y
+\end{equation}
+
+Comparison of the base model to one with the bottom temperature effect on natural mortality at age 1 might be of interest in the future.
+
+## Dead End Runs
+
+We attenmpted a few further extensions of the base model. First we fit models that assumed Beverton-Holt stock recruit relationships for the north and south components. Although this fit converged nominally, the $\alpha$ and $\beta$ parameters tended toward infinity (equivalent to steepness tending toward 1). We also fit a model with AR1 annual random effects in the movement rates from the north to the south for the northern stock component. This run did not converge.
+
+
+## self tests
+
+## Jitter analysis
+
+## Reference points
+
+Because 
+
+## Projections
+
+The same options in the basic single stock WHAM model are available in the multi-stock extension. To demonstrate the the projection capability, we configured a three year projection with catch set to 10kmt in 2022 and fishing at $F_{40}$ in the subsequent two years.
+
+# Results
+
+```{r, echo = F, eval = T}
+library(TMB)
+null_mod <- readRDS(here::here("2023.RT.Runs","Run33","fit_no_effect.RDS"))
+Run33 <- readRDS(here::here("2023.RT.Runs","Run33","fit_proj.RDS"))
+Run34 <- readRDS(here::here("2023.RT.Runs","Run34","fit_proj.RDS"))
+dat <- Run34$input$data
+std <- summary(Run34$sdrep, "report")
+ssb40_ind <- which(rownames(std) == "log_SSB_FXSPR_static")
+ssb_ind <- which(rownames(std) == "log_SSB")
+ssb_tot_ind <- which(rownames(std) == "log_SSB_all")
+#exp(std[which(rownames(std) == "log_SSB_FXSPR_static"),1])
+#sum(exp(std[which(rownames(std) == "log_SSB_FXSPR_static")[1:2],1]))
+predR_ind <- which(rownames(std) == "log_SPR_FXSPR")
+```
+
+```{r, echo = FALSE, out.width="75%", fig.align="center", fig.cap= "Estimated survival deviations from the proposed base model."}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","NAA_dev_tile.png"))
+```
+```{r, echo = FALSE, out.width="75%", fig.align="center", fig.cap= "Estimated selectivity for indices and fleets from the proposed base model."}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SelAA_tile.png"))
+```
+
+
+```{r, echo = F, eval = T}
+AIC <-  round(2*c((null_mod$opt$obj + length(null_mod$opt$par)), Run33$opt$obj + length(Run33$opt$par)),2)
+Rsig <-  round(exp(c(null_mod$parList$log_NAA_sigma[1,1,1], Run33$parList$log_NAA_sigma[1,1,1])),2)
+out <- cbind(AIC = AIC, "North $\\widehat{\\sigma}_R$" = Rsig)
+rownames(out) <- c("No effect", "With temperature effect")
+out <- kable(out, format = type, booktabs = T, escape=F, row.names = T,label = "compare-table",
+    caption="Comparison of AIC and estimates of standard deviation of recruitment for the northern stock component with and without bottom temperature effects on northern recruitment for Run 33.", align = c(rep("r",2)))
+knitr::knit_print(out)
+#cat(knitr::knit_print(out))
+```
+
+```{r, echo = F, eval = T}
+out = as.data.frame(readRDS(here::here("2023.RT.Runs","Run34","res_tables","parameter_estimates_table.RDS")))
+#out = round(out, 3)
+out <- wham:::sci_note(out,cols=1:4)
+out <- out %>% kable(format = type, booktabs = T, escape=F, longtable = T, row.names = T,label = "par-table",
+    caption="Parameter estimates, standard errors, and confidence intervals. Rounded to 3 decimal places.", align = c(rep("r",4))) %>%
+    kable_styling(latex_options=c("basic", "repeat_header")) %>% landscape()
+knitr::knit_print(out)
+
+```
+
+
+```{r, echo = F, eval = T, fig.cap= "Median recruitment with and without temperature ($x$) effects."}
+plot(Run33$years_full[-1], Run33$rep$pred_NAA[1,1,-1,1], type = 'l', xlab = "Year", ylab = bquote(Median~ hat(italic(R)[y]*"|"*italic(x)[y])))
+lines(null_mod$years[-1], null_mod$rep$pred_NAA[1,1,-1,1], col = "blue")
+```
+
+```{r, echo = F, eval = T, fig.cap = "Ratio of standard errors of Northern component SSB with and without the scalar of the Recreational CPA index standard errors estimated."}
+sd33 <- TMB:::as.list.sdreport(Run33$sdrep, report=TRUE, what = "Std")$log_SSB[,1]
+sd34 <- TMB:::as.list.sdreport(Run34$sdrep, report=TRUE, what = "Std")$log_SSB[,1]
+
+plot(Run33$years_full, sd34/sd33, ylab = "Ratio of standard errors of SSB for runs 34 and 33", xlab = "Year", type = "l")
+abline(h = 1, lty = 2, col = "red")
+```
+
+```{r, echo = F, eval = T, fig.cap = "Ratio of standard errors of Northern component recruitment with and without the scalar of the Recreational CPA index standard errors estimated."}
+sd33 <- TMB:::as.list.sdreport(Run33$sdrep, report=TRUE, what = "Std")$log_NAA_rep[1,1,,1]
+sd34 <- TMB:::as.list.sdreport(Run34$sdrep, report=TRUE, what = "Std")$log_NAA_rep[1,1,,1]
+
+plot(Run33$years_full, sd34/sd33, ylab = "Ratio of standard errors of recruitment for runs 34 and 33", xlab = "Year", type = "l")
+abline(h = 1, lty = 2, col = "red")
+```
+
+```{r, echo = F, eval = T, fig.cap = "Expected recruitment for the northern component of the black sea bass stock as a function of bottom temperature"}
+std <- summary(Run34$sdrep, "fixed")
+inds <- list(ssb =which(rownames(std) == "log_SSB_all"))
+
+Ecov_est <- Run34$rep$Ecov_out_R[1,,1]
+Ecov <- seq(min(Ecov_est), max(Ecov_est), 0.01)
+ind_slope <-which(rownames(std) == "Ecov_beta_R")
+ind_int <- which(rownames(std) == "mean_rec_pars")[1] #north
+
+beta <- std[c(ind_int,ind_slope),1]
+cov.beta <- Run34$sdrep$cov.fixed[c(ind_int,ind_slope),c(ind_int,ind_slope)]
+X <- cbind(1, Ecov)
+pred.log.R <- c(X%*%beta)
+sd.pred.log.R <- diag(X %*% cov.beta %*% t(X))
+ci <- qnorm(0.975)*sd.pred.log.R
+ci <- pred.log.R + cbind(-ci,ci)
+plot(Ecov, exp(pred.log.R), type = 'l', xlab = "Bottom Temperature", ylab = bquote(North~hat(R)))
+polygon(c(Ecov, rev(Ecov)), exp(c(ci[,1],rev(ci[,2]))), col=adjustcolor("black", alpha.f=0.4), border = "transparent")
+
+
+
+# dat <- Run33$input$data
+# par <- Run33$
+# DM_ind <- which(dat$age_comp_model_fleet)
+
+
+```
+
+```{r, echo = F, eval= T, fig.cap = "Prior (black) and posterior (red) distributions of movement of northern component stock from north to south (top) and south to north (bottom)"}
+dlogitnorm <- function(x, p, sigma){
+
+	y <- log(x/(1-x))
+	mu <- log(p/(1-p))
+	fx <- dnorm(y, mu, sigma, log = F) /(x*(1-x)) 
+	return(fx)
+}
+
+par(mfrow = c(2,1), mar = c(4,4,1,1), oma = c(1,1,1,1))
+ps <- seq(0,0.1,0.001)
+#prior for both north-south and south-north
+plot(ps, dlogitnorm(ps,0.02214863, 0.2), type = 'l', lwd = 2, xlab = "P(North to South)", ylab = "f(P)", ylim = c(0,300))
+abline(v=0.02214863, lwd =2)
+#posterior for north to south
+lines(ps, dlogitnorm(ps, p = Run34$rep$mu[1,8,8,1,1,2], sigma = TMB:::as.list.sdreport(Run34$sdrep, "Std")$mu_prior_re[1,8,1,1]), lwd = 2, col = "red")
+abline(v=Run34$rep$mu[1,8,8,1,1,2], col = "red", lwd = 2)
+
+ps <- seq(0,0.6,0.001)
+plot(ps, dlogitnorm(ps,0.3130358, 0.2), type = 'l', lwd = 2, xlab = "P(South to North)", ylab = "f(P)")
+abline(v=0.3130358, lwd =2)
+#posterior for north to south
+lines(ps, dlogitnorm(ps, p = Run34$rep$mu[1,8,1,1,2,1], sigma = TMB:::as.list.sdreport(Run34$sdrep, "Std")$mu_prior_re[1,8,2,1]), lwd = 2, col = "red")
+abline(v=Run34$rep$mu[1,8,1,1,2,1], col = "red", lwd = 2)
+
+```
+
+
+
+
+\clearpage
+
+
+<!-- 
+We ran all WHAM models using the input data file from the final ASAP3 model, `RUN_036`. We investigated the following:
+
+1. Numbers-at-age (NAA) model options
+2. Estimating catchability (*q*) of Index 1 (NEFSC Fall Albatross)
+3. Estimating natural mortality (*M*)
+4. Age composition likelihood options
+5. Estimating Beverton-Holt stock-recruitment
+6. Time-varying selectivity vs. 2 blocks for the fishery
+
+Table \ref{tab:wham-runs} lists all of the WHAM runs with description and comments. Code to run the final three WHAM models can be seen at `/code/run_models.R`. Code to extract reference point estimates and perform short-term projections is at `/code/project_models.R`.
+
+### Numbers-at-age models
+
+Our notation for the NAA options follows @stock2021Woodsb. The "Base" model approximates ASAP by estimating recruitment deviations as independent fixed effect parameters. WHAM can also treat only recruitment (NAA1 and NAA2) or numbers at all ages (NAA3, NAA4, and NAA5) as random effects. Models with only recruitment as random effects are technically state-space models, and we therefore refer to models with all NAA as random effects as "full state-space" models, i.e. include process error on the NAA transitions [akin to "survival", @stock2021Implementing]. Table \ref{tab:naa-models} lists standard WHAM options for treating NAA as fixed or random effects.
+
+```{r naa-models, echo=FALSE, results='asis'}
+dat <- data.frame(Model = c("Base","NAA1","NAA2","NAA3","NAA4","NAA5"),
+                  Description = c("as ASAP, recruitment deviations are fixed effects", "Recruitment deviations are independent random effects","Recruitment deviations are autocorrelated, AR(1), random effects","All NAA deviations are independent random effects","All NAA deviations are random effects with correlation by year and age, 2D AR(1)","All NAA deviations are random effects with correlation by year only, AR(1)"),
+                  Pars = c("$R_y$ for $y > 1$","$\\sigma_R$","$\\sigma_R$, $\\rho_{year}$","$\\sigma_R$, $\\sigma_a$","$\\sigma_R$, $\\sigma_a$, $\\rho_{year}$, $\\rho_{age}$","$\\sigma_R$, $\\sigma_a$, $\\rho_{year}$"),
+                  npars = c("$n_{years}-1$",1,2,2,4,3))
+dat %>% dplyr::rename("Parameters estimated"="Pars") %>% dplyr::rename("No."="npars") %>%
+  kable("latex", booktabs = T, escape=F, caption="Six standard numbers-at-age (NAA) models in WHAM.") %>%
+  kable_styling(latex_options=c("basic","scale_down","HOLD_position"))
+```
+
+We present results from Base, NAA2, and NAA5 models (the butterfish recruitment time-series exhibits strong autocorrelation by year). The full state-space models, NAA3--NAA5, did not converge with multinomial age composition likelihood but did with logistic-normal.
+
+### Estimating catchability (*q*) of Index 1 (NEFSC Fall Albatross)
+
+Catchability of Index 1 (NEFSC Fall Albatross), $q_1$, is technically estimated in the ASAP3 model, `RUN_036`. However, the very strong penalty (CV = 0.01) results in the estimate, 0.197517, remaining close to the initial value, 0.21. We attempted to freely estimate $q_1$ in WHAM, i.e. without a penalty, but these models had issues estimating the population scale. Fixing $q_1$ at the value estimated in `RUN_036`, 0.197517, resulted in a lower negative log-likelihood than fixing $q_1$ at the `RUN_036` initial value, 0.21. Therefore, all three WHAM models presented fix $q_1$ = 0.197517.
+
+### Estimating natural mortality (*M*)
+
+The ASAP3 model, `RUN_036`, fixes $M$ = 1.278 for all ages. WHAM has several options for estimating $M$ (see https://timjmiller.github.io/wham/articles/ex5_GSI_M.html), and we attempted to estimate a single mean $M$. Several of these models converged and generally estimated $M$ lower than 1.278, in the 0.9-1.0 range with 95% CI from 0.6-1.4. These models estimated lower $F$, higher SSB, lower recruitment, and higher uncertainty in all three quantities. Selectivity was more domed for the indices and shifted younger for the fleet. Estimating $M$ was not supported by AIC and had lower prediction skill, so we did not pursue these models further.
+
+### Age composition likelihood options
+
+ASAP assumes that the age composition (proportion-at-age) observations follow the multinomial likelihood, where the effective sample size must be specified by the user. Although the multinomial is commonly used, it has two primary drawbacks: 1) the effective sample size weights the observations and cannot be estimated internally, and 2) the correlations are negative and completely defined by the mean of the distribution [@francis2014Replacing]. WHAM provides several alternative composition likelihoods [Appendix B in @stock2021Woodsb], including the Dirichlet-multinomial and logistic-normal, which have been shown to outperform the multinomial in simulation tests [@fisch2021Assessing; @francis2014Replacing; @thorson2019Perspective; @xu2020Comparing].
+
+Models using the Dirichlet-multinomial did not converge, but models with the logistic-normal were promising. Of the three models presented in detail below, 04-Base and 04-NAA2 retain the multinomial from the ASAP3 model, whereas 17-NAA5 uses the logistic-normal.
+
+### Stock-recruitment
+
+Estimating a stock-recruit function is desirable in part because it allows the use of MSY-based reference points. Ideally this would be done internally, within the model, but can also be done externally using estimated SSB and recruitment time-series. We were able to estimate Beverton-Holt parameters for some WHAM models. However, they are not appropriate because recruits in the butterfish assessment are age-0, and WHAM assumes age-1 recruits enter the population on Jan 1. Several modifications need to be made to allow for age-0 recruitment in WHAM, and there is no timeline for conducting this work. Thus, all three WHAM models presented assume recruitment deviations are random about the mean, $R_0$, with lognormal bias correction. This could be reevaluated in the future if 1) an age-0 recruitment option is developed in WHAM, or 2) age-0 data are removed from the model (i.e. estimate age-1 recruits instead of age-0 recruits).
+
+### Time-varying selectivity vs. 2 blocks for the fishery
+
+The final ASAP3 model, `RUN_036`, has a second selectivity block for the fishery from 2014-2019 (see results and justification for ASAP runs 32 and 33). An alternative to this 2-block structure in WHAM is to estimate time-varying selectivity deviations as random effects (see https://timjmiller.github.io/wham/articles/ex4_selectivity.html). We fit WHAM models with time-varying age-specific and logistic selectivity parameters. Models with time-varying logistic selectivity did not converge, which is unsurprising given the reasonably strong doming when age-specific selectivity is estimated. One model with time-varying age-specific selectivity was promising but did not have better diagnostic performance than the proposed WHAM model, 17-NAA5. Models with random effects on both selectivity and all NAA did not converge.
+
+## Diagnostic and performance metrics
+
+We primarily considered the following diagnostic and performance metrics:
+
+- Convergence
+- Trend in Index 1 residuals
+- Akaike information criterion (AIC)
+- Retrospective pattern (Mohn's $\rho$)
+- Simulation self-test
+- Predictive skill
+
+### Convergence
+
+We considered models converged if 1) the minimization algorithm, `stats::nlminb`, indicated successful completion (`convergence = 0`), and 2) the Hessian was positive definite and standard errors were calculated for all parameters.
+
+### Trend in Index 1 residuals
+
+Some models did not fit Index 1 (NEFSC Fall Bottom Trawl Survey (BTS), Albatross years 1989-2008) well, which can be seen as a trend in the Index 1 residuals. Fits to Indices 2-6 were adequate for all models and therefore not helpful in model selection. State-space models should be diagnosed using one-step ahead (OSA) residuals, which are conditioned on previous data points and independent [@berg2016Accounting;@thygesen2017OSA].
+
+### Akaike information criterion (AIC)
+
+WHAM calculates the marginal AIC, which is a useful model selection metric in some cases. Unfortunately, it cannot be used to select between models with different likelihood functions, e.g. multinomial versus logistic-normal age compositions, 17-NAA5 vs. 04-Base or 04-NAA2. It also cannot be used to compare models that treat the same parameters as fixed versus random effects, e.g. 04-Base vs. 04-NAA2. Therefore, while AIC was useful in some instances, it is not applicable to compare the three WHAM models presented in detail here.
+
+### Retrospective pattern (Mohn's $\rho$)
+
+We used the WHAM default of 7 peels to calculate Mohn's $\rho$ for recruitment, SSB, and fully-selected $F$. In addition to the Mohn's $\rho$ values, we considered the pattern of the peels. Absolute values of Mohn's $\rho$ less than 0.2 are not generally considered problematic. Confidence intervals to statistically test whether Mohn's $|\rho|$ are greater than 0 or different between models would be ideal but this is an open research question for state-space models.
+
+### Simulation self-test
+
+We ran simulation self-tests by using each model to simulate 100 datasets keeping all fixed effect parameters at the MLEs. We then refit the models to these simulated datasets and calculated the convergence rate and relative error in SSB, $F$, recruitment, and predicted catch.
+
+### Predictive skill
+
+Performance in hindcasts, or "model-free validation", can be used more generally than AIC, e.g. regardless of the likelihood or treatment of parameters as fixed or random effects. Predictive skill is also a desirable metric because it focuses on the accuracy of future, instead of historical, estimates of stock status and is therefore more relevant to management. In addition, removing and predicting data is arguably more informative than relying on diagnostics such as residual patterns, which "can be removed by adding more parameters than justified by the data", or retrospective patterns, which can be "removed by ignoring the data" [@carvalho2021Cookbook; @kell2021Validation].
+
+We ran hindcasts by sequentially removing aggregate and age composition observations for one index at a time, re-fitting the models, and predicting the removed data. We calculated the mean absolute scaled error (MASE) of the predictions over time horizons used to provide butterfish management advice, e.g. 1-3 years. MASE < 1 means that the model is better than the naive/baseline forecast, and MASE = 0.5 means that model forecasts are 2x as accurate as naive/baseline.
+
+## Reference points and status determination
+
+We calculated $F_{50\%SPR}$ and $B_{50\%SPR}$ internally in WHAM according to the working group's proposed assumptions: 1) average recruitment since 2011 (2011-2019), and 2) average SSB per recruit inputs (i.e. selectivity-, maturity-, and weight-at-age) over the last five model years (2015-2019). 
+
+WHAM can propagate uncertainty in model parameters into uncertainty in $F_{X\%SPR}$ and $B_{X\%SPR}$, and then into stock status. WHAM also includes estimates of covariance of $F/F_{X\%SPR}$ and $B/B_{X\%SPR}$. Here, we have extracted the MLEs for $F_{50\%SPR}$ and $B_{50\%SPR}$, but without estimates of uncertainty, as is current practice. Thus, we do not provide 95% CI for $F_{50\%SPR}$ and $B_{50\%SPR}$, and the uncertainty in $F_{2019}/F_{50\%SPR}$ and $B_{2019}/B_{50\%SPR}$ results from uncertainty in $F_{2019}$ and $B_{2019}$ alone. We can include uncertainty estimates for $F_{50\%SPR}$ and $B_{50\%SPR}$ if desired.
+
+## Projections
+
+WHAM has several options for handling short-term projections internally. Code to run short-term projections for the final three WHAM models can be seen at `/code/project_models.R`. 
+
+Projections under alternative $F$ for catch advice will be done in the upcoming management track assessment using data through 2021. Here we simply demonstrate how this would be done using WHAM. We show three alternative $F$ scenarios over a 3-year projection period: $F=0$, $F=F_{2019}$ (terminal year $F$ / status quo), and $F=F_{50\%}$ ($F_{MSY}$ proxy).
+
+-->
+
+<!-- Discards in 2020 were assumed to be 1,772 mt based on the 2019 discards (1,655 mt) + 117 mt (slope of a linear fit to 2014-2019 discards). Landings in 2020 were 2,389 mt. Thus, total catch in 2020 was 4,161 mt (2,389 mt landings + 1,772 mt discards). Catch in 2021 and 2022 was set at $F_{50\%SPR}$. -->
+
+<!-- In the models that assume the NAA deviations follow an AR(1) process (04-NAA2 and 17-NAA5) we continued the process into the projection period for consistency. We note that assumptions in the short-term projections are distinct from those defining reference points, which should reflect expected stock productivity in the long-term. Continuing the AR(1) process is an objective way of projecting numbers at age that are correlated with those in the terminal year but that correlation dampens with increased projection years. The rate of dampening depends on the correlation parameter, $\rho_{year}$.  -->
+
+<!-- 04-Base treats recruitment in the model years as fixed effect parameters, as in ASAP. WHAM then treats recruitment in the projection years, $\log(R_y)$, as random effects following: -->
+
+<!-- $$\log(R_y) \sim \mathcal{N}(\mu,\sigma^2)$$ -->
+
+<!-- where $\mu$ and $\sigma$ are the mean and standard deviation of $\log(R_y)$ calculated from a specified subset of model years. Here, we calculate $\mu$ and $\sigma$ from 2011-2019 recruitment as in the reference point definition. -->
+
+<!-- Now run the 3 models 
+
+# Results
+
+## Convergence
+
+04-Base, 04-NAA2, and 17-NAA5 each converged with positive definite Hessian and maximum gradient < `1e-11`.
+
+## Index 1 residuals
+
+04-Base did not exhibit a trend in the Index 1 residuals (NEFSC Fall BTS, Albatross years 1989-2008). 04-NAA2 and 17-NAA5 had mild, insignificant trends. Some models, e.g. 25-NAA4-FAA, did not fit Index 1 well, resulting in a significant residual trend and we removed them from consideration (Fig. \ref{fig:index1-residuals}).
+
+
+## Retrospective pattern
+
+Mohn's $|\rho|$ values for $F$, recruitment, and SSB were 0.11 or less for all three models (Fig. \ref{fig:mohns}). The last peel (to 2013) is worse than others, likely because the second fleet selectivity block begins in 2014. For all diagnostics plots, see `/results/model-name`.
+
+## Numbers-at-age
+
+
+The three final models primarily differ in their assumptions about the NAA transitions (Table \ref{tab:naa-pars}, Fig. \ref{fig:naa-devs}). 04-Base estimates annual recruitment deviations as independent fixed effect parameters. 04-NAA2 assumes recruitment is an AR(1) process, which smooths and reduces the magnitude of the deviations. 17-NAA5 is a full state-space model that allows for deviations in the NAA transitions at all ages with covariance by year. 
+
+04-NAA2 and 17-NAA5 estimated positive autocorrelation by year ($\rho_{year} > 0$, Table \ref{tab:naa-pars}), which means that the negative recruitment deviations estimated in the terminal year propagate into the short-term projections (Fig. \ref{fig:naa-devs}). Recruitment deviations in the projection years were also negative, i.e. light blue in Figure \ref{fig:naa-devs}, for 04-Base because recruitment was defined as the average of 2011-2019 recruitment (as in the reference point definition). Note that models with AR(1) recruitment, 04-NAA2 and 17-NAA5, project similar recruitment deviations as 04-Base but without having to decide which years of recruitment to average over, which is somewhat subjective.
+
+17-NAA5 estimated slightly positive survival deviations at ages 1+ in recent years, and these also propagate into the projections. Cohort effects can be seen in the NAA deviations estimated by 17-NAA5 (diagonal correlation in Fig. \ref{fig:naa-devs}). At present, WHAM does not allow for cohort effects on the NAA deviations, but these could be considered in the future if added to WHAM.
+
+
+## Selectivity
+
+Fleet selectivity was estimated similarly in the three WHAM models as in ASAP `RUN_036` (Fig. \ref{fig:sel-fleet}).
+
+
+Index selectivity was also estimated similarly in the three WHAM models, except that 17-NAA5 estimated lower selectivity of older butterfish, i.e. more doming (Fig. \ref{fig:sel-indices}). Selectivity-at-age parameters for older ages (age-3 and especially the plus-group, age-4+) were not well estimated by 04-Base and 04-NAA2 (SE of several logit-scale parameters > 3), whereas they were for 17-NAA5 (maximum SE = 1.5).
+
+
+## Simulation self-test
+
+When fit to data simulated from the fit models and keeping fixed effect parameters at their MLEs, 04-Base and 04-NAA2 converged less than half of the time. Convergence rates for 04-Base, 04-NAA2, and 17-NAA5 were 8%, 40%, and 95% respectively. None of the models exhibited bias in SSB, F, recruitment, or predicted catch (Fig. \ref{fig:simtest}).
+
+## Predictive skill
+
+Over time horizons used to provide butterfish management advice, i.e. 1-3 years, 04-NAA2 and 17-NAA5 had slightly higher predictive skill than 04-Base (lower median MASE, Fig. \ref{fig:mase}). All three models generally had MASE < 1, which means that they provide more accurate forecasts than the baseline (assumes index observation in following year will be the same as previous). The exceptions were Index 4 (NEFSC Spring, Bigelow years 2009-2019) at 2-year horizon and Index 6 (young of the year survey from combined state data) at 3-year horizon. Across all models and time horizons, prediction skill was highest for Indices 2 (NEFSC Fall, Bigelow years 2009-2019), 3 (NEAMAP Fall), and 5 (NEAMAP Spring), lowest for Index 6, and variable for Index 4.
+
+
+## Model selection
+
+We recommend 17-NAA5 because it had a higher convergence rate in simulation self-tests and slightly higher median predictive skill (Table \ref{tab:summary}). We did not investigate all simulation fits, but we hypothesize that 04-Base and 04-NAA2 had poor convergence rates because the index selectivity parameters for older ages were poorly estimated (SE > 3 on logit-scale). None of the models have major retrospective patterns or trends in Index-1 residuals.
+
+17-NAA5 is also preferred on first principles for two reasons. First, the logistic normal distribution used for the age compositions is self-weighting and allows more general correlation structure than the multinomial and it has outperformed the multinomial in simulation studies [@fisch2021Assessing; @francis2014Replacing]. Second, treating recruitment as an AR(1) process is parsimonious given the decrease in butterfish recruitment over time, and the AR(1) propagates the expectation of less than average recruitment into short-term projections in an objective fashion.
+
+
+## Reference points and status determination
+
+In 2019, the butterfish stock was not overfished ($B_{2019}/B_{50\%}$ > 1) or experiencing overfishing ($F_{2019}/F_{50\%}$ < 1) in all models (Table \ref{tab:refpts}).
+
+
+The three WHAM models estimated similar trends in SSB, $F$, and recruitment as ASAP (Fig. \ref{fig:ssb-rec-f}). The main difference is that the state-space models, 04-NAA2 and 17-NAA5, estimated less of a decrease in recruitment and SSB over the time-series, i.e. lower recruitment and SSB in early years and higher recruitment and SSB in later years. Recruitment in the full state-space model, 17-NAA5, was notably higher in 2008-2019 (Fig. \ref{fig:ssb-rec-f}), which corresponds to a period of negative survival deviations for fish aged 1+ (Fig. \ref{fig:naa-devs}).
+
+All models estimated that the stock has never been overfished or experienced overfishing ($B/B_{50\%}$ > 1 and $F/F_{50\%}$ < 1 in all years, Fig. \ref{fig:status}).
+
+-->
+
+## Projections
+
+<!-- We show 3-year projections of recruitment and SSB under 3 alternative $F$ scenarios: $F=0$ (Fig. \ref{fig:proj-panel-f0}), $F=F_{2019}$ (Fig. \ref{fig:proj-panel-flast}), and $F=F_{50\%}$ (Fig. \ref{fig:proj-panel-f50}). 17-NAA5 estimates a larger population size (higher SSB) than the other two models, even with similar $F$ and the same $M$, because survival deviations for ages 1+ were estimated to be positive (Figs. \ref{fig:naa-devs} and \ref{fig:proj-panel-f0}-\ref{fig:proj-panel-f50}).  -->
+
+<!-- SSB remains roughly the same in 2022 relative to 2021, with slight increases in 17-NAA5 due to increasing recruitment and positive survival deviations in the projection period (Figs. \ref{fig:naa-devs} and \ref{fig:proj-panel-flast}).-->
+
+<!-- Note the effect of treating projected recruitment as a continuation of the AR(1) process (or not, as in 04-Base). Recruitment in 04-Base jumps immediately to the 2011-2019 average but recruitment in 04-NAA2 and 17-NAA5 gradually approach average recruitment (Figs. \ref{fig:proj-panel-f0}-\ref{fig:proj-panel-f50}). -->
+
+<!-- code below makes table of catch, ssb, and F by model and projection year -->
+
+<!-- ```{r proj, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'} -->
+<!-- mods_proj <- readRDS(file.path("results","mods_F50_proj.rds")) -->
+<!-- df <- data.frame(Model=names(mods_proj)) -->
+<!-- catch <- round(t(sapply(mods_proj, function(x) x$rep$catch_proj))) -->
+<!-- catch <- cbind(rep(mods_proj[[1]]$input$data$agg_catch[31,1]), catch) # add 2019 -->
+<!-- ssb <- round(t(sapply(mods_proj, function(x) tail(x$rep$SSB,4)))) -->
+<!-- fbar <- round(t(sapply(mods_proj, function(x) tail(x$rep$Fbar,4))),2) -->
+<!-- df <- cbind(df, catch[,1], ssb[,1], fbar[,1],catch[,2], ssb[,2], fbar[,2], catch[,3], ssb[,3], fbar[,3], catch[,4], ssb[,4], fbar[,4])  -->
+<!-- rownames(df) = NULL -->
+<!-- colnames(df) <- c("Model",rep(c("Catch","SSB","$F$"),4)) -->
+<!-- df %>% -->
+<!--   kable("latex", booktabs = T, escape=F, caption="Catch, spawning stock biomass (SSB), and full fishing mortality ($F$) in the terminal assessment year, 2019, and three projection years, 2020-2022. Catch was assumed to be 4,161 mt in 2020 (2,389 mt in landings and 1,772 mt in discards). Catch in 2021 and 2022 was set at $F_{50\\%SPR}$. Catch and biomass units are metric tons (mt).") %>% -->
+<!--   kable_styling(latex_options=c("basic","HOLD_position")) %>% -->
+<!--   add_header_above(c(" "=1, "2019"=3, "2020"=3, "2021"=3, "2022"=3)) -->
+<!-- ``` -->
+
+<!-- ```{r proj-panel, echo=FALSE, message=FALSE, warnings=FALSE, fig.dim = c(7, 5), fig.cap="Spawning stock biomass (SSB), fishing mortality (F), and recruitment estimated by WHAM models in the final 10 assessment years (2010-2019, left of vertical dashed line) and projection period (2020-2022, right of vertical dashed line)."} -->
+<!-- mods_proj <- readRDS(file.path("results","mods_F50_proj.rds")) -->
+<!-- res <- compare_wham_models(mods_proj, fdir=file.path("results","refpts","compare_recentyears"), do.table=F, plot.opts=list(which=1, years=2010:2022)) -->
+<!-- res$g[[1]] + facet_wrap(vars(var), scales="free_y", ncol=2, strip.position = "left") -->
+<!-- ``` -->
+
+
+<!--
+-->
+\pagebreak
+
+# References {-}
+
+<div id="refs"></div>
+
+\pagebreak
+
