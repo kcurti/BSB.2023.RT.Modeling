@@ -20,7 +20,7 @@ cond_sim_fn <- function(fit_file, seeds, wham.lab.loc = "~/tmiller_net/work/wham
     sim_mod <- fit_wham(sim_input, do.fit = F)
     set.seed(seeds[i])
 		sim_input$data <- sim_mod$simulate(complete=T)
-		x <- try(fit_wham(sim_input, do.sdrep = F))
+		x <- try(fit_wham(sim_input, do.sdrep = F, do.retro = F, do.osa = F))
 		out <- list(obj = NA, par = rep(NA,length(sim_mod$par)), grad = rep(NA, length(sim_mod$par)), SSB = matrix(NA,NROW(sim_mod$rep$SSB),NCOL(sim_mod$rep$SSB)), 
 			F = matrix(NA,NROW(sim_mod$rep$F),NCOL(sim_mod$rep$F)), NAA = array(NA, dim = dim(sim_mod$rep$NAA)))
 		if(!is.null(x$opt)){
