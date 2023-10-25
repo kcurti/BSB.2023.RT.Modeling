@@ -160,7 +160,7 @@ source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
 fit_file <-here("2023.RT.Runs",this_run,"fit.RDS")
 set.seed(8675309)
 seeds <- sample(1e-9:1e9, 100)
-sim_res_all <- cond_sim_fn(fit_file=fit_file, seeds = seeds[1], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham")
+sim_res_all <- cond_sim_fn(fit_file=fit_file, seeds = seeds[1:100], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham", n.cores = 16)
 saveRDS(sim_res_all, here::here("2023.RT.Runs",this_run,"self_test_res.RDS"))
 sim_res_all <- c(sim_res_all, 
   cond_sim_fn(fit_file=fit_file, seeds = seeds[2:100], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham"))

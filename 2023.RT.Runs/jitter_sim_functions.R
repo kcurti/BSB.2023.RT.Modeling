@@ -1,4 +1,4 @@
-cond_sim_fn <- function(fit_file, seeds, wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham", n.cores = NULL){
+cond_sim_fn <- function(fit_file, seeds, res_dir, wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham", n.cores = NULL){
   print("here")
   #library(snowfall) # used for parallel computing
   parallel::detectCores()
@@ -20,6 +20,7 @@ cond_sim_fn <- function(fit_file, seeds, wham.lab.loc = "~/tmiller_net/work/wham
     sim_mod <- fit_wham(sim_input, do.fit = F)
     set.seed(seeds[i])
 		sim_input$data <- sim_mod$simulate(complete=T)
+		res_file_i <- file.path(res_dir, paste0("cond_sim_", i, ".RDS"))
 		x <- try(fit_wham(sim_input, do.sdrep = F, do.retro = F, do.osa = F))
 		out <- list(obj = NA, par = rep(NA,length(sim_mod$par)), grad = rep(NA, length(sim_mod$par)), SSB = matrix(NA,NROW(sim_mod$rep$SSB),NCOL(sim_mod$rep$SSB)), 
 			F = matrix(NA,NROW(sim_mod$rep$F),NCOL(sim_mod$rep$F)), NAA = array(NA, dim = dim(sim_mod$rep$NAA)))
@@ -33,13 +34,15 @@ cond_sim_fn <- function(fit_file, seeds, wham.lab.loc = "~/tmiller_net/work/wham
 			out$F <- x$rep$F
 			out$NAA <- x$rep$NAA
 		}
+		out$seed = seed[i]
+		saveRDS(out, res_file_i)
 		return(out)
   })
   snowfall::sfStop()
   return(sim_res)
 }
 
-jitter_fn <- function(init_vals, n.cores  = NULL, fit_file, wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham"){
+jitter_fn <- function(init_vals, seeds, n.cores  = NULL, fit_file, res_dir, wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham"){
   #seeds = readRDS(file.path(here::here(), "Project_0", "inputs","seeds.RDS"))
   #n_oms = length(om_inputs)
   #library(snowfall) # used for parallel computing
@@ -58,12 +61,14 @@ jitter_fn <- function(init_vals, n.cores  = NULL, fit_file, wham.lab.loc = "~/tm
     library(wham, lib.loc = wham.lab.loc)
     jit_mod = readRDS(fit_file)
     jit_mod$par[] <- init_vals[row_i,]
-		x <- try(wham:::fit_tmb(jit_mod, n.newton = 0, do.sdrep = F))
+    res_file_i <- file.path(res_dir, paste0("jitter_sim_", row_i, ".RDS"))
+    x <- try(wham:::fit_tmb(jit_mod, n.newton = 0, do.sdrep = F))
 		out <- list(obj = NA, par = rep(NA,length(jit_mod$par)))
 		if(!is.null(x$opt)){
 			out$obj <- x$opt$obj
 			out$par <- x$opt$par
 		}
+		saveRDS(out, res_file_i)
 		return(out)
   })
   return(jit_res)
