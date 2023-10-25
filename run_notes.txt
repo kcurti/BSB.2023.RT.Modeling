@@ -125,13 +125,13 @@ Run 25: Like run 24, but dirichlet instead of D-M. (Done)
 
 Run 26: Like 25, but try rounded age comp. makes time-varying movement flat. doesn't converge.
 
-Run 27: Back to run 25. Try time-varying sel on fleets.
+Run 27: Back to run 25. Try time-varying sel on fleets. Doesn't converge
 
 Run 28: Based on examinations of separate runs for north and south in North.Runs and South.Runs
 
-Run 29: Include movement (fixed parameters). Has projections. Sim testing completed.
+Run 29: Run 28, but include movement (fixed parameters). Has projections. Sim testing completed.
 
-Run 30: Use priors for movement parameters. Fine tune variance paramters for populations. I.e., North pop in the south is set to be ~SCAA. 2dar1 now converges for north and south pops. Has projections. SSB40 now just uses avg recruitment from years 2000 onward.
+Run 30: Run 29, but use priors for movement parameters. Fine tune variance paramters for populations. I.e., North pop in the south is set to be ~SCAA. 2dar1 now converges for north and south pops. Has projections. SSB40 now just uses avg recruitment from years 2000 onward.
 
 Run 31: Run 30, but estimate AR1 on north to south movement rate for north pop. Doesn't converge.
 

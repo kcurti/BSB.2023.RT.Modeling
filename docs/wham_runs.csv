@@ -1,0 +1,35 @@
+Run,Description,Comments
+1,"RE on recruitment and survival (iid). All indices with selectivities not flat topped at 2+ reexamined. Fleet selectivity (blocks, logistic) left as is.",Results in domed selectivity for several indices. 
+2,"Like Run 1, but removed blocking for recreational fleet and assumed iid time varying random effects on logistic parameters.",Does not converge. Variance of RE went to zero implying time-varying selectivity was not supported by data.
+3,"Like Run 1, but estimated scalar multiplier for Rec CPA indices for north and south",Estimated multipliers were about 10 and 7 times for north and south input CVs.
+4,"Like Run 3, but exchange all indices (other than Rec CPA) for VAST indices",Use bridge run 9 dat files
+5,"Like Run 3, but remove all indices other than NEFSC, Rec CPA and NEAMAP",Use bridge run 6 dat files
+6,"Like Run 3, but exchange all indices (other than Rec CPA) for VAST indices (spring AND FALL)",Use bridge run 8 dat files
+7,"Like Run 6, but switch age comp ll for all fleets, indices to logistic-normal-miss0",re-examine selectivity for all indices
+8,"Like Run 7, but assume movement from north to south and north to south for north pop during non spawning seasons at rates from synthesis model.",Had to fix CVs for Rec CPA indices and sigma for North 2+ survival at values from Run 7.
+9,"Like Run 8, but use priors for movement with mean and sigma from synthesis model",Had to fix sigma for North 2+ survival like Run 8 and had to fix CVs for Rec CPA back to original smaller values.
+10,"Like Run 9, but try estimating ar1 time-varying north-south movement",Does not coverge
+11,"Like Run 8, but include time-varying selectivity for VAST indices",Better AIC than Run 8
+12,"Like Run 11, but try to estimate AR1 correlations for survival deviations",Does not coverge
+13,"Like Run 11, but try to estimate M",Does not coverge
+14,"Like Run 11, but use priors for movement rates instead of fixed",Does not coverge
+15,"Like Run 8, but make selectivity logistic for everything",Does not coverge
+16,"like Run 8,  but simplify selectivities. Put selblock 5 back to logistic, simplify age-specific selectivities for Vast indices. Make Rec CPA logistic.",
+17,"like Run 16, but use Dirichlet",
+18,"Like Run 17, but set max age of fall VAST in North to age 1.",
+19,Just spring VAST and rec CPA as indices. Use Dirichlet.,An error was found error in fall VAST and NEAMAP age comps. Only Spring VAST and Rec CPA indices used from this run on.
+20,"Like Run 19, but use Dirichlet-multinomial. ","Expanded input sample sizes to 1000. Initially tried logistic normal with and without AR1 assumption, but those did not converge. OSA residuals look same as 19."
+21,"Like Run 20, but use ar1 time-varying selectivity for north vast index.","when used also for south vast index, did not converge"
+22,"like Run 19, but just ""rec"" NAA re, D-M age comp, and get to time-varying selectivity for all indices.",
+23,"like Run 22, but include survival RE.",Tried 2dar1 correlation even with just North. there becomes a scale problem. Reverted back to none-time-varying selectivity but ar1 with age to keep the number of fixed effects down.
+24,"Like Run 23, but trying time-varying movement rate for north-south.",Retro for north SSB is not good
+25,"Like Run 24, but dirichlet instead of D-M.",
+26,"Like Run 25, but try rounded age comp. Not advised. ",Does not coverge
+27,"Like Run 25, but try time-varying selectivity on fleets.",Does not coverge
+28,Use selectivity and age comp based on examinations of separate runs for north and south in North.Runs and South.Runs,Big changes in selectivity and age comp model assumptions
+29,"Run 28, but include movement (fixed parameters).",Has projections.
+30,"Run 29, but use priors for movement parameters instead of fixed values.","Fine tune variance parameters for populations. I.e., North population in the south is set to be ~SCAA. 2dar1 now converges for north and south. Has projections. SSB40 now just uses avg recruitment from years 2000 onward."
+31,"Run 30, but estimate AR1 on north to south movement rate for north pop",Does not coverge
+32,"Run 30, but estimate B-H SR curves for North and South Populations",Steepness goes to 1 for both components
+33,"Run 30, but estimate temperature effects on north recruitment. ","Also fits here with no effect (but temp included), temp effect on both north and south, but temp effect on NORTH is best."
+34,"Run 33, but Estimate log Rec CPA index sd scalars. ",Proposed base model

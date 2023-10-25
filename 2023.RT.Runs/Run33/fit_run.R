@@ -6,11 +6,11 @@ this_run <- "Run33"
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "~/tmiller_net/work/wham_packages/multi_wham")
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "c:/work/wham/old_packages/multi_wham", INSTALL_opts=c("--no-multiarch"))
 #library(wham, lib.loc = "~/tmiller_net/work/wham_packages/multi_wham")
-x <- getLoadedDLLs()
-ind <- which(names(x) == "wham")
-if(length(ind)) sapply(ind, function(y) dyn.unload(x[[y]][["path"]]))
-	detach(package:wham, unload = TRUE)
-devtools::load_all("c:/work/wham/wham")
+# x <- getLoadedDLLs()
+# ind <- which(names(x) == "wham")
+# if(length(ind)) sapply(ind, function(y) dyn.unload(x[[y]][["path"]]))
+# 	detach(package:wham, unload = TRUE)
+# devtools::load_all("c:/work/wham/wham")
 library(wham, lib.loc = "c:/work/wham/old_packages/multi_wham")
 library(here)
 asap <- read_asap3_dat(c(here("Bridge.runs", "Run9", "NORTH.RUN.9.DAT"),here("Bridge.runs", "Run9", "SOUTH.RUN.9.DAT")))
@@ -28,8 +28,10 @@ change_max_Neff_fn <- function(asap, max_Neff = 1000){
 }
 asap_alt <- change_max_Neff_fn(asap, 1000)
 
-north_bt <- read.csv(here("2023.RT.Runs",this_run,"bsb_bt_temp-nmab.csv"))
-south_bt <- read.csv(here("2023.RT.Runs",this_run,"bsb_bt_temp-smab.csv"))
+# north_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp-nmab.csv"))
+# south_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp-smab.csv"))
+north_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp_nmab_1959-2022.csv"))
+south_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp_smab_1959-2022.csv"))
 
 ecov <- list(label = c("North_BT","South_BT"))
 ecov$mean <- cbind(north_bt[,'mean'], south_bt[,'mean'])
@@ -149,10 +151,11 @@ tfit1 <- fit_wham(temp, do.fit= FALSE)
 tfit1 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
 tfit$opt$obj + length(tfit$opt$par)
 tfit1$opt$obj + length(tfit1$opt$par) #lower AIC, but effect for south seems week.
-saveRDS(tfit, here("2023.RT.Runs",this_run, "fit_both_effects.RDS"))
+saveRDS(tfit1, here("2023.RT.Runs",this_run, "fit_both_effects.RDS"))
 
 ecov$recruitment_how <- matrix(c("controlling-lag-0-linear","none","none","none"), 2,2)
 temp <- wham:::set_ecov(temp,ecov)
+temp$par <- tfit$parList
 tfit2 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
 saveRDS(tfit2, here("2023.RT.Runs",this_run, "fit_north_effect.RDS"))
 2*(tfit$opt$obj + length(tfit$opt$par))

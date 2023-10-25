@@ -70,65 +70,21 @@ Then we fit models treating recruitment as random effects and then also included
 
 Comparing separate fits for north and south using ASAP files from the last management track assessment in basic wham and multi-wham.
 
-\blandscape
-```{r compare-asap-wham, echo = FALSE, out.width="75%", fig.align="center", fig.cap = "Comparison of recruitment, spawning stock biomass, and fishing mortality estimates from ASAP and WHAM fits to each regional component separately as well as simultaneoulsy in the multi-stock extension of WHAM using ASAP3 model input files from the most recent management track assessment."}
-knitr::include_graphics(here::here("docs","plots","compare_one_stock_models.png"))
-```
-\elandscape
 
 ## Model configurations
 
-We compared the base models for each stock in the single-stock and multi-stock versions of wham. 
+The first 18 runs that used updated and new observations included either separate indices for all surveys or fall and spring VAST indices that combined all surveys other than the recreational CPA (Table \ref{tab:wham-runs}). Many of these runs explored alternative selectivity and age composition assumptions to reduce patterns observed in the OSA residuals for age composition observations. We then found that the age composition for fall FAST and NEAMAP indices were incorrectly calculated. Then from Run 19 onward we only used the spring VAST and Recreational CPA indices. 
+
+From Run 19-27 we still had issues reducing patterns in OSA residuals and sometimes large patterns in retrospective patterns for the northern component. We then decided to iterate among alternative assumptions about selectivity and age composition models with the northern and southern components separately to resolve diagnostic problems more efficiently. These analyses resulted in different age composition model assumptions for different fleets and indices and the use of selectivity random effects for the northern fleets and indices (Table \ref{tab:age-comp-sel-table}). 
+
+Runs 28-34 largely used these same assumptions . For these last runs with movement, more realistic assumptions about movement and more appropriate usage of the estimates from the stock synthesis runs [@fay_bsb_ss_wp]. Runs 31 and 32 assumed temporal random effects on the movement rate from the north to the south and Beverton-Holt stock recruit relationships for both the north and south components, respectively, but did not prove to be reliable. Run 33 investigated bottom temperature effects on recruitment, and we found evidence of an effect on northern recruitment.  Run 34 then relaxed an assumption common to many earlier runs about the estimated uncertainty in the Recreational CPA indices and allowed a scalar to be estimated in the model.
 
 
-## Configuring selectivity of fleets and indices
-
-Early model runs kept the same selectivity blocks for the fleets as in latest management track assessment, but we found substantial patterns in OSA residuals for age composition observations for some fleets and/or indices. Furthermore, it is possible to estimate time-varying selectivity in WHAM, so we explored alternative configurations of mean selectivity models, selectivity random effects, and age composition likelihoods. We did these explorations in separate models for the north and south components of the stock for efficiency reasons (i.e., faster run times and iterating through models).
-
-These explorations culminated in configurations in Table \ref{tab:age-comp-sel-table}.
-
-```{r, echo = F, eval = T}
-age_comp_names <- c("North Commercial", "North Recreational", "South Commercial", "South Recreational",
-  "North Recreational CPA", "North VAST", "South Recreational CPA", "South VAST")
-age_comp_mod <- c("Dirichlet-Multinomial", "Logistic-normal (0s as missing)", "Logistic-normal (AR1, 0s as missing)","Logistic-normal (AR1, 0s as missing)", "Logistic-normal (0s as missing)","Dirichlet-Multinomial","Logistic-normal (AR1, 0s as missing)","Logistic-normal (AR1, 0s as missing)")
-mean_sel_mod <- c("age-specific (flat-topped at ages > 3)",
-  "age-specific (flat-topped at ages > 6)",
-  "logistic", "logistic",
-  "age-specific (flat-topped at ages > 1)",
-  "age-specific (flat-topped at ages > 4)",
-  "age-specific (flat-topped at ages > 2)",
-  "age-specific (flat-topped at ages > 1)")
-sel_re_mod <- c("2D-AR1 (age and year)", 
-  "2D-AR1 (age and year)",
-  "None",
-  "None",
-  "AR1 (year)",
-  "2D-AR1 (age and year)",
-  "None",
-  "None")
-out <- cbind.data.frame("Data component" = age_comp_names,  "Age Composition Likelihood" = age_comp_mod,  
-  "Mean Selectivity model" = mean_sel_mod, "Random effects configuration" = sel_re_mod)
-
-out <- kable(out, format = type, booktabs = T, escape=F, row.names = F, label = "age-comp-sel-table",
-    caption="Configuration of Age composition likelihood, mean selectivity model, and selectivity random effects for each age composition data component in Run 34.", align = c(rep("l",4)))
-knitr::knit_print(kableExtra::landscape(out))
-
-```
 
 
 ## Seasonality and movement
 
 The WHAM model assumes 11 intervals within each calendar year: 5 monthly time intervals from Jan 1 to May 31, a spawning season from June 1 to July 31, and 5 monthly intervals from August 1 to December 31. All southern fish are assumed to never move to the northern region. Northern fish are all in the northern region during the spawning period. A proportion $p_1$ of northern fish can move to the south each month during the last 5 months of the year, but no movement is allows from the south to the north during this period. For the first 4 months of the year a proportion $p_2$ of northern fish in the south can move back to the north, but no movement from the north to south is allowed during this period. In the fifth month any northern fish still in the south are assumed to move back to the north for the subsequent spawning period. We configured survival and movement to occur sequentially in each interval. Each of the two proportions are assumed constant across intervals, age, and year.
-
-\
-\
-\
-```{r, echo = FALSE, out.width="80%", fig.align="center", fig.cap = "Diagram of intervals within the year and configuation of the dynamics of each component of the BSB population."}
-knitr::include_graphics(here::here("docs","plots","migration_diagram_1.jpg"))
-```
-\
-\
-\
 
 The monthly movement matrices are
 \begin{equation*}
@@ -138,7 +94,7 @@ The monthly movement matrices are
      0 & 1 \\
   \end{bmatrix}
 \end{equation*}
-for portion of the year after spawning and
+for the portion of the year after spawning and
 \begin{equation*}
 \mathbf{p}_{2} = 
   \begin{bmatrix}
@@ -146,11 +102,11 @@ for portion of the year after spawning and
      p_2 & 1-p_2 \\
   \end{bmatrix}
 \end{equation*}
-for portion of the year before spawning.
+for the portion of the year before spawning.
 
 ### Prior distribution for movement rates
 
-The Stock Synthesis model has 2 seasons (6 months each) where a proportion $P_1$ of the northern component moves to the south in one season and some proportion  $P_2$ move back to the south in the second season. The movement matrices for each season is
+The Stock Synthesis model has 2 seasons (6 months each) where a proportion $P_1$ of the northern component moves to the south in one season and some proportion  $P_2$ move back to the south in the second season [@fay_bsb_ss_wp]. The movement matrices for each season is
 \begin{equation*}
 \mathbf{P}_{1} = 
   \begin{bmatrix}
@@ -188,7 +144,7 @@ $\tilde x_i \sim N(x_i, SE(x_i))$. For each simulated value we constructed $\mat
 
 For the northern population abundance at age 1 on January 1 (recruitment) is only allowed in the northern region, but given the monthly movement described above, older individuals that previously recruited in the northern region may occur in the southern region on January 1. Therefore, a model with survival random effects will model the transitions (survival/movement) of abundances at age of northern origin fish in each region. All of the initial runs assumed variance parameters for these random effects to be the same for northern origin fish occurring in both regions on January 1. The base model assumes very small variance for the transitions of northern fish in the southern region, which is essentially the same as the deterministic transition assumptions of a statistical catch at age model. We also allow 2DAR1 correlation for recruitment and survival for both the northern and southern components. Variance and correlation parameters for the recruitment and survival random effects are different for the northern and southern components.
 
-### Uncertainty recreational CPA index observations
+## Uncertainty recreational CPA index observations
 
 The CVs provided by the analyses for the recreational catch per angler ranged between 0.02 and 0.06 which the working group felt did not capture the true uncertainty in the index with regard to its relationship to stock abundance. In many of the initial runs as well as the base model we allowed a scalar multiple of the standard deviation of the log aggregate index to be estimated for these indices in the northern and southern regions. Models that successfully estimated these scalars indicated standard deviations for these surveys to be  approximately 5 times the input value and this value was fixed in many preliminary runs to avoid dealing with convergence problems. However, the base model successfully estimated these scalars. The model estimates are negligibly affected by estimating these scalars, but we felt estimating these parameters allowed uncertainty in model output to be more properly conveyed.
 
@@ -223,9 +179,12 @@ The same options in the basic single stock WHAM model are available in the multi
 
 # Results
 
+# Conclusions
+
 ```{r, echo = F, eval = T}
 library(TMB)
 null_mod <- readRDS(here::here("2023.RT.Runs","Run33","fit_no_effect.RDS"))
+sat_mod <- readRDS(here::here("2023.RT.Runs","Run33","fit_both_effects.RDS"))
 Run33 <- readRDS(here::here("2023.RT.Runs","Run33","fit_proj.RDS"))
 Run34 <- readRDS(here::here("2023.RT.Runs","Run34","fit_proj.RDS"))
 dat <- Run34$input$data
@@ -238,41 +197,33 @@ ssb_tot_ind <- which(rownames(std) == "log_SSB_all")
 predR_ind <- which(rownames(std) == "log_SPR_FXSPR")
 ```
 
+\blandscape
+```{r compare-asap-wham, echo = FALSE, out.width="75%", fig.align="center", fig.cap = "Comparison of recruitment, spawning stock biomass, and fishing mortality estimates from ASAP and WHAM fits to each regional component separately as well as simultaneoulsy in the multi-stock extension of WHAM using ASAP3 model input files from the most recent management track assessment."}
+knitr::include_graphics(here::here("docs","plots","compare_one_stock_models.png"))
+```
+\elandscape
+
+
+```{r, echo = FALSE, out.width="80%", fig.align="center", fig.cap = "Diagram of intervals within the year and configuation of the dynamics of each component of the BSB population."}
+knitr::include_graphics(here::here("docs","plots","migration_diagram_1.jpg"))
+```
+\clearpage
+
 ```{r, echo = FALSE, out.width="75%", fig.align="center", fig.cap= "Estimated survival deviations from the proposed base model."}
 knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","NAA_dev_tile.png"))
 ```
+\clearpage
 ```{r, echo = FALSE, out.width="75%", fig.align="center", fig.cap= "Estimated selectivity for indices and fleets from the proposed base model."}
 knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SelAA_tile.png"))
 ```
-
-
-```{r, echo = F, eval = T}
-AIC <-  round(2*c((null_mod$opt$obj + length(null_mod$opt$par)), Run33$opt$obj + length(Run33$opt$par)),2)
-Rsig <-  round(exp(c(null_mod$parList$log_NAA_sigma[1,1,1], Run33$parList$log_NAA_sigma[1,1,1])),2)
-out <- cbind(AIC = AIC, "North $\\widehat{\\sigma}_R$" = Rsig)
-rownames(out) <- c("No effect", "With temperature effect")
-out <- kable(out, format = type, booktabs = T, escape=F, row.names = T,label = "compare-table",
-    caption="Comparison of AIC and estimates of standard deviation of recruitment for the northern stock component with and without bottom temperature effects on northern recruitment for Run 33.", align = c(rep("r",2)))
-knitr::knit_print(out)
-#cat(knitr::knit_print(out))
-```
-
-```{r, echo = F, eval = T}
-out = as.data.frame(readRDS(here::here("2023.RT.Runs","Run34","res_tables","parameter_estimates_table.RDS")))
-#out = round(out, 3)
-out <- wham:::sci_note(out,cols=1:4)
-out <- out %>% kable(format = type, booktabs = T, escape=F, longtable = T, row.names = T,label = "par-table",
-    caption="Parameter estimates, standard errors, and confidence intervals. Rounded to 3 decimal places.", align = c(rep("r",4))) %>%
-    kable_styling(latex_options=c("basic", "repeat_header")) %>% landscape()
-knitr::knit_print(out)
-
-```
-
+\clearpage
 
 ```{r, echo = F, eval = T, fig.cap= "Median recruitment with and without temperature ($x$) effects."}
 plot(Run33$years_full[-1], Run33$rep$pred_NAA[1,1,-1,1], type = 'l', xlab = "Year", ylab = bquote(Median~ hat(italic(R)[y]*"|"*italic(x)[y])))
 lines(null_mod$years[-1], null_mod$rep$pred_NAA[1,1,-1,1], col = "blue")
 ```
+\clearpage
+
 
 ```{r, echo = F, eval = T, fig.cap = "Ratio of standard errors of Northern component SSB with and without the scalar of the Recreational CPA index standard errors estimated."}
 sd33 <- TMB:::as.list.sdreport(Run33$sdrep, report=TRUE, what = "Std")$log_SSB[,1]
@@ -281,6 +232,8 @@ sd34 <- TMB:::as.list.sdreport(Run34$sdrep, report=TRUE, what = "Std")$log_SSB[,
 plot(Run33$years_full, sd34/sd33, ylab = "Ratio of standard errors of SSB for runs 34 and 33", xlab = "Year", type = "l")
 abline(h = 1, lty = 2, col = "red")
 ```
+\clearpage
+
 
 ```{r, echo = F, eval = T, fig.cap = "Ratio of standard errors of Northern component recruitment with and without the scalar of the Recreational CPA index standard errors estimated."}
 sd33 <- TMB:::as.list.sdreport(Run33$sdrep, report=TRUE, what = "Std")$log_NAA_rep[1,1,,1]
@@ -289,6 +242,8 @@ sd34 <- TMB:::as.list.sdreport(Run34$sdrep, report=TRUE, what = "Std")$log_NAA_r
 plot(Run33$years_full, sd34/sd33, ylab = "Ratio of standard errors of recruitment for runs 34 and 33", xlab = "Year", type = "l")
 abline(h = 1, lty = 2, col = "red")
 ```
+\clearpage
+
 
 ```{r, echo = F, eval = T, fig.cap = "Expected recruitment for the northern component of the black sea bass stock as a function of bottom temperature"}
 std <- summary(Run34$sdrep, "fixed")
@@ -317,6 +272,8 @@ polygon(c(Ecov, rev(Ecov)), exp(c(ci[,1],rev(ci[,2]))), col=adjustcolor("black",
 
 
 ```
+\clearpage
+
 
 ```{r, echo = F, eval= T, fig.cap = "Prior (black) and posterior (red) distributions of movement of northern component stock from north to south (top) and south to north (bottom)"}
 dlogitnorm <- function(x, p, sigma){
@@ -344,6 +301,82 @@ lines(ps, dlogitnorm(ps, p = Run34$rep$mu[1,8,1,1,2,1], sigma = TMB:::as.list.sd
 abline(v=Run34$rep$mu[1,8,1,1,2,1], col = "red", lwd = 2)
 
 ```
+\clearpage
+
+
+```{r wham-runs, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+dat <- read.csv(here::here("docs","wham_runs.csv"), colClasses="character")
+dat %>% kable(format = type, booktabs = T, escape=F, longtable = T, caption="WHAM runs with description and comments.") %>%
+  column_spec(2:3, width = c("10cm","12cm")) %>% 
+  #row_spec(c(4,17), bold = TRUE) %>%
+  kable_styling(latex_options=c("basic", "repeat_header")) %>% landscape()
+
+# out <- out %>% kable(format = type, booktabs = T, escape=F, longtable = T, row.names = T,label = "par-table",
+#     caption="Parameter estimates, standard errors, and confidence intervals. Rounded to 3 decimal places.", align = c(rep("r",4))) %>%
+#     kable_styling(latex_options=c("basic", "repeat_header")) %>% landscape()
+# knitr::knit_print(out)
+
+```
+\clearpage
+
+
+```{r, echo = F, eval = T}
+age_comp_names <- c("North Commercial", "North Recreational", "South Commercial", "South Recreational",
+  "North Recreational CPA", "North VAST", "South Recreational CPA", "South VAST")
+age_comp_mod <- c("Dirichlet-Multinomial", "Logistic-normal (0s as missing)", "Logistic-normal (AR1, 0s as missing)","Logistic-normal (AR1, 0s as missing)", "Logistic-normal (0s as missing)","Dirichlet-Multinomial","Logistic-normal (AR1, 0s as missing)","Logistic-normal (AR1, 0s as missing)")
+mean_sel_mod <- c("age-specific (flat-topped at ages > 3)",
+  "age-specific (flat-topped at ages > 6)",
+  "logistic", "logistic",
+  "age-specific (flat-topped at ages > 1)",
+  "age-specific (flat-topped at ages > 4)",
+  "age-specific (flat-topped at ages > 2)",
+  "age-specific (flat-topped at ages > 1)")
+sel_re_mod <- c("2D-AR1 (age and year)", 
+  "2D-AR1 (age and year)",
+  "None",
+  "None",
+  "AR1 (year)",
+  "2D-AR1 (age and year)",
+  "None",
+  "None")
+out <- cbind.data.frame("Data component" = age_comp_names,  "Age Composition Likelihood" = age_comp_mod,  
+  "Mean Selectivity model" = mean_sel_mod, "Random effects configuration" = sel_re_mod)
+
+out %>% kable(format = type, booktabs = T, escape=F, row.names = F, label = "age-comp-sel-table",
+    caption="Configuration of Age composition likelihood, mean selectivity model, and selectivity random effects for each age composition data component in Run 34.", align = c(rep("l",4))) %>% landscape()
+#knitr::knit_print(kableExtra::landscape(out))
+
+```
+
+\clearpage
+
+
+```{r, echo = F, eval = T}
+mods <- c("null_mod","Run33", "sat_mod")
+AIC <- round(2*(sapply(mods, function(x) get(x)$opt$obj + length(get(x)$opt$par))), 2)
+Rsig <- round(sapply(mods, function(x) get(x)$parList$log_NAA_sigma[1,1,1]),2)
+out <- cbind(AIC = AIC, "North $\\widehat{\\sigma}_R$" = Rsig)
+rownames(out) <- c("No effect", "North temperature effect", "Both temperature effects")
+out <- kable(out, format = type, booktabs = T, escape=F, row.names = T,label = "compare-table",
+    caption="Comparison of AIC and estimates of standard deviation of recruitment for models without any temperature effects on recruitment, with just effects on the northern component, and with effects on both components for Run 33.", align = c(rep("r",2)))
+knitr::knit_print(out)
+#cat(knitr::knit_print(out))
+```
+\clearpage
+
+
+```{r, echo = F, eval = T}
+out = as.data.frame(readRDS(here::here("2023.RT.Runs","Run34","res_tables","parameter_estimates_table.RDS")))
+#out = round(out, 3)
+out <- wham:::sci_note(out,cols=1:4)
+out <- out %>% kable(format = type, booktabs = T, escape=F, longtable = T, row.names = T,label = "par-table",
+    caption="Parameter estimates, standard errors, and confidence intervals. Rounded to 3 decimal places.", align = c(rep("r",4))) %>%
+    kable_styling(latex_options=c("basic", "repeat_header")) %>% landscape()
+knitr::knit_print(out)
+
+```
+
+
 
 
 
@@ -523,8 +556,6 @@ The three WHAM models estimated similar trends in SSB, $F$, and recruitment as A
 All models estimated that the stock has never been overfished or experienced overfishing ($B/B_{50\%}$ > 1 and $F/F_{50\%}$ < 1 in all years, Fig. \ref{fig:status}).
 
 -->
-
-## Projections
 
 <!-- We show 3-year projections of recruitment and SSB under 3 alternative $F$ scenarios: $F=0$ (Fig. \ref{fig:proj-panel-f0}), $F=F_{2019}$ (Fig. \ref{fig:proj-panel-flast}), and $F=F_{50\%}$ (Fig. \ref{fig:proj-panel-f50}). 17-NAA5 estimates a larger population size (higher SSB) than the other two models, even with similar $F$ and the same $M$, because survival deviations for ages 1+ were estimated to be positive (Figs. \ref{fig:naa-devs} and \ref{fig:proj-panel-f0}-\ref{fig:proj-panel-f50}).  -->
 
