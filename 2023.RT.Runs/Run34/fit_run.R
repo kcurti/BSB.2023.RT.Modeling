@@ -158,12 +158,20 @@ wham:::plot.FXSPR.annual(fit_proj)
 #conditional sims in container on server
 source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
 fit_file <-here("2023.RT.Runs",this_run,"fit.RDS")
+res_dir <- here("2023.RT.Runs",this_run)
+wham.lab.loc <- "~/tmiller_net/work/wham_packages/multi_wham"
 set.seed(8675309)
 seeds <- sample(1e-9:1e9, 100)
-sim_res_all <- cond_sim_fn(fit_file=fit_file, seeds = seeds[1:100], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham", n.cores = 16)
+sim_res_all <- cond_sim_fn(fit_file=fit_file, seeds = seeds[1:20], res_dir = res_dir, 
+  wham.lab.loc = wham.lab.loc, n.cores = 16)
 saveRDS(sim_res_all, here::here("2023.RT.Runs",this_run,"self_test_res.RDS"))
 sim_res_all <- c(sim_res_all, 
-  cond_sim_fn(fit_file=fit_file, seeds = seeds[2:100], wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham"))
+   cond_sim_fn(fit_file=fit_file, seeds = seeds[21:100], res_dir = res_dir, 
+   wham.lab.loc = wham.lab.loc, n.cores = 16))
+sim_res_2 <- lapply(file.path(res_dir, paste0("cond_sim_",1:80, ".RDS")), function(x) try(readRDS(x)))
+names(sim_res_2[[1]])
+sim_res <- c(sim_res_all, sim_res_2)
+
 saveRDS(sim_res_all, here::here("2023.RT.Runs",this_run,"self_test_res.RDS"))
 # sim_res_all <- c(sim_res_all, cond_sim_fn(fit_file=fit_file, seeds = seeds[51:100], 
 #   wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham", n.cores = 12))
@@ -181,6 +189,15 @@ polygon(c(fit$years,rev(fit$years)), c(bias_lo, rev(bias_hi)))
 grid()
 
 
+source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
+fit_file <-here("2023.RT.Runs",this_run,"fit.RDS")
+fit <- readRDS(here("2023.RT.Runs",this_run,"fit.RDS"))
+res_dir <- here("2023.RT.Runs",this_run)
+wham.lab.loc <- "~/tmiller_net/work/wham_packages/multi_wham"
+set.seed(8675309)
+init_vals <- mvtnorm::rmvnorm(100,mean = fit$opt$par, sigma = fit$sdrep$cov.fixed)
+
+jit_res_1 <- jitter_fn(which_rows = 1:16, init_vals = init_vals, n.cores  = 16, fit_file = fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc)
 
 
 
