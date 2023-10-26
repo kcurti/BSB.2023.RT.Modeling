@@ -240,7 +240,7 @@ saveRDS(fit_best_proj, here("2023.RT.Runs",this_run, "fit_best_proj.RDS"))
 plot_wham_output(fit_best_proj)
 
 source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
-fit_file <-here("2023.RT.Runs",this_run,"fit.RDS")
+fit_file <-here("2023.RT.Runs",this_run,"fit_best.RDS")
 res_dir <- here("2023.RT.Runs",this_run, "best_sims")
 wham.lab.loc <- "~/tmiller_net/work/wham_packages/multi_wham"
 set.seed(8675309)
