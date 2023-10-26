@@ -1,12 +1,11 @@
-cond_sim_fn <- function(fit_file, seeds, res_dir, wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham", n.cores = NULL){
+cond_sim_fn <- function(which_seeds, seeds, fit_file, res_dir, wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham", n.cores = NULL){
   #library(snowfall) # used for parallel computing
   parallel::detectCores()
-  print("here")
   if(is.null(n.cores)) n.cores <- parallel::detectCores()/2
   snowfall::sfInit(parallel=TRUE, cpus=n.cores)
   print("here")
   snowfall::sfExportAll()
-  sim_res <- snowfall::sfLapply(1:length(seeds), function(i){
+  sim_res <- snowfall::sfLapply(which_seeds, function(i){
     library(wham, lib.loc = wham.lab.loc)
     fit = readRDS(fit_file)
     sim_input <- fit$input
@@ -24,14 +23,14 @@ cond_sim_fn <- function(fit_file, seeds, res_dir, wham.lab.loc = "~/tmiller_net/
 		  par = rep(NA,length(sim_mod$par)), 
 		  grad = rep(NA, length(sim_mod$par)), 
 		  SSB = matrix(NA,NROW(sim_mod$rep$SSB),NCOL(sim_mod$rep$SSB)), 
-			F = matrix(NA,NROW(sim_mod$rep$F),NCOL(sim_mod$rep$F)), 
+			F = rep(NA,length(sim_mod$rep$log_F_tot)), 
 			NAA = array(NA, dim = dim(sim_mod$rep$NAA)))
 		if(!is.null(x$opt)){
 			out$obj <- x$opt$obj
 			out$par <- x$opt$par
 			out$grad <- x$final_gradient
 			out$SSB <- x$rep$SSB
-			out$F <- x$rep$F
+			out$F <- exp(x$rep$log_F_tot)
 			out$NAA <- x$rep$NAA
 		}
 		out$seed <- seeds[i]
@@ -63,5 +62,6 @@ jitter_fn <- function(which_rows, init_vals, n.cores  = NULL, fit_file, res_dir,
 		saveRDS(out, res_file_i)
 		return(out)
   })
+  snowfall::sfStop()
   return(jit_res)
 }

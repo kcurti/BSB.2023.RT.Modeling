@@ -11,10 +11,11 @@ P2 <- matrix(c(1,p2,0,1-p2),2,2)
 eigs <- eigen(P1)
 D <- diag(eigs$val^(1/5)) #5 monthly seasons in WHAM model where this movement occurs
 P1t <- eigs$vec %*% D %*% solve(eigs$vec)
-
+log(P1t[1,2]/(1-P1t[1,2]))
 eigs <- eigen(P2)
 D <- diag(eigs$val^(1/4)) #4 monthly seasons in WHAM model where this movement occurs
 P2t <- eigs$vec %*% D %*% solve(eigs$vec)
+log(P2t[2,1]/(1-P2t[2,1]))
 
 P <- P1 %*% P2
 eigs <- eigen(P)

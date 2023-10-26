@@ -120,7 +120,7 @@ and
   \begin{bmatrix}
      1 &  0 \\
      P_2 & 1-P_2 \\
-  \end{bmatrix}
+  \end{bmatrix}.
 \end{equation*}
 
 We approximate the monthly movement matrices as the roots $\mathbf{P}_1$ and $\mathbf{P}_2$ defined by the number of months of movement for each season (5 and 4, respectively): $\mathbf{p}_1 = \mathbf{P}_1^{\frac{1}{5}}$ and $\mathbf{p}_2 = \mathbf{P}_2^{\frac{1}{4}}$. Given the proportion parameter, the eigen decomposition of the matricies can be used to define the roots
@@ -129,16 +129,15 @@ $$  \mathbf{P}_2^{1/4} = \mathbf{V}_2 \mathbf{D}_2^{\frac{1}{4}} \mathbf{V}_2^{-
 where $\mathbf{V}_i$ and $\mathbf{D}_i$ are the matrix of eigenvectors (columnwise) and the diagonal matrix of corresponding eigenvalues of $\mathbf{P}_i$ for parameter $P_i$. Note, for diagonal matrices, $\mathbf{D}_i^k$ is equal to the diagonal matrix with the elements raised to the power $k$.
 
 We used a parametric bootstrap approach to determine an appropriate standard deviation for the prior distribution for the movement parameters. 
-The actual parameters $x_1$ and $x_2$ estimated in the SS model are transformations of $P_1$ and $P_2$ such that
+The actual SS parameter estimates $x_1=-1.44$ and $x_2=1.94$ are transformations of $P_1=0.11$ and $P_2=0.78$ such that
 $$
 P_i = \frac{1}{1 + 2e^{-x_i}}
 $$
 In WHAM a logit transformation is used 
 $$
-p_i = \frac{1}{1+e^{-y_i}}
+p_i = \frac{1}{1+e^{-y_i}}.
 $$
-We simulated 1000 values from a normal distribution with mean and standard deviation defined by the SS parameter estimate and standared error
-$\tilde x_i \sim N(x_i, SE(x_i))$. For each simulated value we constructed $\mathbf{P}_i$, took the appropriate root and calculated inverse logit for $\tilde y_i$. We calculated the mean and standard deviation of the values $y_i$. The mean values did not differ meaningfully from the transformation of the original estimates and the standard deviation was approximately 0.2 for both parameters.
+We simulated 1000 values from a normal distribution with mean and standard deviation defined by the SS parameter estimate and standard error $\tilde x_i \sim N(x_i, SE(x_i))$. For each simulated value we constructed $\mathbf{P}_i$, took the appropriate root and calculated inverse logit for $\tilde y_i$. We calculated the mean and standard deviation of the values $y_i$. The mean values did not differ meaningfully from the transformation of the original estimates ($y_1 = -3.79$ and $y_2 = -0.79$) and the standard deviation was approximately 0.2 for both parameters.
 
 ## Recruitment and Survival
 
@@ -154,9 +153,9 @@ We have bottom temperature observations for the northern and southern regions fr
 
 We assume the covariate in year $y$ affects recruitment in the same years because the covariate observations are from months January to March. The fish are technically already 1 year old, but there are no observations of these individuals until later in the year except possibly in fishery catches which are accumulated over the whole year. Expected log-recruitment is a linear function of log-recruitment at the previous time step and bottom temperature
 
-\begin{equation}
+\begin{equation*}
 \log R_y = \mu_R + \beta x_y + \epsilon_y
-\end{equation}
+\end{equation*}
 
 Comparison of the base model to one with the bottom temperature effect on natural mortality at age 1 might be of interest in the future.
 
@@ -164,18 +163,28 @@ Comparison of the base model to one with the bottom temperature effect on natura
 
 We attenmpted a few further extensions of the base model. First we fit models that assumed Beverton-Holt stock recruit relationships for the north and south components. Although this fit converged nominally, the $\alpha$ and $\beta$ parameters tended toward infinity (equivalent to steepness tending toward 1). We also fit a model with AR1 annual random effects in the movement rates from the north to the south for the northern stock component. This run did not converge.
 
-
-## self tests
-
 ## Jitter analysis
+
+For this analysis we simulated fixed effects parameter vectors from a normal distribution with mean equal to the optimized values and covariance equal to the hessian-based covariance matrix. From refitting the model starting at 16 different simulated parameter vectors, we found 3 cases with a lower (~2 units) marginal negative log likelihood (Figure \ref{fig:jitter-res-1}). The gradients at these optimized values were satisfactory and there was no difference in parameter value among the 3 lower optimizations. In 1 of the 16 iterations, the model did not optimized satisfactorily, and in the other 12 iterations, the optimized marginal negative log-likelihood and parameter estimates were identical to the original fit. The parameters with estimates that differed most between the 2 optimization results were those associated with age composition observation dispersion parameters.
+
+Given the revised model with the lower marginal NLL, we used the same jittering method with 100 simulated parameter values as starting values (Figure XX). None of these iterations resulted in lower marginal NLLs than the new estimated values.
+
+## Self tests
+
+We performed a simulation self-test where new observations were simulated conditional on all random effects estimated in the base model and the same proposed base model configuration was fit to each of the simulated data sets. 
+
+Nearly all models converged poorly which appeared to be attributable to the estimation of the scalar for the standard errors of the log transformed Rec CPA indices (Figure XX). At least one of these scalars nearly always tended to 0. However, even for these fits with poor convergence, the SSB estimates appeared to be reliable (Figure XX). When we redid the self-tests fixing those parameters at the estimated values, the convergence was much improved.
 
 ## Reference points
 
-Because 
+For equilibrium per recruit calculations, the current assessment uses the average by age of the most recent 5 years for maturity, SSB weight, catch weight, fleet selectivity, and natural mortality. The current assessment also uses the average of recruitment for years after 1999. We use these same configurations for the proposed base model. However, in this model, WHAM can calculate SPR-based reference points internally so as to propagate uncertainty in any estimated parameters into the derived reference points.
 
 ## Projections
 
 The same options in the basic single stock WHAM model are available in the multi-stock extension. To demonstrate the the projection capability, we configured a three year projection with catch set to 10kmt in 2022 and fishing at $F_{40}$ in the subsequent two years.
+
+Models for random effects on the bottom temperature covariate, recruitment, survival are used to predict bottom temperature and abundance at age in the projection years. 
+
 
 # Results
 
@@ -206,6 +215,20 @@ knitr::include_graphics(here::here("docs","plots","compare_one_stock_models.png"
 
 ```{r, echo = FALSE, out.width="80%", fig.align="center", fig.cap = "Diagram of intervals within the year and configuation of the dynamics of each component of the BSB population."}
 knitr::include_graphics(here::here("docs","plots","migration_diagram_1.jpg"))
+```
+\clearpage
+
+```{r jitter-res-1, echo = FALSE, out.width="80%", fig.align="center", fig.cap = "Marginal negative log-likelihood and maximum absolute value of gradients for each of 16 jitter iterations."}
+jit_res <- readRDS(here::here("2023.RT.Runs",'Run34', "jit_res_1.RDS"))
+par(mfrow = c(2,1), oma = c(5,1,1,1), mar = c(1,5,1,1))
+plot(sapply(jit_res, function(x) x$obj), xlab = "", ylab = "", xaxt = 'n')
+axis(1, labels = F)
+grid(col = gray(0.7))
+mtext(side = 2, "Marginal NLL", line = 2)
+plot(sapply(jit_res, function(x) max(abs(x$grad))), xlab = "", ylab = "")
+grid(col = gray(0.7))
+mtext(side = 1, "Iteration", outer = TRUE, line = 2)
+mtext(side = 2, "Maximum absolute\ngradient", line = 2)
 ```
 \clearpage
 
