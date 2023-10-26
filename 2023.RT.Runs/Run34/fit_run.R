@@ -177,30 +177,6 @@ names(sim_res_2[[1]])
 sim_res <- c(sim_res_1, sim_res_2)
 sim_res <- sim_res[!sapply(sim_res, is.character)]
 sim_res <- sim_res[!sapply(sim_res, function(x) is.na(x$obj))]
-SSB_n <- sapply(sim_res, function(x) x$SSB[,1])
-fit <- readRDS(fit_file)
-reccpapars <- sapply(sim_res, function(x) x$par[names(x$par) %in% c("log_index_sig_scale")])
-reldiff <- (SSB_n - fit$rep$SSB[,1])/fit$rep$SSB[,1]
-good_grad <- which(sapply(sim_res, function(x) max(abs(x$grad))<1e-6))
-bias_est <- apply(reldiff,1,mean)
-bias_se <- apply(reldiff,1,sd)/sqrt(NCOL(reldiff))
-# bias_est <- apply(reldiff[,good_grad],1,mean)
-# bias_se <- apply(reldiff[,good_grad],1,sd)/sqrt(length(good_grad))
-bias_lo <- bias_est - qnorm(0.975)*bias_se
-bias_hi <- bias_est + qnorm(0.975)*bias_se
-plot(fit$years, bias_est, ylim = range(c(bias_lo,bias_hi)))
-polygon(c(fit$years,rev(fit$years)), c(bias_lo, rev(bias_hi)))
-grid()
-
-SSB_n <- sapply(sim_res, function(x) x$SSB[,2])
-reldiff <- (SSB_n - fit$rep$SSB[,2])/fit$rep$SSB[,2]
-bias_est <- apply(reldiff,1,mean)
-bias_se <- apply(reldiff,1,sd)/sqrt(NCOL(reldiff))
-bias_lo <- bias_est - qnorm(0.975)*bias_se
-bias_hi <- bias_est + qnorm(0.975)*bias_se
-plot(fit$years, bias_est, ylim = range(c(bias_lo,bias_hi)))
-polygon(c(fit$years,rev(fit$years)), c(bias_lo, rev(bias_hi)))
-grid()
 
 source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
 fit_file <-here("2023.RT.Runs",this_run,"fit.RDS")
@@ -237,6 +213,7 @@ plot_wham_output(fit_best)
 fit_best_proj <- project_wham(fit_best, proj.opts = list(proj_F_opt = c(5,3,3), proj_Fcatch = c(10000,10000,10000)), check.version = F)
 #setwd(here("2023.RT.Runs",this_run, "projection"))
 saveRDS(fit_best_proj, here("2023.RT.Runs",this_run, "fit_best_proj.RDS"))
+setwd(here("2023.RT.Runs",this_run))
 plot_wham_output(fit_best_proj)
 
 source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
@@ -249,24 +226,20 @@ sim_res_1 <- cond_sim_fn(which_seeds = 1:20, seeds = seeds, fit_file=fit_file, r
 saveRDS(sim_res_1, here::here("2023.RT.Runs",this_run,"best_sims", "self_test_1.RDS"))
 sim_res_2 <- cond_sim_fn(which_seeds = 21:100, seeds = seeds, fit_file=fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc, n.cores = 16)
 saveRDS(sim_res_2, here::here("2023.RT.Runs",this_run,"best_sims", "self_test_2.RDS"))
+condsim_files <- grep("cond_sim", dir(here::here("2023.RT.Runs",this_run,"best_sims"), full.names = T), value = T)
+sim_res <- lapply(condsim_files, readRDS)
+reccpapars <- sapply(sim_res, function(x) x$par[names(x$par) %in% c("log_index_sig_scale")])
 
-
-
-
-# z <- tfit$env$parList(par = tfit$env$last.par.ok)
-# x <- tfit$env$last.par.ok[tfit$env$lfixed()] #fixed effects
-# max(abs(tfit$gr(x))
-# y <- tfit$gr(x)
-# names(y) <- names(x)
-# start_vals <- Run29$parList
-# start_vals$trans_mu <- temp$par$trans_mu
-# temp1 <- temp
-# temp1$par <- start_vals
-# tfit1 <- fit_wham(temp1, do.fit = F)
-# tfit1 <- fit_wham(temp1, do.sdrep =F, do.osa =F, do.retro = F)
-
-
-x <- readRDS(here::here("2023.RT.Runs", "Run33", "res_tables", "parameter_estimates_table.RDS"))
+set.seed(8675309)
+fit_file <-here("2023.RT.Runs",this_run,"fit_best.RDS")
+fit <- readRDS(fit_file)
+init_vals <- mvtnorm::rmvnorm(100,mean = fit$opt$par, sigma = fit$sdrep$cov.fixed)
+res_dir <- here("2023.RT.Runs",this_run, "best_sims")
+jit_res_1 <- jitter_fn(which_rows = 1:16, init_vals = init_vals, n.cores  = 16, fit_file = fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc)
+saveRDS(jit_res_1,here("2023.RT.Runs",this_run, "jit_res_1.RDS"))
+# jit_res_2 <- jitter_fn(which_rows = 17:100, init_vals = init_vals, n.cores  = 16, fit_file = fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc)
+# saveRDS(jit_res_2,here("2023.RT.Runs",this_run, "jit_res_2.RDS"))
+jit_res <- readRDS(here("2023.RT.Runs",this_run, "jit_res_1.RDS"))
 
 
 library(TMB)

@@ -64,7 +64,7 @@ All code used for model fits along with results summaries can be found at https:
 
 ## Early runs
 
-The development of the multi-stock, multi-area version of WHAM was driven primarily by the needs of black sea bass and NEUS stocks of Atlantic cod. Because this extension to WHAM represents a major change to the code used to configure and estimate models, we compared results from fits of separate ASAP models, separate base WHAM models to the two regional components, as well as combined fits of these components in the new extension of WHAM without any movement (Figure \ref{fig:compare-asap-wham}). The latter fit will provide independent fits of the two components simultaneously.  
+The development of the multi-stock, multi-area version of WHAM was driven primarily by the needs of black sea bass and NEUS stocks of Atlantic cod. Because this extension to WHAM represents a major change to the code used to configure and estimate models, we compared results from fits of separate ASAP models, separate applications of the standard WHAM model to each of the regional components, and simultaneous fits of the regional components in the new extension of WHAM without any movement (Figure \ref{fig:compare-asap-wham}). The latter fit should match will provide independent fits of the two components simultaneously.  
 
 Then we fit models treating recruitment as random effects and then also included random effects on survival for the older age classes. 
 
@@ -145,7 +145,7 @@ For the northern population abundance at age 1 on January 1 (recruitment) is onl
 
 ## Uncertainty recreational CPA index observations
 
-The CVs provided by the analyses for the recreational catch per angler ranged between 0.02 and 0.06 which the working group felt did not capture the true uncertainty in the index with regard to its relationship to stock abundance. In many of the initial runs as well as the base model we allowed a scalar multiple of the standard deviation of the log aggregate index to be estimated for these indices in the northern and southern regions. Models that successfully estimated these scalars indicated standard deviations for these surveys to be  approximately 5 times the input value and this value was fixed in many preliminary runs to avoid dealing with convergence problems. However, the base model successfully estimated these scalars. The model estimates are negligibly affected by estimating these scalars, but we felt estimating these parameters allowed uncertainty in model output to be more properly conveyed.
+The CVs provided by the analyses for the recreational catch per angler (RecCPA) ranged between 0.02 and 0.06 which the working group felt did not capture the true uncertainty in the index with regard to its relationship to stock abundance. In many of the initial runs as well as the base model we allowed a scalar multiple of the standard deviation of the log aggregate index to be estimated for these indices in the northern and southern regions. Models that successfully estimated these scalars indicated standard deviations for these surveys to be  approximately 5 times the input value and this value was fixed in many preliminary runs to avoid dealing with convergence problems. However, the base model successfully estimated these scalars. The model estimates are negligibly affected by estimating these scalars, but we felt estimating these parameters allowed uncertainty in model output to be more properly conveyed.
 
 ## Bottom Temperature effects on recruitment
 
@@ -195,7 +195,7 @@ library(TMB)
 null_mod <- readRDS(here::here("2023.RT.Runs","Run33","fit_no_effect.RDS"))
 sat_mod <- readRDS(here::here("2023.RT.Runs","Run33","fit_both_effects.RDS"))
 Run33 <- readRDS(here::here("2023.RT.Runs","Run33","fit_proj.RDS"))
-Run34 <- readRDS(here::here("2023.RT.Runs","Run34","fit_proj.RDS"))
+Run34 <- readRDS(here::here("2023.RT.Runs","Run34","fit_best_proj.RDS"))
 dat <- Run34$input$data
 std <- summary(Run34$sdrep, "report")
 ssb40_ind <- which(rownames(std) == "log_SSB_FXSPR_static")
@@ -210,15 +210,14 @@ predR_ind <- which(rownames(std) == "log_SPR_FXSPR")
 ```{r compare-asap-wham, echo = FALSE, out.width="75%", fig.align="center", fig.cap = "Comparison of recruitment, spawning stock biomass, and fishing mortality estimates from ASAP and WHAM fits to each regional component separately as well as simultaneoulsy in the multi-stock extension of WHAM using ASAP3 model input files from the most recent management track assessment."}
 knitr::include_graphics(here::here("docs","plots","compare_one_stock_models.png"))
 ```
-\elandscape
 
 
 ```{r, echo = FALSE, out.width="80%", fig.align="center", fig.cap = "Diagram of intervals within the year and configuation of the dynamics of each component of the BSB population."}
 knitr::include_graphics(here::here("docs","plots","migration_diagram_1.jpg"))
 ```
-\clearpage
+\elandscape
 
-```{r jitter-res-1, echo = FALSE, out.width="80%", fig.align="center", fig.cap = "Marginal negative log-likelihood and maximum absolute value of gradients for each of 16 jitter iterations."}
+```{r jitter-res-1, echo = FALSE, fig.dim =c(7,10), fig.align="center", fig.cap = "Marginal negative log-likelihood and maximum absolute value of gradients for each of 16 jitter iterations."}
 jit_res <- readRDS(here::here("2023.RT.Runs",'Run34', "jit_res_1.RDS"))
 par(mfrow = c(2,1), oma = c(5,1,1,1), mar = c(1,5,1,1))
 plot(sapply(jit_res, function(x) x$obj), xlab = "", ylab = "", xaxt = 'n')
@@ -231,6 +230,37 @@ mtext(side = 1, "Iteration", outer = TRUE, line = 2)
 mtext(side = 2, "Maximum absolute\ngradient", line = 2)
 ```
 \clearpage
+
+```{r self-test-res-2, echo = FALSE, fig.dim =c(7,10), fig.align="center", fig.cap = "Relative bias of SSB estimates from conditional self test simulations."}
+condsim_files <- grep("cond_sim", dir(here::here("2023.RT.Runs","Run34","best_sims"), full.names = T), value = T)
+sim_res <- lapply(condsim_files, readRDS)
+fit <- readRDS(here::here("2023.RT.Runs","Run34","fit_best.RDS"))
+
+par(mfrow = c(2,1), mar = c(1,1,3,1), oma = c(4,4,1,1))
+titles <- c("North","South")
+for(i in 1:2){
+	SSB_n <- sapply(sim_res, function(x) x$SSB[,i])
+	reccpapars <- sapply(sim_res, function(x) x$par[names(x$par) %in% c("log_index_sig_scale")])
+	reldiff <- (SSB_n - fit$rep$SSB[,i])/fit$rep$SSB[,i]
+	good_grad <- which(sapply(sim_res, function(x) max(abs(x$grad))<1e-5))
+	bias_est <- apply(reldiff,1,mean, na.rm =T)
+	bias_se <- apply(reldiff,1,sd, na.rm =T)/sqrt(sum(!is.na(reldiff[1,])))
+	# bias_est <- apply(reldiff[,good_grad],1,mean)
+	# bias_se <- apply(reldiff[,good_grad],1,sd)/sqrt(length(good_grad))
+	bias_lo <- bias_est - qnorm(0.975)*bias_se
+	bias_hi <- bias_est + qnorm(0.975)*bias_se
+	plot(fit$years, bias_est, ylim = range(c(bias_lo,bias_hi)), xlab = "", ylab = "", xaxt = "n")
+	if(i==2) axis(1)
+	if(i==1) axis(1, labels= F)
+	abline(h=0, col = "red")
+	grid(col = gray(0.7))
+	mtext(side =3, titles[i], line = 0, outer = F)
+	polygon(c(fit$years,rev(fit$years)), c(bias_lo, rev(bias_hi)), col=adjustcolor("black", alpha.f=0.4), border = "transparent")
+}
+mtext(side = 2, "Relative bias (SSB)", line= 2, outer = T)
+mtext(side = 1, "Year", line = 2, outer = T)
+```
+
 
 ```{r, echo = FALSE, out.width="75%", fig.align="center", fig.cap= "Estimated survival deviations from the proposed base model."}
 knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","NAA_dev_tile.png"))
