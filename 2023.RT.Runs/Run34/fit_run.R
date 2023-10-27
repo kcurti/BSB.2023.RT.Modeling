@@ -228,7 +228,16 @@ sim_res_2 <- cond_sim_fn(which_seeds = 21:100, seeds = seeds, fit_file=fit_file,
 saveRDS(sim_res_2, here::here("2023.RT.Runs",this_run,"best_sims", "self_test_2.RDS"))
 condsim_files <- grep("cond_sim", dir(here::here("2023.RT.Runs",this_run,"best_sims"), full.names = T), value = T)
 sim_res <- lapply(condsim_files, readRDS)
-reccpapars <- sapply(sim_res, function(x) x$par[names(x$par) %in% c("log_index_sig_scale")])
+reccpapars <- t(sapply(sim_res, function(x) x$par[names(x$par) %in% c("log_index_sig_scale")]))
+NAAsigpars <- t(sapply(sim_res, function(x) x$par[names(x$par) %in% c("log_NAA_sigma")]))
+rbind(fit_best$opt$par[names(fit_best$opt$par) == "log_NAA_sigma"],
+	apply(NAAsigpars,2, mean, na.rm = T))
+catch_paa_pars <- t(sapply(sim_res, function(x) x$par[names(x$par) %in% c("catch_paa_pars")]))
+rbind(fit_best$opt$par[names(fit_best$opt$par) == "catch_paa_pars"],
+	apply(catch_paa_pars,2, mean, na.rm = T))
+index_paa_pars <- t(sapply(sim_res, function(x) x$par[names(x$par) %in% c("index_paa_pars")]))
+rbind(fit_best$opt$par[names(fit_best$opt$par) == "index_paa_pars"],
+	apply(index_paa_pars,2, mean, na.rm = T))
 
 set.seed(8675309)
 fit_file <-here("2023.RT.Runs",this_run,"fit_best.RDS")
@@ -237,10 +246,25 @@ init_vals <- mvtnorm::rmvnorm(100,mean = fit$opt$par, sigma = fit$sdrep$cov.fixe
 res_dir <- here("2023.RT.Runs",this_run, "best_sims")
 jit_res_1 <- jitter_fn(which_rows = 1:16, init_vals = init_vals, n.cores  = 16, fit_file = fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc)
 saveRDS(jit_res_1,here("2023.RT.Runs",this_run, "jit_res_1.RDS"))
-# jit_res_2 <- jitter_fn(which_rows = 17:100, init_vals = init_vals, n.cores  = 16, fit_file = fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc)
+jit_res_2 <- jitter_fn(which_rows = 17:100, init_vals = init_vals, n.cores  = 16, fit_file = fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc)
 # saveRDS(jit_res_2,here("2023.RT.Runs",this_run, "jit_res_2.RDS"))
 jit_res <- readRDS(here("2023.RT.Runs",this_run, "jit_res_1.RDS"))
 
+jitsim_files <- grep("jitter_sim", dir(here::here("2023.RT.Runs",this_run,"best_sims"), full.names = T), value = T)
+jit_res <- lapply(jitsim_files, readRDS)
+sapply(jit_res, function(x) x$obj)
+
+source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
+fit_file <-here("2023.RT.Runs",this_run,"fit_best.RDS")
+res_dir <- here("2023.RT.Runs",this_run, "best_sims_alt")
+dir.create(res_dir)
+wham.lab.loc <- "~/tmiller_net/work/wham_packages/multi_wham"
+set.seed(8675309)
+seeds <- sample(1e-9:1e9, 100)
+#don't estimate RecCPA CV scalars
+temp <- list(log_index_sig_scale = factor(rep(NA, length(input$par$log_index_sig_scale))))
+sim_res_alt <- cond_sim_fn(which_seeds = 1:100, seeds = seeds, fit_file=fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc, n.cores = 16, map_change = temp)
+saveRDS(sim_res_alt, here::here("2023.RT.Runs",this_run,"best_sims_alt", "self_test_all.RDS"))
 
 library(TMB)
 mod <- readRDS("c:/work/BSB.2023.RT.Modeling/2023.RT.Runs/Run33/fit_proj.RDS")

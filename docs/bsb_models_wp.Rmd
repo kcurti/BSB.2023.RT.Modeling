@@ -64,12 +64,7 @@ All code used for model fits along with results summaries can be found at https:
 
 ## Early runs
 
-The development of the multi-stock, multi-area version of WHAM was driven primarily by the needs of black sea bass and NEUS stocks of Atlantic cod. Because this extension to WHAM represents a major change to the code used to configure and estimate models, we compared results from fits of separate ASAP models, separate applications of the standard WHAM model to each of the regional components, and simultaneous fits of the regional components in the new extension of WHAM without any movement (Figure \ref{fig:compare-asap-wham}). The latter fit should match will provide independent fits of the two components simultaneously.  
-
-Then we fit models treating recruitment as random effects and then also included random effects on survival for the older age classes. 
-
-Comparing separate fits for north and south using ASAP files from the last management track assessment in basic wham and multi-wham.
-
+The development of the multi-stock, multi-area version of WHAM was driven primarily by the needs of black sea bass and NEUS stocks of Atlantic cod. Because this extension to WHAM represents a major change to the code used to configure and estimate models, we compared results from fits of separate ASAP models and separate fits using the standard WHAM model for each region, and simultaneous fits of the regional components in the new extension of WHAM without any movement (Figure \ref{fig:compare-asap-wham}). All WHAM fits assume no random effects and estimate annual recruitment parameters as fixed effects. Estimates fro the latter fit and those from fits using the standard WHAM model provide identical results, but ASAP fits provide small differences in estimates for the northern component.
 
 ## Model configurations
 
@@ -139,6 +134,10 @@ p_i = \frac{1}{1+e^{-y_i}}.
 $$
 We simulated 1000 values from a normal distribution with mean and standard deviation defined by the SS parameter estimate and standard error $\tilde x_i \sim N(x_i, SE(x_i))$. For each simulated value we constructed $\mathbf{P}_i$, took the appropriate root and calculated inverse logit for $\tilde y_i$. We calculated the mean and standard deviation of the values $y_i$. The mean values did not differ meaningfully from the transformation of the original estimates ($y_1 = -3.79$ and $y_2 = -0.79$) and the standard deviation was approximately 0.2 for both parameters.
 
+## Initial abundance at age
+
+With the movement configuration, the northern origin fish (ages 2+) can occur in the southern region on January 1. Estimating initial numbers at age as separate parameters can be challenging even in single-stock models. To avoid challenges with estimating initial numbers at age in each region for the northern component in the two stock model, we used the equilibrium assumption described in @miller_bsb_wham_wp. Using this assumption two parameters are estimated for each regional component: an initial recruitment and an equilibrium full F across all fleets.
+
 ## Recruitment and Survival
 
 For the northern population abundance at age 1 on January 1 (recruitment) is only allowed in the northern region, but given the monthly movement described above, older individuals that previously recruited in the northern region may occur in the southern region on January 1. Therefore, a model with survival random effects will model the transitions (survival/movement) of abundances at age of northern origin fish in each region. All of the initial runs assumed variance parameters for these random effects to be the same for northern origin fish occurring in both regions on January 1. The base model assumes very small variance for the transitions of northern fish in the southern region, which is essentially the same as the deterministic transition assumptions of a statistical catch at age model. We also allow 2DAR1 correlation for recruitment and survival for both the northern and southern components. Variance and correlation parameters for the recruitment and survival random effects are different for the northern and southern components.
@@ -167,13 +166,15 @@ We attenmpted a few further extensions of the base model. First we fit models th
 
 For this analysis we simulated fixed effects parameter vectors from a normal distribution with mean equal to the optimized values and covariance equal to the hessian-based covariance matrix. From refitting the model starting at 16 different simulated parameter vectors, we found 3 cases with a lower (~2 units) marginal negative log likelihood (Figure \ref{fig:jitter-res-1}). The gradients at these optimized values were satisfactory and there was no difference in parameter value among the 3 lower optimizations. In 1 of the 16 iterations, the model did not optimized satisfactorily, and in the other 12 iterations, the optimized marginal negative log-likelihood and parameter estimates were identical to the original fit. The parameters with estimates that differed most between the 2 optimization results were those associated with age composition observation dispersion parameters.
 
-Given the revised model with the lower marginal NLL, we used the same jittering method with 100 simulated parameter values as starting values (Figure XX). None of these iterations resulted in lower marginal NLLs than the new estimated values.
+Given the revised model fit with the lower marginal NLL, we used the same jittering method with 100 simulated parameter values as starting values (Figure \ref{fig:jitter-res-2}). Three of the fits failed to complete, and none of these iterations resulted in lower marginal NLLs than that from the revised model estimates. Three of the fits minimized to greater marginal NLLs, but the gradients indicate lack of convergence.
 
 ## Self tests
 
 We performed a simulation self-test where new observations were simulated conditional on all random effects estimated in the base model and the same proposed base model configuration was fit to each of the simulated data sets. 
 
-Nearly all models converged poorly which appeared to be attributable to the estimation of the scalar for the standard errors of the log transformed Rec CPA indices (Figure XX). At least one of these scalars nearly always tended to 0. However, even for these fits with poor convergence, the SSB estimates appeared to be reliable (Figure XX). When we redid the self-tests fixing those parameters at the estimated values, the convergence was much improved.
+The maximum absolute gradient was greater than $1\times10^{-6}$ for all of the simulated data sets. This appeared to be attributable to the estimation of the scalar for the standard errors of the log transformed Rec CPA indices (Figure XX).
+
+Nearly all models converged poorly which . At least one of these scalars nearly always tended to 0. However, even for these fits with poor convergence, the SSB estimates appeared to be reliable (Figure XX). When we redid the self-tests fixing those parameters at the estimated values, the convergence was much improved.
 
 ## Reference points
 
@@ -207,7 +208,7 @@ predR_ind <- which(rownames(std) == "log_SPR_FXSPR")
 ```
 
 \blandscape
-```{r compare-asap-wham, echo = FALSE, out.width="75%", fig.align="center", fig.cap = "Comparison of recruitment, spawning stock biomass, and fishing mortality estimates from ASAP and WHAM fits to each regional component separately as well as simultaneoulsy in the multi-stock extension of WHAM using ASAP3 model input files from the most recent management track assessment."}
+```{r compare-asap-wham, echo = FALSE, out.width="75%", fig.align="center", fig.cap = "Comparison of recruitment, spawning stock biomass, and fishing mortality estimates from fitted models in ASAP3, the basic version of WHAM, and the multi-stock extension of WHAM to each regional component, separately, using ASAP3 model input files from the most recent management track assessment."}
 knitr::include_graphics(here::here("docs","plots","compare_one_stock_models.png"))
 ```
 
@@ -230,6 +231,29 @@ mtext(side = 1, "Iteration", outer = TRUE, line = 2)
 mtext(side = 2, "Maximum absolute\ngradient", line = 2)
 ```
 \clearpage
+
+
+```{r jitter-res-2, echo = FALSE, fig.dim =c(7,10), fig.align="center", fig.cap = "Marginal negative log-likelihood and maximum absolute value of gradients for each of 100 jitter iterations from revised Run 34 fit. Red rug lines indicate fits that failed to complete."}
+jitsim_files <- grep("jitter_sim", dir(here::here("2023.RT.Runs","Run34","best_sims"), full.names = T), value = T)
+jit_res <- lapply(jitsim_files, readRDS)
+par(mfrow = c(2,1), oma = c(5,1,1,1), mar = c(1,5,1,1))
+x <- sapply(jit_res, function(x) x$obj)
+x <- exp(log(-x))
+plot(x, xlab = "", ylab = "", log = "y", xaxt = 'n', yaxt = "n", ylim = c(max(x,na.rm=T),min(x,na.rm=T)))
+axis(2, at = pretty(x), labels = -pretty(x))
+rug((1:length(x))[which(is.na(x))], lwd = 3, ticksize = 0.05, col= "red")
+axis(1, labels = F)
+grid(col = gray(0.7))
+mtext(side = 2, "Marginal NLL", line = 2)
+x <- sapply(jit_res, function(x) max(abs(x$grad)))
+xlabs <- pretty(x)
+#ymax <- max(x[which(x<1e-6)], na.rm =T)
+plot(x, xlab = "", ylab = "", log = "y")#, ylim = c(0,ymax))
+rug((1:length(x))[which(is.na(x))], lwd = 3, ticksize = 0.05, col= "red")
+grid(col = gray(0.7))
+mtext(side = 1, "Iteration", outer = TRUE, line = 2)
+mtext(side = 2, "Maximum absolute\ngradient", line = 2)
+```
 
 ```{r self-test-res-2, echo = FALSE, fig.dim =c(7,10), fig.align="center", fig.cap = "Relative bias of SSB estimates from conditional self test simulations."}
 condsim_files <- grep("cond_sim", dir(here::here("2023.RT.Runs","Run34","best_sims"), full.names = T), value = T)
@@ -278,25 +302,23 @@ lines(null_mod$years[-1], null_mod$rep$pred_NAA[1,1,-1,1], col = "blue")
 \clearpage
 
 
-```{r, echo = F, eval = T, fig.cap = "Ratio of standard errors of Northern component SSB with and without the scalar of the Recreational CPA index standard errors estimated."}
+```{r, echo = F, eval = T, fig.dim = c(7,10), fig.cap = "Ratio of standard errors of Northern component SSB (top) and recruitment (bottom) for fitted models with ($SE_1$) and without ($SE_2$) the scalar of the Recreational CPA index standard errors estimated."}
+par(mfrow = c(2,1), mar = c(1,5,3,1), oma = c(4,1,1,1))
+
 sd33 <- TMB:::as.list.sdreport(Run33$sdrep, report=TRUE, what = "Std")$log_SSB[,1]
 sd34 <- TMB:::as.list.sdreport(Run34$sdrep, report=TRUE, what = "Std")$log_SSB[,1]
 
-plot(Run33$years_full, sd34/sd33, ylab = "Ratio of standard errors of SSB for runs 34 and 33", xlab = "Year", type = "l")
+plot(Run33$years_full, sd34/sd33, ylab = bquote(SE[1](widehat(SSB))*"/"*SE[2](widehat(SSB))), xlab = "", xaxt = "n", type = "l")
 abline(h = 1, lty = 2, col = "red")
-```
-\clearpage
 
-
-```{r, echo = F, eval = T, fig.cap = "Ratio of standard errors of Northern component recruitment with and without the scalar of the Recreational CPA index standard errors estimated."}
 sd33 <- TMB:::as.list.sdreport(Run33$sdrep, report=TRUE, what = "Std")$log_NAA_rep[1,1,,1]
 sd34 <- TMB:::as.list.sdreport(Run34$sdrep, report=TRUE, what = "Std")$log_NAA_rep[1,1,,1]
 
-plot(Run33$years_full, sd34/sd33, ylab = "Ratio of standard errors of recruitment for runs 34 and 33", xlab = "Year", type = "l")
+plot(Run33$years_full, sd34/sd33, ylab = bquote(SE[1](hat(R))*"/"*SE[2](hat(R))), xlab = "", type = "l")
+mtext(side = 1, "Year", outer = T, line = 2)
 abline(h = 1, lty = 2, col = "red")
 ```
 \clearpage
-
 
 ```{r, echo = F, eval = T, fig.cap = "Expected recruitment for the northern component of the black sea bass stock as a function of bottom temperature"}
 std <- summary(Run34$sdrep, "fixed")
