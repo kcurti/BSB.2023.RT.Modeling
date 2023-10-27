@@ -14,7 +14,7 @@ cond_sim_fn <- function(which_seeds, seeds, fit_file, res_dir, wham.lab.loc = "~
     temp <- c("do_simulate_Ecov_re", "do_simulate_L_re", "do_simulate_M_re", "do_simulate_mu_prior_re", "do_simulate_mu_re", "do_simulate_N_re",
               "do_simulate_q_prior_re", "do_simulate_q_re", "do_simulate_sel_re")
     sim_input$data[temp] <- lapply(temp, function(x) sim_input$data[[x]][] <- 0)
-    if(!is.missing(map_change)) sim_input$map[names(map_change)] <- map_change
+    if(!missing(map_change)) sim_input$map[names(map_change)] <- map_change
     sim_mod <- fit_wham(sim_input, do.fit = F)
     set.seed(seeds[i])
 		sim_input$data <- sim_mod$simulate(complete=T)
