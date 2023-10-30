@@ -1,5 +1,5 @@
 make_mase_hindcasts <- function(model, peel.max, drop, do.parallel = TRUE, wham.lab.loc = "~/tmiller_net/work/wham_packages/multi_wham"){
-  is_snowfall <- nzchar(system.file(packages = "snowfall"))
+  is_snowfall <- "snowfall" %in% rownames(installed.packages())
   if(is_snowfall & do.parallel){
   #if(is.null(n.cores)) n.cores <- parallel::detectCores()/2
     max.cores <- parallel::detectCores()
