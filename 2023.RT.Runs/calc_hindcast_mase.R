@@ -39,40 +39,47 @@ calc_hindcast_mase <- function(model, peel.max, horizon, drop, indices2calc, dir
   agg_indices[which(agg_indices < 0 | agg_indices == 0)] <- NA
   
   # 1. calculate predictions and residuals
-  preds.colnames <- c("hindcast","horizon","peel", "observed", "predicted", "predicted_naive",
+  # preds.colnames <- c("hindcast","horizon","peel", "observed", "predicted", "predicted_naive",
+  #                     "err","err_naive")
+  preds.colnames <- c("year", "index", "horizon","peel", "observed", "predicted", "predicted_naive",
                       "err","err_naive")
   preds <- as.data.frame(matrix(NA, ncol = length(preds.colnames), nrow = 0))
   colnames(preds) <- preds.colnames
-  
   index <- paste0("index-", drop$indices)
   index_names <- model$input$index_names[drop$indices]
   for(h in 1:n.h){
     for(p in n.p:horizon[h]){
       #year <- hindcasts[[p]]$env$data$year1_model + nyrs - 1 - p + horizon[h]
       year <- model$years[nyrs-p+horizon[h]] 
-      predicted <- exp(hindcasts[[p]]$rep$pred_log_indices[nyrs-p+horizon[h], drop$indices, drop = FALSE])
-      predicted_naive <- agg_indices[nyrs-p, drop$indices, drop = FALSE]
-      observed <- agg_indices[nyrs-p+horizon[h], drop$indices, drop = FALSE]
+      predicted <- exp(hindcasts[[p]]$rep$pred_log_indices[nyrs-p+horizon[h], drop$indices])#, drop = FALSE])
+      predicted_naive <- agg_indices[nyrs-p, drop$indices]#, drop = FALSE]
+      observed <- agg_indices[nyrs-p+horizon[h], drop$indices]#, drop = FALSE]
       preds <- rbind(preds, data.frame(#hindcast=names(hindcasts)[hc], 
-        horizon=horizon[h], peel=p, year,
-        index, observed, predicted, predicted_naive,
+        year = year, index = index_names, horizon=horizon[h], peel=p, 
+        observed = observed, predicted = predicted, predicted_naive = predicted_naive,
         err=observed-predicted, 
         err_naive=observed-predicted_naive))
     }
   }
+  #preds$index <- as.factor(index_names)
+  print(dim(preds))
+  print(head(preds))
   
   preds <-
     preds %>%
-    filter(index %in% paste0("index-", indices2calc))
+    filter(index %in% index_names[indices2calc])
   
   
+  print(head(preds))
   
   # Plot predicted vs observed
   pred_vs_obs <- 
     data.frame(year = model$years, agg_indices) %>%
     gather(index, index_value, -year) %>%
-    mutate(index = paste0("index-", substr(index, 2, 3))) %>%
-    filter(index %in% paste0("index-", indices2calc)) %>%
+    mutate(index = index_names[as.integer(substr(index, 2, 3))]) %>%
+    filter(index %in% index_names[indices2calc]) %>%
+#    mutate(index = paste0("index-", substr(index, 2, 3))) %>%
+#    filter(index %in% paste0("index-", indices2calc)) %>%
     left_join(preds) %>%
     mutate(`Terminal year` = as.factor(year - horizon))
   
@@ -90,7 +97,6 @@ calc_hindcast_mase <- function(model, peel.max, horizon, drop, indices2calc, dir
     ylab("Index value")
   
   print(p)
-  
   if(!is.null(dir_figures)) ggsave(plot = p,
          paste0(dir_figures, "/predvobs_", 
                 model$model_name, ".png"), 

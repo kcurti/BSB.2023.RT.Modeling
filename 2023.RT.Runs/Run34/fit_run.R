@@ -284,17 +284,14 @@ temp <- fit_hindcast(fit, 1, drop, FALSE)
 fit_hindcasts <- make_mase_hindcasts(fit, peel.max = 7, # Number of peels
   drop=list(indices=1:fit$input$data$n_indices, # Drop all indices when making predictions
   index_paa=1:fit$input$data$n_indices))
-
-temp <- make_mase_hindcasts(fit, peel.max = 7, # Number of peels
-    drop=list(indices=1:fit$input$data$n_indices, # Drop all indices when making predictions
-    index_paa=1:fit$input$data$n_indices))
+saveRDS(fit_hindcasts, here("2023.RT.Runs",this_run, "fit_hindcasts.RDS"))
+fit_hindcasts <- readRDS(here("2023.RT.Runs",this_run, "fit_hindcasts.RDS"))
 calc_hindcast_mase(model = fit, # Model to use to make predictions
 	peel.max = 7, # Number of peels
 	horizon = c(1:5), # Years ahead to predict (max must be no more than peel.max)
-	drop=list(indices=1:mbase2$env$data$n_indices, # Drop all indices when making predictions
-	         index_paa=1:mbase2$env$data$n_indices),
-	indices2calc = c(1,2), # Indices for which to calculate MASE
-	dir_figures = dir_code_had, hindcast = fit_hindcasts)
+	drop=drop,
+	indices2calc = c(1,2,3,4), # Indices for which to calculate MASE
+	hindcasts = fit_hindcasts)
 
 
 
