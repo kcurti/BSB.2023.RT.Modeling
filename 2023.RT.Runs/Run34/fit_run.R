@@ -262,35 +262,44 @@ wham.lab.loc <- "~/tmiller_net/work/wham_packages/multi_wham"
 set.seed(8675309)
 seeds <- sample(1e-9:1e9, 100)
 #don't estimate RecCPA CV scalars
-temp <- list(log_index_sig_scale = factor(rep(NA, length(input$par$log_index_sig_scale))))
+temp <- list(log_index_sig_scale = factor(rep(NA, length(fit$input$par$log_index_sig_scale))))
 sim_res_alt <- cond_sim_fn(which_seeds = 1:100, seeds = seeds, fit_file=fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc, n.cores = 16, map_change = temp)
 saveRDS(sim_res_alt, here::here("2023.RT.Runs",this_run,"best_sims_alt", "self_test_all.RDS"))
+condsim_files <- grep("cond_sim", dir(here::here("2023.RT.Runs",this_run,"best_sims_alt"), full.names = T), value = T)
+sim_res <- lapply(condsim_files, readRDS)
+
+#MASE
+
+library(dplyr)
+library(tidyr) # gather()
+#library(purrr) # map_df()
+library(ggplot2)
+source(here::here("2023.RT.Runs", "calc_hindcast_mase.R"))
+source(here::here("2023.RT.Runs", "fit_hindcast.R"))
+fit <- readRDS(here("2023.RT.Runs",this_run,"fit_best.RDS"))
+drop <- list(indices=1:fit$input$data$n_indices, # Drop all indices when making predictions
+  index_paa=1:fit$input$data$n_indices)
+temp <- fit_hindcast(fit, 1, drop, FALSE)
+
+fit_hindcasts <- make_mase_hindcasts(fit, peel.max = 7, # Number of peels
+  drop=list(indices=1:fit$input$data$n_indices, # Drop all indices when making predictions
+  index_paa=1:fit$input$data$n_indices))
+
+temp <- make_mase_hindcasts(fit, peel.max = 7, # Number of peels
+    drop=list(indices=1:fit$input$data$n_indices, # Drop all indices when making predictions
+    index_paa=1:fit$input$data$n_indices))
+calc_hindcast_mase(model = fit, # Model to use to make predictions
+	peel.max = 7, # Number of peels
+	horizon = c(1:5), # Years ahead to predict (max must be no more than peel.max)
+	drop=list(indices=1:mbase2$env$data$n_indices, # Drop all indices when making predictions
+	         index_paa=1:mbase2$env$data$n_indices),
+	indices2calc = c(1,2), # Indices for which to calculate MASE
+	dir_figures = dir_code_had, hindcast = fit_hindcasts)
+
+
 
 library(TMB)
 mod <- readRDS("c:/work/BSB.2023.RT.Modeling/2023.RT.Runs/Run33/fit_proj.RDS")
-dat <- mod$input$data
-std <- summary(mod$sdrep, "fixed")
-
-Ecov_est <- mod$rep$Ecov_out_R[1,,1]
-Ecov <- seq(min(Ecov_est), max(Ecov_est), 0.01)
-ind_slope <-which(rownames(std) == "Ecov_beta_R")
-ind_int <- which(rownames(std) == "mean_rec_pars")[1] #north
-
-beta <- std[c(ind_int,ind_slope),1]
-cov.beta <- mod$sdrep$cov.fixed[c(ind_int,ind_slope),c(ind_int,ind_slope)]
-X <- cbind(1, Ecov)
-pred.log.R <- c(X%*%beta)
-sd.pred.log.R <- diag(X %*% cov.beta %*% t(X))
-ci <- qnorm(0.975)*sd.pred.log.R
-ci <- exp(pred.log.R + cbind(-ci,ci))
-plot(Ecov, exp(pred.log.R), type = 'l', xlab = "Bottom Temperature", ylab = bquote(North~hat(R)), ylim = c(0,max(ci,na.rm=T)), lwd = 2)
-polygon(c(Ecov, rev(Ecov)), c(ci[,1],rev(ci[,2])), col=adjustcolor("black", alpha.f=0.4), border = "transparent")
-grid(col = gray(0.7))
-
-ssb40.north.ecov <- exp(pred.log.R) * exp(mod$rep$log_SPR_FXSPR_static[1])
-plot(Ecov, ssb40.north.ecov, type = 'l', xlab = "Bottom Temperature", ylab = bquote(North~widehat(SSB)[40]))#, ylim = c(0,max(ci,na.rm=T)))
-
-mod <- fit_proj
 mean(mod$rep$pred_NAA[1,1,which(mod$years>1999),1])
 std <- summary(mod$sdrep, "report")
 temp <- sapply(1:mod$input$data$n_regions, function(r) apply(exp(mod$rep$log_FAA_XSPR_static[which(mod$input$data$fleet_regions==r),, drop = F]),2,sum))

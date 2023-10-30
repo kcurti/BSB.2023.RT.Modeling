@@ -72,10 +72,7 @@ The first 18 runs that used updated and new observations included either separat
 
 From Run 19-27 we still had issues reducing patterns in OSA residuals and sometimes large patterns in retrospective patterns for the northern component. We then decided to iterate among alternative assumptions about selectivity and age composition models with the northern and southern components separately to resolve diagnostic problems more efficiently. These analyses resulted in different age composition model assumptions for different fleets and indices and the use of selectivity random effects for the northern fleets and indices (Table \ref{tab:age-comp-sel-table}). 
 
-Runs 28-34 largely used these same assumptions . For these last runs with movement, more realistic assumptions about movement and more appropriate usage of the estimates from the stock synthesis runs [@fay_bsb_ss_wp]. Runs 31 and 32 assumed temporal random effects on the movement rate from the north to the south and Beverton-Holt stock recruit relationships for both the north and south components, respectively, but did not prove to be reliable. Run 33 investigated bottom temperature effects on recruitment, and we found evidence of an effect on northern recruitment.  Run 34 then relaxed an assumption common to many earlier runs about the estimated uncertainty in the Recreational CPA indices and allowed a scalar to be estimated in the model.
-
-
-
+Runs 28-34 largely used these same assumptions. For these last runs with movement, more realistic assumptions about movement and more appropriate usage of the estimates from the stock synthesis runs [@fay_bsb_ss_wp]. Run 31 assumed temporal random effects on the movement rate from the north to the south and Run 32 assumed a Beverton-Holt stock recruit relationships for both the north and south components, but convergence was problematic for both of these models. Run 33 investigated bottom temperature effects on recruitment and we found evidence of an effect on northern recruitment.  Run 34 then relaxed an assumption common to many earlier runs about the estimated uncertainty in the Recreational CPA indices and allowed a scalar to be estimated in the model. Further details of model configuration of Runs 28-34 are described below.
 
 ## Seasonality and movement
 
@@ -148,7 +145,7 @@ The CVs provided by the analyses for the recreational catch per angler (RecCPA) 
 
 ## Bottom Temperature effects on recruitment
 
-We have bottom temperature observations for the northern and southern regions from 1963 to 2021 and estimated standard errors of those observations. We assumed AR1 models for the latent bottom temperature covariates in each region. We fit models with the bottom temperature covariate observations in the model, but without effects on recruitment. This is the null model which can be compared with models with effects on recruitment using AIC because the observations included in each model are the same. We also fit a model with effects of the regional bottom temperatures on the respective stock components. The hypothesis is that bottom temperature affects overwinter survival of fish where the fish turn from age 0 to age 1 on January 1. 
+We have bottom temperature observations for the northern and southern regions from 1963 to 2021 and estimated standard errors of those observations. We assumed AR1 models for the latent bottom temperature covariates in each region. We fit models with the bottom temperature covariate observations in the model, but without effects on recruitment. This is the null model which can be compared with models with effects on recruitment using AIC because the observations included in each model are the same. We also fit a model with effects of the regional bottom temperatures on the respective stock components. The hypothesis is that bottom temperature affects overwinter survival of fish where the fish turn from age 0 to age 1 on January 1 [@milleretal16_yoy_survival]. 
 
 We assume the covariate in year $y$ affects recruitment in the same years because the covariate observations are from months January to March. The fish are technically already 1 year old, but there are no observations of these individuals until later in the year except possibly in fishery catches which are accumulated over the whole year. Expected log-recruitment is a linear function of log-recruitment at the previous time step and bottom temperature
 
@@ -158,23 +155,29 @@ We assume the covariate in year $y$ affects recruitment in the same years becaus
 
 Comparison of the base model to one with the bottom temperature effect on natural mortality at age 1 might be of interest in the future.
 
-## Dead End Runs
+## Diagnostics
 
-We attenmpted a few further extensions of the base model. First we fit models that assumed Beverton-Holt stock recruit relationships for the north and south components. Although this fit converged nominally, the $\alpha$ and $\beta$ parameters tended toward infinity (equivalent to steepness tending toward 1). We also fit a model with AR1 annual random effects in the movement rates from the north to the south for the northern stock component. This run did not converge.
-
-## Jitter analysis
+### Jitter analysis
 
 For this analysis we simulated fixed effects parameter vectors from a normal distribution with mean equal to the optimized values and covariance equal to the hessian-based covariance matrix. From refitting the model starting at 16 different simulated parameter vectors, we found 3 cases with a lower (~2 units) marginal negative log likelihood (Figure \ref{fig:jitter-res-1}). The gradients at these optimized values were satisfactory and there was no difference in parameter value among the 3 lower optimizations. In 1 of the 16 iterations, the model did not optimized satisfactorily, and in the other 12 iterations, the optimized marginal negative log-likelihood and parameter estimates were identical to the original fit. The parameters with estimates that differed most between the 2 optimization results were those associated with age composition observation dispersion parameters.
 
 Given the revised model fit with the lower marginal NLL, we used the same jittering method with 100 simulated parameter values as starting values (Figure \ref{fig:jitter-res-2}). Three of the fits failed to complete, and none of these iterations resulted in lower marginal NLLs than that from the revised model estimates. Three of the fits minimized to greater marginal NLLs, but the gradients indicate lack of convergence.
 
-## Self tests
+### Self tests
 
-We performed a simulation self-test where new observations were simulated conditional on all random effects estimated in the base model and the same proposed base model configuration was fit to each of the simulated data sets. 
+We performed a simulation self-test where new observations were simulated conditional on all random effects estimated in the proposed base model and the same model configuration was fit to each of the simulated data sets. 
 
-The maximum absolute gradient was greater than $1\times10^{-6}$ for all of the simulated data sets. This appeared to be attributable to the estimation of the scalar for the standard errors of the log transformed Rec CPA indices (Figure XX).
+The maximum absolute gradient was greater than $1\times10^{-6}$ for all of the fits to simulated data sets. This appeared to be attributable to the estimation of the scalar for the standard errors of the log transformed Rec CPA indices (Figure XX).
 
 Nearly all models converged poorly which . At least one of these scalars nearly always tended to 0. However, even for these fits with poor convergence, the SSB estimates appeared to be reliable (Figure XX). When we redid the self-tests fixing those parameters at the estimated values, the convergence was much improved.
+
+### MASE
+
+We performed an analysis of the prediction skill of the proposed base model. We fit 7 configurations of the model where 1 to 7 years of index observations were removed. We calculated the relative errors of the predicted indices at age at a range of years beyond the final year of index observations (horizons).
+
+## Results
+
+
 
 ## Reference points
 
@@ -185,9 +188,6 @@ For equilibrium per recruit calculations, the current assessment uses the averag
 The same options in the basic single stock WHAM model are available in the multi-stock extension. To demonstrate the the projection capability, we configured a three year projection with catch set to 10kmt in 2022 and fishing at $F_{40}$ in the subsequent two years.
 
 Models for random effects on the bottom temperature covariate, recruitment, survival are used to predict bottom temperature and abundance at age in the projection years. 
-
-
-# Results
 
 # Conclusions
 
@@ -257,6 +257,36 @@ mtext(side = 2, "Maximum absolute\ngradient", line = 2)
 
 ```{r self-test-res-2, echo = FALSE, fig.dim =c(7,10), fig.align="center", fig.cap = "Relative bias of SSB estimates from conditional self test simulations."}
 condsim_files <- grep("cond_sim", dir(here::here("2023.RT.Runs","Run34","best_sims"), full.names = T), value = T)
+sim_res <- lapply(condsim_files, readRDS)
+fit <- readRDS(here::here("2023.RT.Runs","Run34","fit_best.RDS"))
+
+par(mfrow = c(2,1), mar = c(1,1,3,1), oma = c(4,4,1,1))
+titles <- c("North","South")
+for(i in 1:2){
+	SSB_n <- sapply(sim_res, function(x) x$SSB[,i])
+	reccpapars <- sapply(sim_res, function(x) x$par[names(x$par) %in% c("log_index_sig_scale")])
+	reldiff <- (SSB_n - fit$rep$SSB[,i])/fit$rep$SSB[,i]
+	good_grad <- which(sapply(sim_res, function(x) max(abs(x$grad))<1e-5))
+	bias_est <- apply(reldiff,1,mean, na.rm =T)
+	bias_se <- apply(reldiff,1,sd, na.rm =T)/sqrt(sum(!is.na(reldiff[1,])))
+	# bias_est <- apply(reldiff[,good_grad],1,mean)
+	# bias_se <- apply(reldiff[,good_grad],1,sd)/sqrt(length(good_grad))
+	bias_lo <- bias_est - qnorm(0.975)*bias_se
+	bias_hi <- bias_est + qnorm(0.975)*bias_se
+	plot(fit$years, bias_est, ylim = range(c(bias_lo,bias_hi)), xlab = "", ylab = "", xaxt = "n")
+	if(i==2) axis(1)
+	if(i==1) axis(1, labels= F)
+	abline(h=0, col = "red")
+	grid(col = gray(0.7))
+	mtext(side =3, titles[i], line = 0, outer = F)
+	polygon(c(fit$years,rev(fit$years)), c(bias_lo, rev(bias_hi)), col=adjustcolor("black", alpha.f=0.4), border = "transparent")
+}
+mtext(side = 2, "Relative bias (SSB)", line= 2, outer = T)
+mtext(side = 1, "Year", line = 2, outer = T)
+```
+
+```{r self-test-res-3, echo = FALSE, fig.dim =c(7,10), fig.align="center", fig.cap = "Relative bias of SSB estimates from conditional self test simulations with Rec CPA uncertainty scalar fixed at estimated values."}
+condsim_files <- grep("cond_sim", dir(here::here("2023.RT.Runs","Run34","best_sims_alt"), full.names = T), value = T)
 sim_res <- lapply(condsim_files, readRDS)
 fit <- readRDS(here::here("2023.RT.Runs","Run34","fit_best.RDS"))
 
