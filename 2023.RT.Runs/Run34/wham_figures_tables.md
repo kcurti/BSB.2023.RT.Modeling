@@ -1188,39 +1188,6 @@ header-includes:
    <td style="text-align:right;"> 1265 </td>
    <td style="text-align:right;"> 3329 </td>
   </tr>
-  <tr>
-   <td style="text-align:left;"> 2022 </td>
-   <td style="text-align:right;"> 17979 </td>
-   <td style="text-align:right;"> 13131 </td>
-   <td style="text-align:right;"> 8072 </td>
-   <td style="text-align:right;"> 6548 </td>
-   <td style="text-align:right;"> 1641 </td>
-   <td style="text-align:right;"> 2579 </td>
-   <td style="text-align:right;"> 3813 </td>
-   <td style="text-align:right;"> 1971 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2023 </td>
-   <td style="text-align:right;"> 11235 </td>
-   <td style="text-align:right;"> 10976 </td>
-   <td style="text-align:right;"> 7806 </td>
-   <td style="text-align:right;"> 4367 </td>
-   <td style="text-align:right;"> 2991 </td>
-   <td style="text-align:right;"> 672 </td>
-   <td style="text-align:right;"> 887 </td>
-   <td style="text-align:right;"> 1698 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2024 </td>
-   <td style="text-align:right;"> 9820 </td>
-   <td style="text-align:right;"> 7018 </td>
-   <td style="text-align:right;"> 6514 </td>
-   <td style="text-align:right;"> 4351 </td>
-   <td style="text-align:right;"> 2119 </td>
-   <td style="text-align:right;"> 1309 </td>
-   <td style="text-align:right;"> 256 </td>
-   <td style="text-align:right;"> 852 </td>
-  </tr>
 </tbody>
 </table>
 
@@ -1603,39 +1570,6 @@ header-includes:
    <td style="text-align:right;"> 37 </td>
    <td style="text-align:right;"> 68 </td>
   </tr>
-  <tr>
-   <td style="text-align:left;"> 2022 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 640 </td>
-   <td style="text-align:right;"> 313 </td>
-   <td style="text-align:right;"> 266 </td>
-   <td style="text-align:right;"> 68 </td>
-   <td style="text-align:right;"> 98 </td>
-   <td style="text-align:right;"> 151 </td>
-   <td style="text-align:right;"> 73 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2023 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 498 </td>
-   <td style="text-align:right;"> 337 </td>
-   <td style="text-align:right;"> 190 </td>
-   <td style="text-align:right;"> 132 </td>
-   <td style="text-align:right;"> 29 </td>
-   <td style="text-align:right;"> 40 </td>
-   <td style="text-align:right;"> 77 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2024 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 313 </td>
-   <td style="text-align:right;"> 288 </td>
-   <td style="text-align:right;"> 192 </td>
-   <td style="text-align:right;"> 94 </td>
-   <td style="text-align:right;"> 59 </td>
-   <td style="text-align:right;"> 12 </td>
-   <td style="text-align:right;"> 40 </td>
-  </tr>
 </tbody>
 </table>
 
@@ -2009,39 +1943,6 @@ header-includes:
   </tr>
   <tr>
    <td style="text-align:left;"> 2021 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2022 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2023 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2024 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -2433,39 +2334,6 @@ header-includes:
    <td style="text-align:right;"> 365 </td>
    <td style="text-align:right;"> 582 </td>
   </tr>
-  <tr>
-   <td style="text-align:left;"> 2022 </td>
-   <td style="text-align:right;"> 19444 </td>
-   <td style="text-align:right;"> 9174 </td>
-   <td style="text-align:right;"> 9081 </td>
-   <td style="text-align:right;"> 8303 </td>
-   <td style="text-align:right;"> 1980 </td>
-   <td style="text-align:right;"> 1421 </td>
-   <td style="text-align:right;"> 1080 </td>
-   <td style="text-align:right;"> 462 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2023 </td>
-   <td style="text-align:right;"> 20659 </td>
-   <td style="text-align:right;"> 12131 </td>
-   <td style="text-align:right;"> 5816 </td>
-   <td style="text-align:right;"> 4881 </td>
-   <td style="text-align:right;"> 3842 </td>
-   <td style="text-align:right;"> 935 </td>
-   <td style="text-align:right;"> 647 </td>
-   <td style="text-align:right;"> 724 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2024 </td>
-   <td style="text-align:right;"> 21061 </td>
-   <td style="text-align:right;"> 13313 </td>
-   <td style="text-align:right;"> 7576 </td>
-   <td style="text-align:right;"> 3214 </td>
-   <td style="text-align:right;"> 2448 </td>
-   <td style="text-align:right;"> 1898 </td>
-   <td style="text-align:right;"> 453 </td>
-   <td style="text-align:right;"> 669 </td>
-  </tr>
 </tbody>
 </table>
 
@@ -2850,39 +2718,6 @@ header-includes:
    <td style="text-align:right;"> 0.643 </td>
    <td style="text-align:right;"> 0.643 </td>
   </tr>
-  <tr>
-   <td style="text-align:left;"> 2022 </td>
-   <td style="text-align:right;"> 0.025 </td>
-   <td style="text-align:right;"> 0.159 </td>
-   <td style="text-align:right;"> 0.227 </td>
-   <td style="text-align:right;"> 0.393 </td>
-   <td style="text-align:right;"> 0.526 </td>
-   <td style="text-align:right;"> 0.694 </td>
-   <td style="text-align:right;"> 0.880 </td>
-   <td style="text-align:right;"> 0.880 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2023 </td>
-   <td style="text-align:right;"> 0.021 </td>
-   <td style="text-align:right;"> 0.132 </td>
-   <td style="text-align:right;"> 0.188 </td>
-   <td style="text-align:right;"> 0.326 </td>
-   <td style="text-align:right;"> 0.436 </td>
-   <td style="text-align:right;"> 0.575 </td>
-   <td style="text-align:right;"> 0.729 </td>
-   <td style="text-align:right;"> 0.729 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2024 </td>
-   <td style="text-align:right;"> 0.021 </td>
-   <td style="text-align:right;"> 0.132 </td>
-   <td style="text-align:right;"> 0.188 </td>
-   <td style="text-align:right;"> 0.326 </td>
-   <td style="text-align:right;"> 0.436 </td>
-   <td style="text-align:right;"> 0.575 </td>
-   <td style="text-align:right;"> 0.729 </td>
-   <td style="text-align:right;"> 0.729 </td>
-  </tr>
 </tbody>
 </table>
 
@@ -3264,39 +3099,6 @@ header-includes:
    <td style="text-align:right;"> 0.447 </td>
    <td style="text-align:right;"> 0.452 </td>
    <td style="text-align:right;"> 0.454 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2022 </td>
-   <td style="text-align:right;"> 0.032 </td>
-   <td style="text-align:right;"> 0.104 </td>
-   <td style="text-align:right;"> 0.241 </td>
-   <td style="text-align:right;"> 0.337 </td>
-   <td style="text-align:right;"> 0.380 </td>
-   <td style="text-align:right;"> 0.395 </td>
-   <td style="text-align:right;"> 0.399 </td>
-   <td style="text-align:right;"> 0.401 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2023 </td>
-   <td style="text-align:right;"> 0.027 </td>
-   <td style="text-align:right;"> 0.086 </td>
-   <td style="text-align:right;"> 0.199 </td>
-   <td style="text-align:right;"> 0.280 </td>
-   <td style="text-align:right;"> 0.315 </td>
-   <td style="text-align:right;"> 0.327 </td>
-   <td style="text-align:right;"> 0.331 </td>
-   <td style="text-align:right;"> 0.332 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2024 </td>
-   <td style="text-align:right;"> 0.027 </td>
-   <td style="text-align:right;"> 0.086 </td>
-   <td style="text-align:right;"> 0.199 </td>
-   <td style="text-align:right;"> 0.280 </td>
-   <td style="text-align:right;"> 0.315 </td>
-   <td style="text-align:right;"> 0.327 </td>
-   <td style="text-align:right;"> 0.331 </td>
-   <td style="text-align:right;"> 0.332 </td>
   </tr>
 </tbody>
 </table>
@@ -3682,39 +3484,6 @@ header-includes:
    <td style="text-align:right;"> 0.140 </td>
    <td style="text-align:right;"> 0.140 </td>
   </tr>
-  <tr>
-   <td style="text-align:left;"> 2022 </td>
-   <td style="text-align:right;"> 0.009 </td>
-   <td style="text-align:right;"> 0.051 </td>
-   <td style="text-align:right;"> 0.106 </td>
-   <td style="text-align:right;"> 0.209 </td>
-   <td style="text-align:right;"> 0.209 </td>
-   <td style="text-align:right;"> 0.209 </td>
-   <td style="text-align:right;"> 0.209 </td>
-   <td style="text-align:right;"> 0.209 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2023 </td>
-   <td style="text-align:right;"> 0.007 </td>
-   <td style="text-align:right;"> 0.042 </td>
-   <td style="text-align:right;"> 0.088 </td>
-   <td style="text-align:right;"> 0.173 </td>
-   <td style="text-align:right;"> 0.173 </td>
-   <td style="text-align:right;"> 0.173 </td>
-   <td style="text-align:right;"> 0.173 </td>
-   <td style="text-align:right;"> 0.173 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2024 </td>
-   <td style="text-align:right;"> 0.007 </td>
-   <td style="text-align:right;"> 0.042 </td>
-   <td style="text-align:right;"> 0.088 </td>
-   <td style="text-align:right;"> 0.173 </td>
-   <td style="text-align:right;"> 0.173 </td>
-   <td style="text-align:right;"> 0.173 </td>
-   <td style="text-align:right;"> 0.173 </td>
-   <td style="text-align:right;"> 0.173 </td>
-  </tr>
 </tbody>
 </table>
 
@@ -4096,39 +3865,6 @@ header-includes:
    <td style="text-align:right;"> 0.321 </td>
    <td style="text-align:right;"> 0.503 </td>
    <td style="text-align:right;"> 0.503 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2022 </td>
-   <td style="text-align:right;"> 0.016 </td>
-   <td style="text-align:right;"> 0.108 </td>
-   <td style="text-align:right;"> 0.121 </td>
-   <td style="text-align:right;"> 0.184 </td>
-   <td style="text-align:right;"> 0.317 </td>
-   <td style="text-align:right;"> 0.485 </td>
-   <td style="text-align:right;"> 0.671 </td>
-   <td style="text-align:right;"> 0.671 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2023 </td>
-   <td style="text-align:right;"> 0.014 </td>
-   <td style="text-align:right;"> 0.090 </td>
-   <td style="text-align:right;"> 0.100 </td>
-   <td style="text-align:right;"> 0.153 </td>
-   <td style="text-align:right;"> 0.263 </td>
-   <td style="text-align:right;"> 0.402 </td>
-   <td style="text-align:right;"> 0.556 </td>
-   <td style="text-align:right;"> 0.556 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2024 </td>
-   <td style="text-align:right;"> 0.014 </td>
-   <td style="text-align:right;"> 0.090 </td>
-   <td style="text-align:right;"> 0.100 </td>
-   <td style="text-align:right;"> 0.153 </td>
-   <td style="text-align:right;"> 0.263 </td>
-   <td style="text-align:right;"> 0.402 </td>
-   <td style="text-align:right;"> 0.556 </td>
-   <td style="text-align:right;"> 0.556 </td>
   </tr>
 </tbody>
 </table>
@@ -4512,39 +4248,6 @@ header-includes:
    <td style="text-align:right;"> 0.089 </td>
    <td style="text-align:right;"> 0.089 </td>
   </tr>
-  <tr>
-   <td style="text-align:left;"> 2022 </td>
-   <td style="text-align:right;"> 0.002 </td>
-   <td style="text-align:right;"> 0.021 </td>
-   <td style="text-align:right;"> 0.068 </td>
-   <td style="text-align:right;"> 0.084 </td>
-   <td style="text-align:right;"> 0.086 </td>
-   <td style="text-align:right;"> 0.086 </td>
-   <td style="text-align:right;"> 0.086 </td>
-   <td style="text-align:right;"> 0.086 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2023 </td>
-   <td style="text-align:right;"> 0.002 </td>
-   <td style="text-align:right;"> 0.017 </td>
-   <td style="text-align:right;"> 0.056 </td>
-   <td style="text-align:right;"> 0.070 </td>
-   <td style="text-align:right;"> 0.071 </td>
-   <td style="text-align:right;"> 0.071 </td>
-   <td style="text-align:right;"> 0.071 </td>
-   <td style="text-align:right;"> 0.071 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2024 </td>
-   <td style="text-align:right;"> 0.002 </td>
-   <td style="text-align:right;"> 0.017 </td>
-   <td style="text-align:right;"> 0.056 </td>
-   <td style="text-align:right;"> 0.070 </td>
-   <td style="text-align:right;"> 0.071 </td>
-   <td style="text-align:right;"> 0.071 </td>
-   <td style="text-align:right;"> 0.071 </td>
-   <td style="text-align:right;"> 0.071 </td>
-  </tr>
 </tbody>
 </table>
 
@@ -4926,39 +4629,6 @@ header-includes:
    <td style="text-align:right;"> 0.358 </td>
    <td style="text-align:right;"> 0.363 </td>
    <td style="text-align:right;"> 0.365 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2022 </td>
-   <td style="text-align:right;"> 0.030 </td>
-   <td style="text-align:right;"> 0.083 </td>
-   <td style="text-align:right;"> 0.173 </td>
-   <td style="text-align:right;"> 0.253 </td>
-   <td style="text-align:right;"> 0.294 </td>
-   <td style="text-align:right;"> 0.309 </td>
-   <td style="text-align:right;"> 0.313 </td>
-   <td style="text-align:right;"> 0.315 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2023 </td>
-   <td style="text-align:right;"> 0.025 </td>
-   <td style="text-align:right;"> 0.069 </td>
-   <td style="text-align:right;"> 0.143 </td>
-   <td style="text-align:right;"> 0.210 </td>
-   <td style="text-align:right;"> 0.244 </td>
-   <td style="text-align:right;"> 0.256 </td>
-   <td style="text-align:right;"> 0.260 </td>
-   <td style="text-align:right;"> 0.261 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2024 </td>
-   <td style="text-align:right;"> 0.025 </td>
-   <td style="text-align:right;"> 0.069 </td>
-   <td style="text-align:right;"> 0.143 </td>
-   <td style="text-align:right;"> 0.210 </td>
-   <td style="text-align:right;"> 0.244 </td>
-   <td style="text-align:right;"> 0.256 </td>
-   <td style="text-align:right;"> 0.260 </td>
-   <td style="text-align:right;"> 0.261 </td>
   </tr>
 </tbody>
 </table>

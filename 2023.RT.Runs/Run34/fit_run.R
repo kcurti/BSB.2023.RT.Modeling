@@ -3,7 +3,7 @@ this_run <- "Run34"
 
 #pkgbuild::compiler_flags(debug =FALSE) #doesn't do anything about file size/too many sections error.
 # pkgbuild::compile_dll("c:/work/wham/wham", debug = FALSE)
-# pkgload::load_all("c:/work/wham/wham", reset = TRUE)
+# pkgload::load_all("c:/work/wham/wham")
 #remotes::install_github("timjmiller/wham", dependencies=TRUE, ref = "devel", INSTALL_opts=c("--no-multiarch"))
 #remotes::install_github("timjmiller/wham", dependencies=TRUE)
 #remotes::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "~/tmiller_net/work/wham_packages/multi_wham")
@@ -213,7 +213,7 @@ plot_wham_output(fit_best)
 fit_best_proj <- project_wham(fit_best, proj.opts = list(proj_F_opt = c(5,3,3), proj_Fcatch = c(10000,10000,10000)), check.version = F)
 #setwd(here("2023.RT.Runs",this_run, "projection"))
 saveRDS(fit_best_proj, here("2023.RT.Runs",this_run, "fit_best_proj.RDS"))
-setwd(here("2023.RT.Runs",this_run))
+setwd(here("2023.RT.Runs",this_run, "projections"))
 plot_wham_output(fit_best_proj)
 
 source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
@@ -286,14 +286,33 @@ fit_hindcasts <- make_mase_hindcasts(fit, peel.max = 7, # Number of peels
   index_paa=1:fit$input$data$n_indices))
 saveRDS(fit_hindcasts, here("2023.RT.Runs",this_run, "fit_hindcasts.RDS"))
 fit_hindcasts <- readRDS(here("2023.RT.Runs",this_run, "fit_hindcasts.RDS"))
-calc_hindcast_mase(model = fit, # Model to use to make predictions
+source(here::here("2023.RT.Runs", "calc_hindcast_mase.R"))
+x <- calc_hindcast_mase(model = fit, # Model to use to make predictions
 	peel.max = 7, # Number of peels
 	horizon = c(1:5), # Years ahead to predict (max must be no more than peel.max)
 	drop=drop,
 	indices2calc = c(1,2,3,4), # Indices for which to calculate MASE
-	hindcasts = fit_hindcasts)
+	hindcasts = fit_hindcasts,
+	dir_figures = here("2023.RT.Runs",this_run), log_indices=F)
 
+y <- x$preds
+z <- y %>% filter(index == "North_REC CPA" & horizon == 5)
 
+source(here::here("2023.RT.Runs", "calc_hindcast_mase.R"))
+calc_pred_index(fit_hindcasts[[1]],3,TRUE,1)
+
+calc_pred_index <- function(mod, which_index, sel_constant, which_peel=1){
+  q <- mod$rep$q[,which_index]
+#  print(q)
+  nyrs <- length(mod$years)
+  sel <- t(sapply(1:nyrs, function(x) mod$rep$selAA[[mod$input$data$selblock_pointer_indices[x,which_index]]][x,]))
+  if(sel_constant) sel[tail(1:nyrs, which_peel),] <- rep(sel[nyrs-which_peel,], each = which_peel)
+#  print(sel)
+  qaa <- q * sel
+  pred_IAA <- apply(mod$rep$NAA_index[,which_index,,], 2:3, sum) * qaa
+  pred_index <- apply(pred_IAA,1,sum)
+  return(pred_index)
+}
 
 library(TMB)
 mod <- readRDS("c:/work/BSB.2023.RT.Modeling/2023.RT.Runs/Run33/fit_proj.RDS")
