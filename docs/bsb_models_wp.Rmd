@@ -6,7 +6,7 @@ author:
   - Alex Hansell$^1$
 institute:
   - $^1$Northeast Fisheries Science Center, National Marine Fisheries Service, 166 Water Street, Woods Hole, MA 02543, USA
-date: ""
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   bookdown::pdf_document2:
     toc: no
@@ -49,15 +49,15 @@ $^*$Contact info: timothy.j.miller@noaa.gov
 
 The Woods Hole Assessment Model (WHAM) software package is maintained and developed at the Northeast Fisheries Science Center to enable state-space stock assessments, i.e. where processes such as recruitment, the annual transitions in numbers-at-age (survival), natural mortality, selectivity, and catchability are treated as time- and, in some cases, age-varying random effects.
 
-The current proposed model for management uses a multi-stock, multi-region extension of WHAM to model the northern and southern components of the stock and movement of the northern component simultaneously. The WHAM extension does not yet have the ability to use tagging data to inform the model, so it uses estimates of movement parameters from a Stock Synthesis application to define prior distributions for movement rates which are treated as random effects. VAST and Recreational catch per angler indices for the northern and southern regions along with corresponding age composition data are used to inform the model. Catch and associated age composition data for regional recreational and commercial fleets are also used. The model also includes effects of a winter bottom temperature covariate in the northern region on recruitment of the stock component in that region. Process errors in the latent bottom temperature covariate, recruitment, survival, and selectivity of some fleets and indices are estimated as random effects.
+The proposed base model configuration for management uses a multi-stock, multi-region extension of WHAM (hereafter referred to as Multi-WHAM) to model the northern and southern components of the stock and movement of the northern component simultaneously. Multi-WHAM does not yet have the ability to use tagging data to inform the model, so it uses estimates of movement parameters from a Stock Synthesis application to define prior distributions for movement rates which are treated as random effects. VAST and Recreational catch per angler indices for the northern and southern regions along with corresponding age composition data are used to inform the model. Catch and associated age composition data for regional recreational and commercial fleets are also used. The model also includes effects of a winter bottom temperature covariate in the northern region on recruitment of the stock component in that region. Process errors in the latent bottom temperature covariate, recruitment, survival, and selectivity of some fleets and indices are estimated as random effects.
 
-We arrived at the proposed base model from analyzing more than 30 different fits the multi-stock version of WHAM to different sets of observations. The proposed base model exhibits no retrospective patterns in fishing mortality or SSB for either region and OSA residuals appear adequate for most of the data components. Reference point estimates suggest the slight overfishing of the entire stock, but that the stock is far from overfished. Example 3 year projections are also provided.
+We arrived at the proposed base model from analyzing more than 30 different fits using Multi-WHAM with different sets of observations. The proposed base model exhibits negligible retrospective patterns in fishing mortality (Mohn's $\rho$ = 0.058 and -0.045 for northern and southern regions, respectively) or SSB (Mohn's $\rho$ = -0.054 and -0.007 for northern and southern components, respectively). OSA residuals appear adequate for most of the data components. Reference point estimates suggest the slight overfishing of the entire stock, but that the stock is far from overfished. Example 3 year projections are also provided.
 
 \pagebreak
 
 # Introduction
 
-Black sea bass is currently assessed using ASAP, the Age-Structured Assessment Program [@legaultrestreppo98; @millerlegault15]. ASAP is a statistical catch-at-age (SCAA) model which estimates all model parameters as fixed effects. The standard version of the Woods Hole Assessment Model can only be applied to a single stock and area [@stockmiller21,@millerstock20]. Here we use a multi-stock, multi-region extension of WHAM [https://github.com/timjmiller/wham/tree/lab, @miller_bsb_wham_wp] for black sea bass originating and spawning in northern and southern regions of the US NE Shelf divided by the Hudson Canyon.
+Black sea bass is currently assessed using ASAP, the Age-Structured Assessment Program [@legaultrestreppo98; @millerlegault15]. ASAP is a statistical catch-at-age (SCAA) model which estimates all model parameters as fixed effects. The standard version of the Woods Hole Assessment Model can only be applied to a single stock and area [@stockmiller21,@millerstock20]. Here we use a multi-stock, multi-region extension of WHAM [https://github.com/timjmiller/wham/tree/lab, @miller_bsb_wham_wp, Multi-WHAM] for black sea bass originating and spawning in northern and southern regions of the US NE Shelf divided by the Hudson Canyon.
 
 # Methods
 
@@ -65,19 +65,20 @@ All code used for model fits along with results summaries can be found at https:
 
 ## Early runs
 
-The development of the multi-stock, multi-area version of WHAM was driven primarily by the needs of black sea bass and NEUS stocks of Atlantic cod. Because this extension to WHAM represents a major change to the code used to configure and estimate models, we compared results from fits of separate ASAP models and separate fits using the standard WHAM model for each region, and simultaneous fits of the regional components in the new extension of WHAM without any movement (Figure \ref{fig:compare-asap-wham}). All WHAM fits assume no random effects and estimate annual recruitment parameters as fixed effects. Estimates fro the latter fit and those from fits using the standard WHAM model provide identical results, but ASAP fits provide small differences in estimates for the northern component.
+The development of Multi-WHAM was driven primarily by the needs of black sea bass and NEUS stocks of Atlantic cod. Because this extension to WHAM represents a major change to the code used to configure and estimate models, we compared results from fits of separate ASAP models to both separate fits using the standard WHAM model for each region, as well as simultaneous fits of the regional components Multi-WHAM without any movement (Figure \ref{fig:compare-asap-wham}). All WHAM fits assumed no random effects and estimated annual recruitment parameters as fixed effects.  Estimates from the Multi-WHAM fit and those from fits using the standard WHAM model provide identical results, but ASAP fits provide small differences in estimates for the northern component.
 
 ## Model configurations
 
-The first 18 runs that used updated and new observations included either separate indices for all surveys or fall and spring VAST indices that combined all surveys other than the recreational CPA (Table \ref{tab:wham-runs}). Many of these runs explored alternative selectivity and age composition assumptions to reduce patterns observed in the OSA residuals for age composition observations. We then found that the age composition for fall FAST and NEAMAP indices were incorrectly calculated. Then from Run 19 onward we only used the spring VAST and Recreational CPA indices. 
+The first 18 runs that used updated and new observations included either separate indices for all surveys or fall and spring VAST indices that combined all surveys other than the recreational CPA (Table \ref{tab:wham-runs}). Many of these runs explored alternative selectivity and age composition assumptions to reduce patterns observed in the One-Step-Ahead (OSA) residuals for age composition observations. During the development of the first 18 model runs, the working group extensively discussed whether the preferred model should include individual state and federal trawl survey indices or aggregate indices developed through VAST modeling. Due to the interactions of the limited geographic footprint of many of the surveys with the black sea bass seasonal migration patterns, the working group concluded that the aggregate VAST indices that account for changes in catchability should be used in the proposed model.
+We then found that the age composition for fall FAST and NEAMAP indices were incorrectly calculated. Then from Run 19 onward we only used the spring VAST and Recreational CPA indices. 
 
 From Run 19-27 we still had issues reducing patterns in OSA residuals and sometimes large patterns in retrospective patterns for the northern component. We then decided to iterate among alternative assumptions about selectivity and age composition models with the northern and southern components separately to resolve diagnostic problems more efficiently. These analyses resulted in different age composition model assumptions for different fleets and indices and the use of selectivity random effects for the northern fleets and indices (Table \ref{tab:age-comp-sel-table}). 
 
-Runs 28-34 largely used these same assumptions. For these last runs with movement, more realistic assumptions about movement and more appropriate usage of the estimates from the stock synthesis runs [@fay_bsb_ss_wp]. Run 31 assumed temporal random effects on the movement rate from the north to the south and Run 32 assumed a Beverton-Holt stock recruit relationships for both the north and south components, but convergence was problematic for both of these models. Run 33 investigated bottom temperature effects on recruitment and we found evidence of an effect on northern recruitment.  Run 34 then relaxed an assumption common to many earlier runs about the estimated uncertainty in the Recreational CPA indices and allowed a scalar to be estimated in the model. Further details of model configuration of Runs 28-34 are described below.
+Runs 28-34 largely used these same assumptions. These last runs used more realistic assumptions about movement and more appropriate usage of the estimates from the stock synthesis runs [@fay_bsb_ss_wp]. Run 31 assumed temporal random effects on the movement rate from the north to the south and Run 32 assumed a Beverton-Holt stock recruit relationships for both the north and south components, but convergence was problematic for both of these models. Run 33 investigated bottom temperature effects on recruitment and we found evidence of an effect on northern recruitment.  Run 34 then relaxed an assumption common to many earlier runs about the estimated uncertainty in the Recreational CPA indices and allowed a scalar to be estimated in the model. Further details of model configuration of Runs 28-34 are described below.
 
 ## Seasonality and movement
 
-The WHAM model assumes 11 intervals within each calendar year: 5 monthly time intervals from Jan 1 to May 31, a spawning season from June 1 to July 31, and 5 monthly intervals from August 1 to December 31. All southern fish are assumed to never move to the northern region. Northern fish are all in the northern region during the spawning period. A proportion $p_1$ of northern fish can move to the south each month during the last 5 months of the year, but no movement is allows from the south to the north during this period. For the first 4 months of the year a proportion $p_2$ of northern fish in the south can move back to the north, but no movement from the north to south is allowed during this period. In the fifth month any northern fish still in the south are assumed to move back to the north for the subsequent spawning period. We configured survival and movement to occur sequentially in each interval. Each of the two proportions are assumed constant across intervals, age, and year.
+Th proposed base model assumes 11 intervals within each calendar year: 5 monthly time intervals from Jan 1 to May 31, a spawning season from June 1 to July 31, and 5 monthly intervals from August 1 to December 31. All southern fish are assumed to never move to the northern region. Northern fish are all in the northern region during the spawning period. A proportion $p_1$ of northern fish can move to the south each month during the last 5 months of the year, but no movement is allows from the south to the north during this period. For the first 4 months of the year a proportion $p_2$ of northern fish in the south can move back to the north, but no movement from the north to south is allowed during this period. In the fifth month any northern fish still in the south are assumed to move back to the north for the subsequent spawning period. We configured survival and movement to occur sequentially in each interval. Each of the two proportions are assumed constant across intervals, age, and year.
 
 The monthly movement matrices are
 \begin{equation*}
@@ -126,7 +127,7 @@ The actual SS parameter estimates $x_1=-1.44$ and $x_2=1.94$ are transformations
 $$
 P_i = \frac{1}{1 + 2e^{-x_i}}
 $$
-In WHAM a logit transformation is used 
+InMulti-WHAM an additive logit transformation is used which is simply a logit transformation when there are only two regions: 
 $$
 p_i = \frac{1}{1+e^{-y_i}}.
 $$
@@ -146,7 +147,7 @@ The CVs provided by the analyses for the recreational catch per angler (RecCPA) 
 
 ## Bottom Temperature effects on recruitment
 
-We have bottom temperature observations for the northern and southern regions from 1963 to 2021 and estimated standard errors of those observations. We assumed AR1 models for the latent bottom temperature covariates in each region which are relatively precise with standard errors ranging between 0.03 and 0.09 degrees Celsius. We fit models with the bottom temperature covariate observations in the model, but without effects on recruitment.  This is the null model which can be compared with models with effects on recruitment using AIC because the observations included in each model are the same. We fit models with effects of the regional bottom temperatures on both the respective stock components and just effect of the northern bottom temperature covariate on recruitment of the northern stock. These analyses derive from the hypothesis that bottom temperature affects overwinter survival of fish where the fish turn from age 0 to age 1 on January 1 [@milleretal16_yoy_survival]. 
+We have bottom temperature observations for the northern and southern regions from 1963 to 2021 and estimated standard errors of those observations [@tabandera_bsb_esp_wp]. We assumed AR1 models for the latent bottom temperature covariates in each region which are relatively precise with standard errors ranging between 0.03 and 0.09 degrees Celsius. We fit models with the bottom temperature covariate observations in the model, but without effects on recruitment.  This is the null model which can be compared with models with effects on recruitment using AIC because the observations included in each model are the same. We fit models with effects of the regional bottom temperatures on both the respective stock components and just effect of the northern bottom temperature covariate on recruitment of the northern stock. These analyses derive from the hypothesis that bottom temperature affects overwinter survival of fish where the fish turn from age 0 to age 1 on January 1 [@milleretal16_yoy_survival]. 
 
 We assume the covariate in year $y$ affects recruitment in the same years because the covariate observations are from months January to March. The fish are technically already 1 year old, but there are no observations of these individuals until later in the year except possibly in fishery catches which are accumulated over the whole year. Expected log-recruitment is a linear function of log-recruitment at the previous time step and bottom temperature
 
@@ -193,7 +194,7 @@ The OSA residuals for the aggregate southern VAST index were somewhat over-dispe
 
 ### Retrospective patterns
 
-We also examined retrospective patterns by fitting models where the terminal year is reduced sequentially by one year (peel) for seven years. Therefore, there are 7 fits of the proposed base model with the time series reduced by one to seven years. WHAM performs these fits when specified and will calculate Mohn's $\rho$ for recruitment, SSB, and fully-selected $F$. Absolute values of Mohn's $\rho$ near 0 imply no pattern in estimation of these quantities as the time-series is sequentially extended. Although there was strong retrospective patterns in the most recent management track assessment for the northern component of the stock, there was no evidence of patterns for northern SSB (Mohn's $\rho$ = -0.054) and $F$ (Mohn's $\rho$ = 0.058) for the proposed base model (Figures \ref{fig:North-retro-ssb} and \ref{fig:North-retro-F}). Similarly, no patterns were exhibited for the southern component of SSB (Mohn's $\rho$ = -0.007) and regional $F$  (Mohn's $\rho$ = -0.045) (Figures \ref{fig:South-retro-ssb} and \ref{fig:South-retro-F}).
+We also examined retrospective patterns by fitting models where the terminal year is reduced sequentially by one year (peel) for seven years. Therefore, there are 7 fits of the proposed base model with the time series reduced by one to seven years. Multi-WHAM performs these fits when specified and will calculate Mohn's $\rho$ for recruitment, SSB, and fully-selected $F$. Absolute values of Mohn's $\rho$ near 0 imply no pattern in estimation of these quantities as the time-series is sequentially extended. Although there was strong retrospective patterns in the most recent management track assessment for the northern component of the stock, there was no evidence of patterns for northern SSB (Mohn's $\rho$ = -0.054) and $F$ (Mohn's $\rho$ = 0.058) for the proposed base model (Figures \ref{fig:North-retro-ssb} and \ref{fig:North-retro-F}). Similarly, no patterns were exhibited for the southern component of SSB (Mohn's $\rho$ = -0.007) and regional $F$  (Mohn's $\rho$ = -0.045) (Figures \ref{fig:South-retro-ssb} and \ref{fig:South-retro-F}).
 
 
 # Proposed base model results
@@ -224,14 +225,16 @@ The estimates of SSB for the northern component in recent years are the highest 
 
 # Reference points
 
-WHAM has various options for calculating biological reference points. It will provide annual estimates of SPR-based reference points that use the annual inputs to the per-recruit calculations for F at a specified percentage of unfished spawning biomass per recruit. For black sea bass annual estimates of $F_{40}$ and SSB at $F_{40}$ are as well as the status of annual F and SSB estimates relative to these reference points (Figures \ref{fig:annual-BRPs} and \ref{fig:annual-status}). 
+Multi-WHAM generally has the same various options for calculating biological reference points as the current WHAM package. It will provide annual estimates of SPR-based reference points that use the annual inputs to the per-recruit calculations for F at a specified percentage of unfished spawning biomass per recruit.  For black sea bass annual estimates of $F_{40}$ and SSB at $F_{40}$ are are provided as well as the status of annual F and SSB estimates relative to these reference points (Figures \ref{fig:annual-BRPs} and \ref{fig:annual-status}). See @miller_bsb_wham_wp for details on calculation of global $F_{40}$ with multiple stocks and regions.
 
-For management, the current assessment uses the average by age of the most recent 5 years for maturity, SSB weight, catch weight, fleet selectivity, and natural mortality to calculate $F_{40}$ and average of annual recruitment for years after 1999 for SSB at $F_{40}$. We use these same configurations for the proposed base model. Viewing the bivariate estimate of status as a posterior distribution, the current status 0.59 probability of overfishing but not being overfished and 0.41 probability of not overfishing and not being overfished (Figure \ref{fig:kobe-status}).
+For management, the current assessment uses the average by age of the most recent 5 years for maturity, SSB weight, catch weight, fleet selectivity, and natural mortality to calculate $F_{40}$ and average of annual recruitment for years after 1999 for SSB at $F_{40}$. We use these same configurations for the proposed base model. The average of recruitments since 1999 for each stock component are used to weight the stock-specific equilibrium spawning biomass per recruit to determine unfished spawning biomass per recruit and the value at 40% of the unfished value. Total estimated fully selected fishing mortality achieving 40\% of unfished spawning biomass per recruit was $\widehat F_{40}= 1.06$ and values for the north and south were 0.73 and 0.33, respectively. The percentages of unfished spawning biomass per recruit for the northern and southern components were 38\% and 42\%, respectively. The estimated total equilibrium SSB at $F_{40}$ was 13,715 mt and for the northern and southern components estimates were 6566 and 7150 mt, respectively.
+
+Viewing the bivariate estimate of status as a posterior distribution, the current status 0.59 probability of overfishing but not being overfished and 0.41 probability of not overfishing and not being overfished (Figure \ref{fig:kobe-status}).
 
 # Projections
 
 
-The same options in the basic single stock WHAM model are available in the multi-stock extension. To demonstrate the the projection capability, we configured a three year projection with catch set to 10kmt in 2022 and fishing at $F_{40}$ in the subsequent two years (Figure \ref{fig:F-by-fleet-proj}). Models for random effects on the bottom temperature covariate, recruitment, survival are used to predict bottom temperature and abundance at age in the projection years (Figures \ref{fig:bottom-temp-proj} and \ref{fig:NAA-devs-proj}). 
+The same options in the basic single stock WHAM model are available for Multi-WHAM. To demonstrate the projection capability, we configured a three year projection with catch set to 10 kmt in 2022 and fishing at $F_{40}$ in the subsequent two years (Figure \ref{fig:F-by-fleet-proj}). Models for random effects on the bottom temperature covariate, recruitment, survival are used to predict bottom temperature and abundance at age in the projection years (Figures \ref{fig:bottom-temp-proj} and \ref{fig:NAA-devs-proj}). 
 
 When fishing at $F_{40}$ the northern component of the population is reduced dramatically. This occurs because of the remove of a large 2016 year class without any subsequent strong recruitments to replace those individuals (Figure \ref{fig:SSB-R-time-proj} and \ref{fig:SSB-F-proj}). However, note that the status of the stock is still far from being overfished (Figure \ref{fig:kobe-status-proj}).
 
@@ -754,11 +757,6 @@ dat %>% kable(format = type, booktabs = T, escape=F, longtable = T, caption="WHA
   #row_spec(c(4,17), bold = TRUE) %>%
   kable_styling(latex_options=c("repeat_header")) %>% landscape()
 
-# out <- out %>% kable(format = type, booktabs = T, escape=F, longtable = T, row.names = T,label = "par-table",
-#     caption="Parameter estimates, standard errors, and confidence intervals. Rounded to 3 decimal places.", align = c(rep("r",4))) %>%
-#     kable_styling(latex_options=c("basic", "repeat_header")) %>% landscape()
-# knitr::knit_print(out)
-
 ```
 \clearpage
 
@@ -817,38 +815,4 @@ out <- out %>% kable(format = type, booktabs = T, escape=F, longtable = T, row.n
 knitr::knit_print(out)
 
 ```
-
-
-
-
-
-
-\clearpage
-
-
-<!-- 
-
-## Projections
-
-WHAM has several options for handling short-term projections internally. Code to run short-term projections for the final three WHAM models can be seen at `/code/project_models.R`. 
-
-Projections under alternative $F$ for catch advice will be done in the upcoming management track assessment using data through 2021. Here we simply demonstrate how this would be done using WHAM. We show three alternative $F$ scenarios over a 3-year projection period: $F=0$, $F=F_{2019}$ (terminal year $F$ / status quo), and $F=F_{50\%}$ ($F_{MSY}$ proxy).
-
-## Reference points and status determination
-
-In 2019, the butterfish stock was not overfished ($B_{2019}/B_{50\%}$ > 1) or experiencing overfishing ($F_{2019}/F_{50\%}$ < 1) in all models (Table \ref{tab:refpts}).
-
-
-The three WHAM models estimated similar trends in SSB, $F$, and recruitment as ASAP (Fig. \ref{fig:ssb-rec-f}). The main difference is that the state-space models, 04-NAA2 and 17-NAA5, estimated less of a decrease in recruitment and SSB over the time-series, i.e. lower recruitment and SSB in early years and higher recruitment and SSB in later years. Recruitment in the full state-space model, 17-NAA5, was notably higher in 2008-2019 (Fig. \ref{fig:ssb-rec-f}), which corresponds to a period of negative survival deviations for fish aged 1+ (Fig. \ref{fig:naa-devs}).
-
-All models estimated that the stock has never been overfished or experienced overfishing ($B/B_{50\%}$ > 1 and $F/F_{50\%}$ < 1 in all years, Fig. \ref{fig:status}).
-
--->
-
-<!-- We show 3-year projections of recruitment and SSB under 3 alternative $F$ scenarios: $F=0$ (Fig. \ref{fig:proj-panel-f0}), $F=F_{2019}$ (Fig. \ref{fig:proj-panel-flast}), and $F=F_{50\%}$ (Fig. \ref{fig:proj-panel-f50}). 17-NAA5 estimates a larger population size (higher SSB) than the other two models, even with similar $F$ and the same $M$, because survival deviations for ages 1+ were estimated to be positive (Figs. \ref{fig:naa-devs} and \ref{fig:proj-panel-f0}-\ref{fig:proj-panel-f50}).  -->
-
-<!-- SSB remains roughly the same in 2022 relative to 2021, with slight increases in 17-NAA5 due to increasing recruitment and positive survival deviations in the projection period (Figs. \ref{fig:naa-devs} and \ref{fig:proj-panel-flast}).-->
-
-<!-- Note the effect of treating projected recruitment as a continuation of the AR(1) process (or not, as in 04-Base). Recruitment in 04-Base jumps immediately to the 2011-2019 average but recruitment in 04-NAA2 and 17-NAA5 gradually approach average recruitment (Figs. \ref{fig:proj-panel-f0}-\ref{fig:proj-panel-f50}). -->
-
 
