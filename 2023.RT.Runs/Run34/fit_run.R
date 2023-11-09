@@ -209,6 +209,10 @@ mohns_rho(fit_best)
 saveRDS(fit_best, here("2023.RT.Runs",this_run, "fit_best.RDS"))
 setwd(here("2023.RT.Runs",this_run))
 plot_wham_output(fit_best)
+# dir.create(here("2023.RT.Runs",this_run, "test"))
+# setwd(here("2023.RT.Runs",this_run, "test"))
+# plot_wham_output(fit_best)
+
 
 fit_best_proj <- project_wham(fit_best, proj.opts = list(proj_F_opt = c(5,3,3), proj_Fcatch = c(10000,10000,10000)), check.version = F)
 #setwd(here("2023.RT.Runs",this_run, "projection"))
@@ -315,7 +319,18 @@ calc_pred_index <- function(mod, which_index, sel_constant, which_peel=1){
 }
 
 library(TMB)
-mod <- readRDS("c:/work/BSB.2023.RT.Modeling/2023.RT.Runs/Run33/fit_proj.RDS")
+pkgbuild::compile_dll("c:/work/wham/wham", debug = FALSE)
+pkgload::load_all("c:/work/wham/wham")
+this_run <- "Run34"
+mod <- readRDS("c:/work/BSB.2023.RT.Modeling/2023.RT.Runs/Run34/fit_best.RDS")
+#mod <- fit_best
+temp <- mod$input
+temp$par <- mod$parList
+test <- fit_wham(temp, do.fit = F)
+test <- wham:::do_sdrep(test, save.sdrep = TRUE)
+fit_best$sdrep <- test$sdrep
+fit_best$rep <- test$rep
+
 mean(mod$rep$pred_NAA[1,1,which(mod$years>1999),1])
 std <- summary(mod$sdrep, "report")
 temp <- sapply(1:mod$input$data$n_regions, function(r) apply(exp(mod$rep$log_FAA_XSPR_static[which(mod$input$data$fleet_regions==r),, drop = F]),2,sum))
@@ -331,6 +346,10 @@ exp(mod$rep$log_SSB_FXSPR_static)
 ssb40_ind <- which(rownames(std) == "log_SSB_FXSPR_static")
 ssb_ind <- which(rownames(std) == "log_SSB")
 ssb_tot_ind <- which(rownames(std) == "log_SSB_all")
-
+R_static_2000_mean[1] * exp(mod$rep$log_YPR_FXSPR_static[2,4])
+sum(R_static_2000_mean[1] * exp(mod$rep$log_YPR_FXSPR_static[1,1:4]))
+R_static_2000_mean[2] * exp(mod$rep$log_YPR_FXSPR_static[2,5])
+sum(R_static_2000_mean[1:2] * exp(mod$rep$log_YPR_FXSPR_static[2,4:5]))
+exp(mod$rep$log_Y_FXSPR_static)
 
 

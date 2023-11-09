@@ -300,7 +300,7 @@ Currently a single F reference point $\widetilde F$ is estimated across stocks a
 \end{equation*}
 
 
-The $n_r x n_r$ matrix of equilibrium spawning stock biomass per recruit for stock $s$ in region $r'$ (columns) given recruiting in region $r$ (rows) is defined as
+The $n_r \times n_r$ matrix of equilibrium spawning stock biomass per recruit for stock $s$ in region $r'$ (columns) given recruiting in region $r$ (rows) is defined as
 \begin{equation}\label{eq:ssbpr}
  \widetilde {\mathbf{O}}_s({\widetilde F}) = \sum^{A}_{a=1} \mathbf{O}_{s,a} \mathbf{O}_{s,a}(\delta_s) \text{diag}\left({\bf f}_{s,a}\right)
 \end{equation}
@@ -334,7 +334,7 @@ where $g(F)$ is the difference between the weighted sums of spawning biomass per
 \begin{equation*}
   g(F) = \sum^S_{s=1} w_s\left(\widetilde{\mathbf{O}}_{s,r_s,r_s}(F) - \frac{X}{100}\widetilde{\mathbf{O}}_{s,r_s,r_s}(F=0)\right).
 \end{equation*}
-where $\widetilde{\mathbf{O}}_{s,r_s,r_s}(F=0)$ is the $r_s$ diagonal element of the matrix of equilibrium spawning biomass per recruit (eq. \ref{eq:ssbpr}). $g'(F)$ is the derivative of $g$ with respect to $F$, and the weights to use for each stock $w_s$ can be specified by the user or the average of recruitment for each stock over the same years the user defines to calculate ``static'' equilibrium spawning biomass and yield.
+where $\widetilde{\mathbf{O}}_{s,r_s,r_s}(F)$ is the $r_s$ diagonal element of the matrix of equilibrium spawning biomass per recruit at a given full-selected fishing mortality rate (eq. \ref{eq:ssbpr}). $g'(F)$ is the derivative of $g$ with respect to $F$, and the weights to use for each stock $w_s$ can be specified by the user or the average of recruitment for each stock over the same years the user defines to calculate ``static'' equilibrium spawning biomass and yield.
 
 When a Beverton-Holt or Ricker stock recruit relationship is assumed, an analogous Newton method is used to find F that maximizes yield for MSY-based reference points, which are also a function of the matrix of equilibrium spawning biomass and yield per recruit (eqs. \ref{eq:ssbpr} and \ref{eq:ypr}).
 
