@@ -144,6 +144,11 @@ cbind(sapply(x, function(x) length(temp$map[[x]])), sapply(x, function(x) length
 #lapply(tfit$rep[grep("nll", names(tfit$rep))], sum)
 tfit <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
 saveRDS(tfit, here("2023.RT.Runs",this_run, "fit_no_effect.RDS"))
+fit_none <- readRDS(here("2023.RT.Runs",this_run, "fit_no_effect.RDS"))
+temp1 <- fit_none$input
+temp1$par <- fit_none$parList
+temp1 <- fit_wham(temp1, do.sdrep = F, do.osa = F, do.retro = T)
+saveRDS(temp1, here("2023.RT.Runs",this_run, "fit_no_effect.RDS"))
 
 ecov$recruitment_how <- matrix(c("controlling-lag-0-linear","none","none","controlling-lag-0-linear"), 2,2)
 temp <- wham:::set_ecov(temp,ecov)
@@ -152,6 +157,11 @@ tfit1 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
 tfit$opt$obj + length(tfit$opt$par)
 tfit1$opt$obj + length(tfit1$opt$par) #lower AIC, but effect for south seems week.
 saveRDS(tfit1, here("2023.RT.Runs",this_run, "fit_both_effects.RDS"))
+fit_both <- readRDS(here("2023.RT.Runs",this_run, "fit_both_effects.RDS"))
+temp <- fit_both$input
+temp$par <- fit_both$parList
+temp <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = T)
+saveRDS(temp, here("2023.RT.Runs",this_run, "fit_both_effects.RDS"))
 
 ecov$recruitment_how <- matrix(c("controlling-lag-0-linear","none","none","none"), 2,2)
 temp <- wham:::set_ecov(temp,ecov)
@@ -161,6 +171,26 @@ saveRDS(tfit2, here("2023.RT.Runs",this_run, "fit_north_effect.RDS"))
 2*(tfit$opt$obj + length(tfit$opt$par))
 2*(tfit1$opt$obj + length(tfit1$opt$par)) #lower AIC, but effect for south seems week.
 2*(tfit2$opt$obj + length(tfit2$opt$par)) #lower AIC, but effect for south seems week.
+
+tbest <- readRDS(here("2023.RT.Runs",this_run, "fit.RDS"))
+
+tbest <- readRDS(here("2023.RT.Runs",this_run, "fit.RDS"))
+z <- cbind(sapply(temp1$peels, function(x) 2*(x$opt$obj + length(x$opt$par))),
+sapply(temp$peels, function(x) 2*(x$opt$obj + length(x$opt$par))),
+sapply(tbest$peels, function(x) 2*(x$opt$obj + length(x$opt$par))))
+nms <- c("temp1", "temp", "tbest")
+z <- rbind(sapply(nms, function(x) 2*(get(x)$opt$obj + length(get(x)$opt$par))), z)
+t(apply(z, 1, function(x) x-min(x)))
+
+out <- 2*(sapply(nms, function(x) c(
+  get(x)$opt$obj + length(get(x)$opt$par),
+  sapply(get(x)$peels, function(y) y$opt$obj + length(y$opt$par)))))
+out <- as.data.frame(round(t(apply(out, 1, function(x) x - min(x))),2))
+out$Peel = 0:7
+
+round(2*(sapply(nms, function(x) c(
+  get(x)$opt$obj + length(get(x)$opt$par),
+  sapply(get(x)$peels, function(y) y$opt$obj + length(y$opt$par))))), 2)
 
 temp$par <- tfit2$parList
 

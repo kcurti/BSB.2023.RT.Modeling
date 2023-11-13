@@ -126,7 +126,7 @@
 
 \title{Application of the Woods Hole Assessment Model to Black Sea Bass}
 \author{Timothy J. Miller\(^{1,*}\) \and Kiersten Curti\(^1\) \and Alex Hansell\(^1\)}
-\date{09 November, 2023}
+\date{13 November, 2023}
 
 \begin{document}
 \maketitle
@@ -250,7 +250,7 @@ The CVs provided by the analyses for the recreational catch per angler (RecCPA) 
 \hypertarget{bottom-temperature-effects-on-recruitment}{%
 \subsection{Bottom Temperature effects on recruitment}\label{bottom-temperature-effects-on-recruitment}}
 
-We have bottom temperature observations for the northern and southern regions from 1963 to 2021 and estimated standard errors of those observations (Tabandera et al., 2023). We assumed AR1 models for the latent bottom temperature covariates in each region which are relatively precise with standard errors ranging between 0.03 and 0.09 degrees Celsius. We fit models with the bottom temperature covariate observations in the model, but without effects on recruitment. This is the null model which can be compared with models with effects on recruitment using AIC because the observations included in each model are the same. We fit models with effects of the regional bottom temperatures on both the respective stock components and just effect of the northern bottom temperature covariate on recruitment of the northern stock. These analyses derive from the hypothesis that bottom temperature affects overwinter survival of fish where the fish turn from age 0 to age 1 on January 1 (Miller et al., 2016).
+We have bottom temperature observations for the northern and southern regions from 1963 to 2021 and estimated standard errors of those observations (Tabandera et al., 2023). We assumed AR1 models for the latent bottom temperature covariates in each region which are relatively precise with standard errors ranging between 0.03 and 0.09 degrees Celsius. We fit models with the bottom temperature covariate observations in the model, but without effects on recruitment. This is the null model which can be compared with models with effects on recruitment using AIC because the observations included in each model are the same. We fit models with effects of the regional bottom temperatures on both the respective stock components and just effect of the northern bottom temperature covariate on recruitment of the northern stock. These analyses derive from the hypothesis that bottom temperature affects overwinter survival of fish where the fish turn from age 0 to age 1 on January 1 (A. S. Miller et al., 2016). As recommended by T. J. Miller et al. (2016) and Brooks (2024), we also assessed the stability of the AIC-based model selection over retrospective peels to guard against previously noted changes in perception of covariate effects on recruitment with increased length of the time series of observations (Myers, 1998).
 
 We assume the covariate in year \(y\) affects recruitment in the same years because the covariate observations are from months January to March. The fish are technically already 1 year old, but there are no observations of these individuals until later in the year except possibly in fishery catches which are accumulated over the whole year. Expected log-recruitment is a linear function of log-recruitment at the previous time step and bottom temperature
 
@@ -312,7 +312,7 @@ For an exhaustive set of summary plots and tables for the proposed base model se
 \hypertarget{bottom-temperature-effect-on-recruitment}{%
 \subsection{Bottom temperature effect on recruitment}\label{bottom-temperature-effect-on-recruitment}}
 
-We found the best model of bottom temperature covariate effects included the effect only on the recruitment of the northern stock, which is the configuration in the proposed base model (Table \ref{tab:compare-table}). The posterior estimate of the bottom temperature covariate match the observations well because of the high precision of the observations (Figure \ref{fig:bottom-temp}). The residual variation in the standard deviation of recruitment random effects is reduced because the expected recruitment (Eq. \ref{eq:expected-recruitment}) is a function of the covariate (Figure \ref{fig:relative-recruitment-bt}). This effect is included in the proposed base model (Figure \ref{fig:rec-bottom-temp}). Because the covariate is technically for temperature after the beginning of the calendar year when the fish are considered age 1 in the model, a comparison of the proposed base model to one with the bottom temperature effect on natural mortality at age 1 instead might be of interest in the future. An investigation of higher order orthogonal polynomial effects might also be of interest particularly for the southern component which might be experiencing more frequently higher temperatures less favorable to overwinter survival.
+We found the best model of bottom temperature covariate effects included the effect only on the recruitment of the northern stock, which is the configuration in the proposed base model although the difference in AIC for the model including effects on both regional components was small suggesting some evidence for this hypothesis as well (Table \ref{tab:compare-table}) . We also found AIC to strongly favor models that included at least an effect on the northern component across all retrospective peels (Table \ref{tab:peel-compare-table}). The posterior estimate of the bottom temperature covariate match the observations well because of the high precision of the observations (Figure \ref{fig:bottom-temp}). The residual variation in the standard deviation of recruitment random effects is reduced because the expected recruitment (Eq. \ref{eq:expected-recruitment}) is a function of the covariate (Figure \ref{fig:relative-recruitment-bt}). This effect is included in the proposed base model (Figure \ref{fig:rec-bottom-temp}). Because the covariate is technically for temperature after the beginning of the calendar year when the fish are considered age 1 in the model, a comparison of the proposed base model to one with the bottom temperature effect on natural mortality at age 1 instead might be of interest in the future. An investigation of higher order orthogonal polynomial effects might also be of interest particularly for the southern component which might be experiencing more frequently higher temperatures less favorable to overwinter survival.
 
 \hypertarget{comparison-of-runs-30-33-and-34}{%
 \subsection{Comparison of Runs 30, 33 and 34}\label{comparison-of-runs-30-33-and-34}}
@@ -359,6 +359,9 @@ A full set of plots for the projected model can be found in wham\_figures\_table
 
 \hypertarget{refs}{}
 \begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-brooks24}{}}%
+Brooks, E.N., 2024. Pragmatic approaches to modeling recruitment in fisheries stock assessment: A perspective. Fisheries Research 270, 106896. \url{https://doi.org/10.1016/j.fishres.2023.106896}
+
 \leavevmode\vadjust pre{\hypertarget{ref-fay_bsb_ss_wp}{}}%
 Fay, G., McNamee, J., 2023. Application of stock synthesis to black sea bass. Working paper for the 2023 black sea bass research track assessment peer review.
 
@@ -374,11 +377,17 @@ Miller, A.S., Shepherd, G.R., Fratantoni, P.S., 2016. Offshore habitat preferenc
 \leavevmode\vadjust pre{\hypertarget{ref-miller_bsb_wham_wp}{}}%
 Miller, T.J., 2023. A multi-stock, multi-region extension of the woods hole assessment model. Working paper for the 2023 black sea bass research track assessment peer review.
 
+\leavevmode\vadjust pre{\hypertarget{ref-milleretal16}{}}%
+Miller, T.J., Hare, J.A., Alade, L.A., 2016. A state-space approach to incorporating environmental effects on recruitment in an age-structured assessment model with an application to southern {New England} yellowtail flounder. Can. J. Fish. Aquat. Sci. 73, 1261--1270. \url{https://doi.org/10.1139/cjfas-2015-0339}
+
 \leavevmode\vadjust pre{\hypertarget{ref-millerlegault15}{}}%
 Miller, T.J., Legault, C.M., 2015. \href{https://doi:10.7289/V57W695G}{Technical details for {ASAP} version 4} (No. Ref Doc. 15-17). {US Dept Commer, Northeast Fish Sci Cent}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-millerstock20}{}}%
 Miller, T.J., Stock, B.C., 2020. The {Woods Hole Assessment Model} ({WHAM}).
+
+\leavevmode\vadjust pre{\hypertarget{ref-myers98}{}}%
+Myers, R.A., 1998. When do environment--recruitment correlations work? Reviews in Fish Biology and Fisheries 8, 229--249. \url{https://doi.org/10.1023/A:1008828730759}
 
 \leavevmode\vadjust pre{\hypertarget{ref-stockmiller21}{}}%
 Stock, B.C., Miller, T.J., 2021. The {Woods Hole Assessment Model} ({WHAM}): A general state-space assessment framework that incorporates time- and age-varying processes via random effects and links to environmental covariates. Fisheries Research 240, 105967. \url{https://doi.org/10.1016/j.fishres.2021.105967}
@@ -1015,6 +1024,27 @@ Both temperature effects & -1566.87 & 0.72\\
 \bottomrule
 \end{tabular}
 \end{table}
+\begin{table}
+
+\caption{\label{tab:peel-compare-table}For each retrospective peel, the difference in AIC of models without any temperature effects on recruitment (No Effect), with just effects on the northern component (North only), and with effects on both components (North and South) from the the model with the lowest AIC for Run 33.}
+\centering
+\begin{tabular}[t]{rrrr}
+\toprule
+Peel & No effect & North only & North and South\\
+\midrule
+0 & 10.85 & 0.00 & 0.55\\
+1 & 10.66 & 0.00 & 0.43\\
+2 & 9.63 & 0.00 & 0.71\\
+3 & 9.74 & 0.00 & 0.62\\
+4 & 9.50 & 0.00 & 0.76\\
+\addlinespace
+5 & 8.94 & 0.00 & 0.48\\
+6 & 8.54 & 0.28 & 0.00\\
+7 & 8.17 & 0.07 & 0.00\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \clearpage
 
 \begin{landscape}

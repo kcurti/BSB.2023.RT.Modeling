@@ -147,7 +147,7 @@ The CVs provided by the analyses for the recreational catch per angler (RecCPA) 
 
 ## Bottom Temperature effects on recruitment
 
-We have bottom temperature observations for the northern and southern regions from 1963 to 2021 and estimated standard errors of those observations [@tabandera_bsb_esp_wp]. We assumed AR1 models for the latent bottom temperature covariates in each region which are relatively precise with standard errors ranging between 0.03 and 0.09 degrees Celsius. We fit models with the bottom temperature covariate observations in the model, but without effects on recruitment.  This is the null model which can be compared with models with effects on recruitment using AIC because the observations included in each model are the same. We fit models with effects of the regional bottom temperatures on both the respective stock components and just effect of the northern bottom temperature covariate on recruitment of the northern stock. These analyses derive from the hypothesis that bottom temperature affects overwinter survival of fish where the fish turn from age 0 to age 1 on January 1 [@milleretal16_yoy_survival]. 
+We have bottom temperature observations for the northern and southern regions from 1963 to 2021 and estimated standard errors of those observations [@tabandera_bsb_esp_wp]. We assumed AR1 models for the latent bottom temperature covariates in each region which are relatively precise with standard errors ranging between 0.03 and 0.09 degrees Celsius. We fit models with the bottom temperature covariate observations in the model, but without effects on recruitment.  This is the null model which can be compared with models with effects on recruitment using AIC because the observations included in each model are the same. We fit models with effects of the regional bottom temperatures on both the respective stock components and just effect of the northern bottom temperature covariate on recruitment of the northern stock. These analyses derive from the hypothesis that bottom temperature affects overwinter survival of fish where the fish turn from age 0 to age 1 on January 1 [@milleretal16_yoy_survival]. As recommended by @milleretal16 and @brooks24, we also assessed the stability of the AIC-based model selection over retrospective peels to guard against previously noted changes in perception of covariate effects on recruitment with increased length of the time series of observations [@myers98].
 
 We assume the covariate in year $y$ affects recruitment in the same years because the covariate observations are from months January to March. The fish are technically already 1 year old, but there are no observations of these individuals until later in the year except possibly in fishery catches which are accumulated over the whole year. Expected log-recruitment is a linear function of log-recruitment at the previous time step and bottom temperature
 
@@ -203,7 +203,7 @@ For an exhaustive set of summary plots and tables for the proposed base model se
 
 ## Bottom temperature effect on recruitment
 
-We found the best model of bottom temperature covariate effects included the effect only on the recruitment of the northern stock, which is the configuration in the proposed base model (Table \ref{tab:compare-table}). The posterior estimate of the bottom temperature covariate match the observations well because of the high precision of the observations (Figure \ref{fig:bottom-temp}). The residual variation in the standard deviation of recruitment random effects is reduced because the expected recruitment (Eq. \ref{eq:expected-recruitment}) is a function of the covariate  (Figure \ref{fig:relative-recruitment-bt}). This effect is included in the proposed base model (Figure \ref{fig:rec-bottom-temp}). Because the covariate is technically for temperature after the beginning of the calendar year when the fish are considered age 1 in the model, a comparison of the proposed base model to one with the bottom temperature effect on natural mortality at age 1 instead might be of interest in the future. An investigation of higher order orthogonal polynomial effects might also be of interest particularly for the southern component which might be experiencing more frequently higher temperatures less favorable to overwinter survival.
+We found the best model of bottom temperature covariate effects included the effect only on the recruitment of the northern stock, which is the configuration in the proposed base model although the difference in AIC for the model including effects on both regional components was small suggesting some evidence for this hypothesis as well (Table \ref{tab:compare-table}) . We also found AIC to strongly favor models that included at least an effect on the northern component across all retrospective peels (Table \ref{tab:peel-compare-table}). The posterior estimate of the bottom temperature covariate match the observations well because of the high precision of the observations (Figure \ref{fig:bottom-temp}). The residual variation in the standard deviation of recruitment random effects is reduced because the expected recruitment (Eq. \ref{eq:expected-recruitment}) is a function of the covariate  (Figure \ref{fig:relative-recruitment-bt}). This effect is included in the proposed base model (Figure \ref{fig:rec-bottom-temp}). Because the covariate is technically for temperature after the beginning of the calendar year when the fish are considered age 1 in the model, a comparison of the proposed base model to one with the bottom temperature effect on natural mortality at age 1 instead might be of interest in the future. An investigation of higher order orthogonal polynomial effects might also be of interest particularly for the southern component which might be experiencing more frequently higher temperatures less favorable to overwinter survival.
 
 ## Comparison of Runs 30, 33 and 34
 
@@ -803,7 +803,22 @@ out <- kable(out, format = type, booktabs = T, escape=F, row.names = T,label = "
 knitr::knit_print(out)
 #cat(knitr::knit_print(out))
 ```
+```{r, echo = F, eval = T}
+out <- 2*(sapply(mods, function(x) c(
+  get(x)$opt$obj + length(get(x)$opt$par),
+  sapply(get(x)$peels, function(y) y$opt$obj + length(y$opt$par)))))
+out <- as.data.frame(round(t(apply(out, 1, function(x) x - min(x))),2))
+colnames(out) <- c("No effect", "North only", "North and South")
+out <- cbind(Peel = 0:7, out)
+out <- kable(out, format = type, booktabs = T, escape=F, row.names = F,label = "peel-compare-table",
+    caption="For each retrospective peel, the difference in AIC of models without any temperature effects on recruitment (No Effect), with just effects on the northern component (North only), and with effects on both components (North and South) from the the model with the lowest AIC for Run 33.", align = c(rep("r",4)))
+knitr::knit_print(out)
+
+```
+
 \clearpage
+
+
 
 ```{r par-estimates, echo = F, eval = T}
 out = as.data.frame(readRDS(here::here("2023.RT.Runs","Run34","res_tables","parameter_estimates_table.RDS")))
