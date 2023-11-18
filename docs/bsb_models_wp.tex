@@ -126,7 +126,7 @@
 
 \title{Application of the Woods Hole Assessment Model to Black Sea Bass}
 \author{Timothy J. Miller\(^{1,*}\) \and Kiersten Curti\(^1\) \and Alex Hansell\(^1\)}
-\date{13 November, 2023}
+\date{14 November, 2023}
 
 \begin{document}
 \maketitle
@@ -342,14 +342,14 @@ Multi-WHAM generally has the same various options for calculating biological ref
 
 For management, the current assessment uses the average by age of the most recent 5 years for maturity, SSB weight, catch weight, fleet selectivity, and natural mortality to calculate \(F_{40}\) and average of annual recruitment for years after 1999 for SSB at \(F_{40}\). We use these same configurations for the proposed base model. The average of recruitments since 1999 for each stock component are used to weight the stock-specific equilibrium spawning biomass per recruit to determine unfished spawning biomass per recruit and the value at 40\% of the unfished value. Total estimated fully selected fishing mortality achieving 40\% of unfished spawning biomass per recruit was \(\widehat F_{40}= 1.06\) and values for the north and south were 0.73 and 0.33, respectively. The percentages of unfished spawning biomass per recruit for the northern and southern components were 38\% and 42\%, respectively. The estimated total equilibrium SSB at \(F_{40}\) was 13,715 mt and for the northern and southern components estimates were 6566 and 7150 mt, respectively.
 
-Viewing the bivariate estimate of status as a posterior distribution, the current status 0.59 probability of \(F>F_{40}\) but SSB \(>\) SSB\((F_{40})\) and 0.41 probability of \(F<F_{40}\) and SSB\(>\)SSB\((F_{40})\) (Figure \ref{fig:kobe-status}).
+Viewing the bivariate estimate of stock and harvest status as a posterior distribution, the current status is 0.59 probability of \(F>F_{40}\) and SSB \$\textgreater{}\(0.5\times SSB\)(F\_\{40\})\$ and 0.41 probability of \(F<F_{40}\) and SSB\(>0.5\times\) SSB\((F_{40})\), with negligible probability of SSB\(<0.5\times\) SSB\((F_{40})\) (Figure \ref{fig:kobe-status}).
 
 \hypertarget{projections}{%
 \section{Projections}\label{projections}}
 
 The same options in the basic single stock WHAM model are available for Multi-WHAM. To demonstrate the projection capability, we configured a three year projection with catch set to 10 kmt in 2022 and fishing at \(F_{40}\) in the subsequent two years (Figure \ref{fig:F-by-fleet-proj}). Models for random effects on the bottom temperature covariate, recruitment, survival are used to predict bottom temperature and abundance at age in the projection years (Figures \ref{fig:bottom-temp-proj} and \ref{fig:NAA-devs-proj}).
 
-When fishing at \(F_{40}\) the northern component of the population is reduced dramatically. This occurs because of the remove of a large 2016 year class without any subsequent strong recruitments to replace those individuals (Figure \ref{fig:SSB-R-time-proj} and \ref{fig:SSB-F-proj}). However, note that the status of the stock is still far from being overfished (Figure \ref{fig:kobe-status-proj}).
+When fishing at \(F_{40}\) the northern component of the population is reduced dramatically. This occurs because of the remove of a large 2016 year class without any subsequent strong recruitments to replace those individuals (Figure \ref{fig:SSB-R-time-proj} and \ref{fig:SSB-F-proj}). However, note that the status of the stock is still estimated to be far greater than \(0.5\times\) SSB\((F_{40})\) in 2024 (Figure \ref{fig:kobe-status-proj}).
 
 A full set of plots for the projected model can be found in wham\_figures\_tables.html in the repository: \url{https://github.com/kcurti/BSB.2023.RT.Modeling/tree/main/2023.RT.Runs/Run34/projections}.
 

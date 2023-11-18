@@ -353,3 +353,55 @@ sum(R_static_2000_mean[1:2] * exp(mod$rep$log_YPR_FXSPR_static[2,4:5]))
 exp(mod$rep$log_Y_FXSPR_static)
 
 
+plot.SARC.R.SSB <- function(mod, scale.ssb=1, scale.recruits=1, age.recruit = 1, ssb.units = 'mt', recruits.units = expression(10^3), stock = NULL)
+{
+  origpar <- par(no.readonly = TRUE)
+  par(mar = c(5,5,3,5), oma = c(0,0,0,1), family='serif')
+  years = mod$years
+  years_full = mod$years_full
+  nyrs <- length(years_full)
+  dat <- mod$input$data
+  if(is.null(stock) & dat$n_stocks> 1) {
+  	ssb <- apply(mod$rep$SSB,1, sum)
+  	R <- mod$rep$NAA[1,dat$spawn_regions[1],,1]
+  	for(i in 2:dat$n_stocks) R <- R + mod$rep$NAA[i,dat$spawn_regions[i],,1]
+  } else {
+  	ssb <- mod$rep$SSB[,stock]
+		R <- mod$rep$NAA[stock, dat$spawn_regions[stock],,1]
+	}
+	ssb.plot <- ssb[1:(nyrs-age.recruit)]/scale.ssb
+	recr.plot <- R[age.recruit + 1:(nyrs-age.recruit)]/scale.recruits
+	yr.text <- substr(years_full,3,4)
+  plot.colors <- viridisLite::viridis(n=2)
+	max.r <- max(recr.plot)
+	max.ssb <- max(ssb.plot)
+	scale.r <- max(ssb.plot)/max(recr.plot)
+	ylimr <- c(0,1.1*max(recr.plot))
+	barplot(recr.plot/scale.recruits, axisnames=FALSE, width=1, space=rep(0,nyrs-age.recruit), offset=rep(-0.5,nyrs-age.recruit), axes=FALSE, xpd=FALSE,
+		xlab = '', ylab ='', ylim = ylimr, xlim=c(0.5,nyrs-age.recruit - 0.5), col=plot.colors[1])
+	xr <-pretty(c(0,recr.plot/scale.recruits))
+	axis(2, at = xr, lab = xr )
+	axis(side=1, las=2, at=seq(0.5,nyrs-age.recruit-0.5, by=2),
+	labels=as.character(seq(years_full[1],years_full[nyrs-age.recruit], by=2)), cex=0.75, las=2)
+
+	y.ssb <- (ssb.plot)*max.r/max.ssb
+	lines(seq(0.5,nyrs-age.recruit-0.5, by=1), y.ssb, lwd=2, col = plot.colors[2])
+	x <- pretty(c(0,ssb.plot))
+	axis(4, at = c(0,x*max.r/max.ssb), lab = c(0,x))#, col=plot.colors[2], col.axis=plot.colors[2])
+	box()
+	mtext(side = 1, 'Year', line = 3)
+	mtext(side = 4, as.expression(substitute(paste("SSB (", ssb.units, ")", sep = ""), list(ssb.units = ssb.units[[1]]))), line = 3)#, col=plot.colors[2])
+	mtext(side = 2, as.expression(substitute(paste("Age-", age.recruit, " Recruits (", units, ")", sep = ''),
+		list(age.recruit = age.recruit[[1]], units = recruits.units[[1]]))), line = 3)
+  if(length(years_full) > length(years)) abline(v=length(years)-age.recruit, lty=2, lwd=2)
+  legend("topleft", fill = plot.colors, border = plot.colors, legend = c("Recruits", "SSB"))
+  if(is.null(stock) & dat$n_stocks>1) title("Total SSB and Recruitment", line = 1)
+  else title(paste0(mod$input$stock_names[stock], " in ", mod$input$region_names[dat$spawn_regions[stock]]), line = 1)
+	par(origpar)
+}  # end function
+
+mod <- readRDS("c:/work/BSB.2023.RT.Modeling/2023.RT.Runs/Run34/fit_best.RDS")
+mod <- readRDS("c:/work/BSB.2023.RT.Modeling/2023.RT.Runs/Run34/fit_best_proj.RDS")
+png(here::here("docs", "plots", "SSB_Rec_time_total.png"),width=10,height=10,units="in",res=72,family="")
+plot.SARC.R.SSB(mod)
+dev.off()
