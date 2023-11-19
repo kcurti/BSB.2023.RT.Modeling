@@ -210,10 +210,10 @@ setwd(here("2023.RT.Runs","Run30"))
 plot_wham_output(fit)
 
 
-fit_proj <- project_wham(fit, proj.opts = list(proj_F_opt = c(5,3,3), proj_Fcatch = c(10000,10000,10000)), check.version = F)
-setwd(here("2023.RT.Runs","Run30", "projection"))
-saveRDS(fit_proj, "fit_proj.RDS")
-plot_wham_output(fit_proj)
+# fit_proj <- project_wham(fit, proj.opts = list(proj_F_opt = c(5,3,3), proj_Fcatch = c(10000,10000,10000)), check.version = F)
+# setwd(here("2023.RT.Runs","Run30", "projection"))
+# saveRDS(fit_proj, "fit_proj.RDS")
+# plot_wham_output(fit_proj)
 
 #conditional sims in container on server
 source(here::here("2023.RT.Runs","jitter_sim_functions.R"))

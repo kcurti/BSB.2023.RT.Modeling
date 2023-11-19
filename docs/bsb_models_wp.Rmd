@@ -76,6 +76,8 @@ From Run 19-27 we still had issues reducing patterns in OSA residuals and someti
 
 Runs 28-34 largely used these same assumptions. These last runs used more realistic assumptions about movement and more appropriate usage of the estimates from the stock synthesis runs [@fay_bsb_ss_wp]. Run 31 assumed temporal random effects on the movement rate from the north to the south and Run 32 assumed a Beverton-Holt stock recruit relationships for both the north and south components, but convergence was problematic for both of these models. Run 33 investigated bottom temperature effects on recruitment and we found evidence of an effect on northern recruitment.  Run 34 then relaxed an assumption common to many earlier runs about the estimated uncertainty in the Recreational CPA indices and allowed a scalar to be estimated in the model. Further details of model configuration of Runs 28-34 are described below.
 
+After these runs we discovered a coding error in constructing initial numbers at age under an equilibrium assumption. When fitting the corrected model, we saw small changes in results Run 34. For example, absolute differences in annual SSB estimates were less than 7%. We refit Runs 30, 33, and 34 with the corrected model and none of the choices among these models would have changed.
+
 ## Seasonality and movement
 
 Th proposed base model assumes 11 intervals within each calendar year: 5 monthly time intervals from Jan 1 to May 31, a spawning season from June 1 to July 31, and 5 monthly intervals from August 1 to December 31. All southern fish are assumed to never move to the northern region. Northern fish are all in the northern region during the spawning period. A proportion $p_1$ of northern fish can move to the south each month during the last 5 months of the year, but no movement is allows from the south to the north during this period. For the first 4 months of the year a proportion $p_2$ of northern fish in the south can move back to the north, but no movement from the north to south is allowed during this period. In the fifth month any northern fish still in the south are assumed to move back to the north for the subsequent spawning period. We configured survival and movement to occur sequentially in each interval. Each of the two proportions are assumed constant across intervals, age, and year.
@@ -160,23 +162,33 @@ We assume the covariate in year $y$ affects recruitment in the same years becaus
 
 ### Jitter analysis
 
-For this analysis we simulated fixed effects parameter vectors from a normal distribution with mean equal to the optimized values and covariance equal to the hessian-based covariance matrix. From refitting the model starting at 16 different simulated parameter vectors, we found 3 cases with a lower (~2 units) marginal negative log likelihood (Figure \ref{fig:jitter-res-1}). The gradients at these optimized values were satisfactory and there was no difference in parameter value among the 3 lower optimizations. In 1 of the 16 iterations, the model did not optimized satisfactorily, and in the other 12 iterations, the optimized marginal negative log-likelihood and parameter estimates were identical to the original fit. The parameters with estimates that differed most between the 2 optimization results were those associated with age composition observation dispersion parameters.
+For this analysis we simulated 100 fixed effects parameter vectors from a normal distribution with mean equal to the optimized values and covariance equal to the hessian-based covariance matrix of the optimzed model. All of the re-fits of the mdoel resulted in the same marginal negative log-likelihood. (Figure \ref{fig:jitter-res-1}). The gradients at these optimized values were all satisfactory with maximum absolute values less the $10^{-9}$.
+
+
+<!--
+
+16 different simulated parameter vectors, we found 3 cases with a lower (~2 units) marginal negative log likelihood (Figure \ref{fig:jitter-res-1}). The gradients at these optimized values were satisfactory and there was no difference in parameter value among the 3 lower optimizations. In 1 of the 16 iterations, the model did not optimized satisfactorily, and in the other 12 iterations, the optimized marginal negative log-likelihood and parameter estimates were identical to the original fit. The parameters with estimates that differed most between the 2 optimization results were those associated with age composition observation dispersion parameters.
 
 Given the revised model fit with the lower marginal NLL, we used the same jittering method with 100 simulated parameter values as starting values (Figure \ref{fig:jitter-res-2}). Three of the fits failed to complete, but none of the iterations resulted in lower marginal negative log-likelihood than that from the revised model estimates. Three of the fits minimized to greater marginal NLLs, but the gradients indicate lack of convergence. \textbf{The revised model fit is the proposed base model.}
+-->
 
 ### Self tests
 
-We performed a simulation self-test where new observations were simulated conditional on all random effects estimated in the proposed base model and the same model configuration was fit to each of the simulated data sets. For only 6 of the 100 simulated data sets, was the maximum absolute gradient for the fitted model was less than $1\times10^{-6}$. This appeared to be attributable to the estimation of the scalar for the standard errors of the log-transformed Northern Recreational CPA index for which estimates nearly always tended to 0 However, even across all fits including those with poor convergence, the SSB estimates appeared to be reliable (Figure \ref{fig:self-test-res-2}). For comparison we also fit a model that assumed the standard error scalars for both the northern and southern Recreational CPA log-indices were fixed at the true values (estimates from the original data). We observed much better convergence with 87 fits having maximum absolute gradient for the fitted model was less than $1\times10^{-6}$.  Interestingly, estimation from this model implied slightly greater biases in some annual SSB estimates (Figure \ref{fig:self-test-res-3}).
+We performed a simulation self-test where new observations were simulated conditional on all random effects estimated in the proposed base model and the same model configuration was fit to each of the simulated data sets. For 7 of the the simulated data sets the model failed to optimize. The maximum absolute gradient was $<10^{-6}$ for only 9 and $<10^{-4}$ for 52 of the 93 successfully fitted models. The poor convergence appeared to be attributable to the estimation of the scalar for the standard errors of the log-transformed northern Recreational CPA index for which estimates tended to 0 for nearly all of the fits ($<0.01$ for 83 fits). However, even across all fits including those with poor convergence, the SSB estimates appeared to be reliable (Figure \ref{fig:self-test-res-1}). 
+
+<!--
+For comparison we also fit a model that assumed the standard error scalars for both the northern and southern Recreational CPA log-indices were fixed at the true values (estimates from the original data). We observed much better convergence with 87 fits having maximum absolute gradient for the fitted model was less than $1\times10^{-6}$.  Interestingly, estimation from this model implied slightly greater biases in some annual SSB estimates (Figure \ref{fig:self-test-res-3}).
+-->
 
 ### MASE
 
-We performed an analysis of the prediction skill of the proposed base model. We fit 7 configurations of the model where the last 1 to 7 years of aggregate index and age composition observations were removed sequentially (peels). We calculated the MASE statistics as described in @kelletal21. The mean absolute scaled error (MASE) of the predictions at 1 to 5 years beyond the final year of index observations (horizons). The mean absolute errors are scaled by the mean absolute errors of so-called naïve predictions using the aggregate index observation from the final year of each peel. A MASE < 1 results when the mean absolute error is greater using the model than the naïve forecast. For the proposed base model, predictions for 3 of the 4 surveys performed similarly to naïve predictions across all horizons, but MASE scores were particularly poor for the northern region recreational CPA index (Figure \ref{fig:mase-by-index}). This poor performance occurs because the index has no trend and low variability over the years used for the calculation whereas the model predictions vary much more (Figure \ref{fig:mase-obs-pred-by-index}).
+We performed an analysis of the prediction skill of the proposed base model. We fit 7 configurations of the model where the last 1 to 7 years of aggregate index and age composition observations were removed sequentially (peels). We calculated the MASE statistics as described in @kelletal21. The mean absolute scaled error (MASE) of the predictions at 1 to 5 years beyond the final year of index observations (horizons). The mean absolute errors are scaled by the mean absolute errors of so-called naïve predictions using the aggregate index observation from the final year of each peel. A MASE < 1 results when the mean absolute error is greater using the model than the naïve forecast. For the proposed base model, predictions for 3 of the 4 surveys performed similarly to naïve predictions across all horizons, but MASE scores were much greater than 1 for the northern region recreational CPA index at all horizons (Figure \ref{fig:mase-by-index}). The large MASE values occur because the index has no trend and low variability over the years used for the calculation whereas the model predictions vary much more (Figure \ref{fig:mase-obs-pred-by-index}).
 
 ### One-step-ahead residuals
 
-We used one-step-ahead (OSA) residuals to evaluate mis-specification of the proposed base model. Pearson residuals do not have the appropriate properties (iid standard normal for a correctly specified model) for composition observations [@trijouletetal23] or for covariate and aggregate index and catch observations when temporal random effects are employed  because of the lack of independence of observations [@thygesenetal17].
+We used one-step-ahead (OSA) residuals to evaluate mis-specification of the proposed base model. Pearson residuals do not have the appropriate properties (independent standard normal for a correctly specified model) for composition observations [@trijouletetal23] or for covariate and aggregate index and catch observations when temporal random effects are employed  because of the lack of independence of observations [@thygesenetal17].
 
-There is no evidence of mis-specificaiton from the OSA residuals for aggregate catch of the northern commercial fleet (Figure \ref{fig:osa-North-comm-catch-summ}). There was some indication of trends in residuals  of some of the age composition observations early in the time series and for the the first age class (Figures \ref{fig:osa-North-comm-paa-summ} and \ref{fig:osa-North-comm-paa}). 
+There is no evidence of mis-specificaiton from the OSA residuals for aggregate catch of the northern commercial fleet (Figure \ref{fig:osa-North-comm-catch-summ}). There was some indication of trends in residuals of some of the age composition observations early in the time series and for the the first age class (Figures \ref{fig:osa-North-comm-paa-summ} and \ref{fig:osa-North-comm-paa}). 
 
 For the northern recreational fleet, the OSA residuals for the aggregate catch appeared satisfactory (Figure \ref{fig:osa-North-rec-catch-summ}). The OSA residuals for the age composition observations for the northern recreational fleet showed some tendency of underdispersion but were otherwise unnoteworthy (Figures \ref{fig:osa-North-rec-paa-summ} and \ref{fig:osa-North-rec-paa}). 
 
@@ -184,7 +196,7 @@ Neither the OSA residuals for the aggregate catch or the age composition of the 
 
 There was a little evidence of tendency toward negative OSA residuals for the Northern VAST index whereas there was some indication of positive residuals for the age composition observations, particularly at age 1 (Figures \ref{fig:osa-North-vast-catch-summ} to \ref{fig:osa-North-vast-paa})
 
-THe OSA residuals for the aggregate catch of the southern recreational fleet tended to be negative, but the residuals for the age composition observations did not show any evidence of mis-specification (Figures \ref{fig:osa-South-comm-catch-summ} to \ref{fig:osa-South-comm-paa}).
+THe OSA residuals for the aggregate catch of the southern commercial fleet tended to be negative, but the residuals for the age composition observations did not show any evidence of mis-specification (Figures \ref{fig:osa-South-comm-catch-summ} to \ref{fig:osa-South-comm-paa}).
 
 The OSA residuals for the aggregate catch of the southern recreational fleet were under-dispersed and those for the age composition were somewhat underdispersed, but no trends in either types of observations were apparent (Figures \ref{fig:osa-South-rec-catch-summ} to \ref{fig:osa-South-rec-paa})
 
@@ -194,7 +206,7 @@ The OSA residuals for the aggregate southern VAST index were somewhat over-dispe
 
 ### Retrospective patterns
 
-We also examined retrospective patterns by fitting models where the terminal year is reduced sequentially by one year (peel) for seven years. Therefore, there are 7 fits of the proposed base model with the time series reduced by one to seven years. Multi-WHAM performs these fits when specified and will calculate Mohn's $\rho$ for recruitment, SSB, and fully-selected $F$. Absolute values of Mohn's $\rho$ near 0 imply no pattern in estimation of these quantities as the time-series is sequentially extended. Although there was strong retrospective patterns in the most recent management track assessment for the northern component of the stock, there was no evidence of patterns for northern SSB (Mohn's $\rho$ = -0.054) and $F$ (Mohn's $\rho$ = 0.058) for the proposed base model (Figures \ref{fig:North-retro-ssb} and \ref{fig:North-retro-F}). Similarly, no patterns were exhibited for the southern component of SSB (Mohn's $\rho$ = -0.007) and regional $F$  (Mohn's $\rho$ = -0.045) (Figures \ref{fig:South-retro-ssb} and \ref{fig:South-retro-F}).
+We also examined retrospective patterns by fitting models where the terminal year is reduced sequentially by one year (peel) for seven years. Therefore, there are 7 fits of the proposed base model with the time series reduced by one to seven years. Multi-WHAM performs these fits when specified and will calculate Mohn's $\rho$ for recruitment, SSB, and fully-selected $F$. Absolute values of Mohn's $\rho$ near 0 imply no pattern in estimation of these quantities as the time-series is sequentially extended. Although there was strong retrospective patterns in the most recent management track assessment for the northern component of the stock, there was no evidence of patterns for northern SSB (Mohn's $\rho$ = -0.058) and $F$ (Mohn's $\rho$ = 0.06) for the proposed base model (Figures \ref{fig:North-retro-ssb} and \ref{fig:North-retro-F}). Similarly, no patterns were exhibited for the southern component of SSB (Mohn's $\rho$ = -0.019) and regional $F$  (Mohn's $\rho$ = -0.05) (Figures \ref{fig:South-retro-ssb} and \ref{fig:South-retro-F}).
 
 
 # Proposed base model results
@@ -209,11 +221,11 @@ We found the best model of bottom temperature covariate effects included the eff
 
 The estimates of SSB, fully-selected fishing mortality, and recruitment were very similar for Runs 30, 33, and the incorrectly and correctly optimized fits for Run34 (Figures \ref{fig:SSB-compare} to \ref{fig:R-compare}). 
 
-Allowing the scalar for the standard error of the log-transformed Rec CPA indices to be estimated in the proposed base model results in a slight increase in uncertainty of spawning stock biomass estimates (Figure \ref{fig:relative-se-ssb-R}).
+Allowing the scalar for the standard error of the log-transformed Rec CPA indices to be estimated in the proposed base model results in a slight increase in uncertainty of spawning stock biomass and recruitment estimates (Figure \ref{fig:relative-se-ssb-R}).
 
 ## Parameter estimates
 
-The estimated fixed effects parameters other than those for annual fully-selected fishing mortality are provided in Table \ref{tab:par-table}. The parameters defining autocorrelation across years for the numbers at age deviations are positive for both regional stock components, but do not indicate particularly strong correlation which manifests in rapid return to 0 in projection years (Figure \ref{fig:NAA-devs}). The estimated correlation across age for both stock components suggest an independence assumption may be more parsimonious (confidence intervals include 0).
+The estimated fixed effects parameters other than those for annual fully-selected fishing mortality are provided in Table \ref{tab:par-table}. The parameters defining autocorrelation across years for the numbers at age deviations are positive for both regional stock components, but do not indicate particularly strong correlation (Figure \ref{fig:NAA-devs}). The estimated correlation across age for both stock components suggest an independence assumption may be more parsimonious (confidence intervals include 0).
 
 The posterior estimate of the movement rate from the north to the south for the northern component is much lower than the mean of the prior distribution estimated from the Stock Synthesis application (Figure \ref{fig:move-prior-posterior}).
 
@@ -227,9 +239,9 @@ The estimates of SSB for the northern component in recent years are the highest 
 
 Multi-WHAM generally has the same various options for calculating biological reference points as the current WHAM package. It will provide annual estimates of SPR-based reference points that use the annual inputs to the per-recruit calculations for F at a specified percentage of unfished spawning biomass per recruit.  For black sea bass annual estimates of $F_{40}$ and SSB at $F_{40}$ are are provided as well as the status of annual F and SSB estimates relative to these reference points (Figures \ref{fig:annual-BRPs} and \ref{fig:annual-status}). See @miller_bsb_wham_wp for details on calculation of global $F_{40}$ with multiple stocks and regions.
 
-For management, the current assessment uses the average by age of the most recent 5 years for maturity, SSB weight, catch weight, fleet selectivity, and natural mortality to calculate $F_{40}$ and average of annual recruitment for years after 1999 for SSB at $F_{40}$. We use these same configurations for the proposed base model. The average of recruitments since 1999 for each stock component are used to weight the stock-specific equilibrium spawning biomass per recruit to determine unfished spawning biomass per recruit and the value at 40% of the unfished value. Total estimated fully selected fishing mortality achieving 40\% of unfished spawning biomass per recruit was $\widehat F_{40}= 1.06$ and values for the north and south were 0.73 and 0.33, respectively. The percentages of unfished spawning biomass per recruit for the northern and southern components were 38\% and 42\%, respectively. The estimated total equilibrium SSB at $F_{40}$ was 13,715 mt and for the northern and southern components estimates were 6566 and 7150 mt, respectively.
+For management, the current assessment uses the average by age of the most recent 5 years for maturity, SSB weight, catch weight, fleet selectivity, and natural mortality to calculate $F_{40}$ and average of annual recruitment for years after 1999 for SSB at $F_{40}$. We use these same configurations for the proposed base model. The average of recruitments since 1999 for each stock component are used to weight the stock-specific equilibrium spawning biomass per recruit to determine unfished spawning biomass per recruit and the value at 40% of the unfished value. Total estimated fully selected fishing mortality achieving 40\% of unfished spawning biomass per recruit was $\widehat F_{40}= 1.03$ and values for the north and south were 0.71 and 0.32, respectively. The percentages of unfished spawning biomass per recruit for the northern and southern components were 39\% and 41\%, respectively. The estimated total equilibrium SSB at $F_{40}$ was 12,491 mt and for the northern and southern components estimates were 6474 and 6017 mt, respectively.
 
-Viewing the bivariate estimate of stock and harvest status as a posterior distribution, the current status is 0.59 probability of $F>F_{40}$ and SSB $>$0.5\times SSB$(F_{40})$ and 0.41 probability of $F<F_{40}$ and SSB$>0.5\times$ SSB$(F_{40})$, with negligible probability of SSB$<0.5\times$ SSB$(F_{40})$  (Figure \ref{fig:kobe-status}).
+Viewing the bivariate estimate of stock and harvest status as a posterior distribution, the current status is 0.71 probability of $F>F_{40}$ and SSB $>$0.5\times SSB$(F_{40})$ and 0.29 probability of $F<F_{40}$ and SSB$>0.5\times$ SSB$(F_{40})$, with negligible probability of SSB$<0.5\times$ SSB$(F_{40})$  (Figure \ref{fig:kobe-status}).
 
 # Projections
 
@@ -253,8 +265,8 @@ null_mod <- readRDS(here::here("2023.RT.Runs","Run33","fit_no_effect.RDS"))
 sat_mod <- readRDS(here::here("2023.RT.Runs","Run33","fit_both_effects.RDS"))
 Run30 <- readRDS(here::here("2023.RT.Runs","Run30","fit.RDS"))
 Run33 <- readRDS(here::here("2023.RT.Runs","Run33","fit.RDS"))
-Run34_bad <- readRDS(here::here("2023.RT.Runs","Run34","fit.RDS"))
-Run34 <- readRDS(here::here("2023.RT.Runs","Run34","fit_best.RDS"))
+#Run34_bad <- readRDS(here::here("2023.RT.Runs","Run34","fit.RDS"))
+Run34 <- readRDS(here::here("2023.RT.Runs","Run34","fit.RDS"))
 dat <- Run34$input$data
 std <- summary(Run34$sdrep, "report")
 ssb40_ind <- which(rownames(std) == "log_SSB_FXSPR_static")
@@ -278,29 +290,15 @@ knitr::include_graphics(here::here("docs","plots","migration_diagram_1.jpg"))
 
 <!-- Jitter -->
 
-```{r jitter-res-1, echo = FALSE, fig.dim =c(7,9), fig.align="center", fig.cap = "Marginal negative log-likelihood and maximum absolute value of gradients for each of 16 jitter iterations."}
-jit_res <- readRDS(here::here("2023.RT.Runs",'Run34', "jit_res_1.RDS"))
-par(mfrow = c(2,1), oma = c(5,1,1,1), mar = c(1,5,1,1))
-plot(sapply(jit_res, function(x) x$obj), xlab = "", ylab = "", xaxt = 'n')
-axis(1, labels = F)
-grid(col = gray(0.7))
-mtext(side = 2, "Marginal NLL", line = 2)
-plot(sapply(jit_res, function(x) max(abs(x$grad))), xlab = "", ylab = "")
-grid(col = gray(0.7))
-mtext(side = 1, "Iteration", outer = TRUE, line = 2)
-mtext(side = 2, "Maximum absolute\ngradient", line = 2)
-```
-\clearpage
-
-
-```{r jitter-res-2, echo = FALSE, fig.dim =c(7,9), fig.align="center", fig.cap = "Marginal negative log-likelihood and maximum absolute value of gradients for each of 100 jitter iterations from revised Run 34 fit. Red rug lines indicate fits that failed to complete."}
-jitsim_files <- grep("jitter_sim", dir(here::here("2023.RT.Runs","Run34","best_sims"), full.names = T), value = T)
+```{r jitter-res-1, echo = FALSE, fig.dim =c(7,9), fig.align="center", fig.cap = "Marginal negative log-likelihood and maximum absolute value of gradients for each of 100 jitter iterations from Run 34 fit. Red rug lines indicate fits that failed to complete."}
+jitsim_files <- grep("jitter_sim", dir(here::here("2023.RT.Runs","Run34"), full.names = T), value = T)
 jit_res <- lapply(jitsim_files, readRDS)
 par(mfrow = c(2,1), oma = c(5,1,1,1), mar = c(1,5,1,1))
-x <- sapply(jit_res, function(x) x$obj)
-x <- exp(log(-x))
-plot(x, xlab = "", ylab = "", log = "y", xaxt = 'n', yaxt = "n", ylim = c(max(x,na.rm=T),min(x,na.rm=T)))
-axis(2, at = pretty(x), labels = -pretty(x))
+x <- round(sapply(jit_res, function(x) x$obj),5)
+#x <- round(exp(log(-x)),5)
+#plot(x, xlab = "", ylab = "", log = "y", xaxt = 'n', yaxt = "n", ylim = c(max(x,na.rm=T),min(x,na.rm=T)))
+plot(x, xlab = "", ylab = "", xaxt = 'n', yaxt = "n", ylim = c(max(x,na.rm=T)+2,min(x,na.rm=T)-2))
+axis(2)#, at = pretty(x), labels = -pretty(x))
 rug((1:length(x))[which(is.na(x))], lwd = 3, ticksize = 0.05, col= "red")
 axis(1, labels = F)
 grid(col = gray(0.7))
@@ -314,12 +312,14 @@ grid(col = gray(0.7))
 mtext(side = 1, "Iteration", outer = TRUE, line = 2)
 mtext(side = 2, "Maximum absolute\ngradient", line = 2)
 ```
+
 <!-- Self-Tests -->
 
-```{r self-test-res-2, echo = FALSE, fig.dim =c(7,9), fig.align="center", fig.cap = "Relative bias of SSB estimates from conditional self test simulations."}
-condsim_files <- grep("cond_sim", dir(here::here("2023.RT.Runs","Run34","best_sims"), full.names = T), value = T)
+```{r self-test-res-1, echo = FALSE, fig.dim =c(7,9), fig.align="center", fig.cap = "Relative bias of SSB estimates from conditional self test simulations. Gray polygons represent 95\\% confidence intervals."}
+condsim_files <- grep("cond_sim", dir(here::here("2023.RT.Runs","Run34"), full.names = T), value = T)
 sim_res <- lapply(condsim_files, readRDS)
-fit <- readRDS(here::here("2023.RT.Runs","Run34","fit_best.RDS"))
+#fit <- readRDS(here::here("2023.RT.Runs","Run34","fit_best.RDS"))
+fit <- Run34
 
 par(mfrow = c(2,1), mar = c(1,1,3,1), oma = c(4,4,1,1))
 titles <- c("North","South")
@@ -346,10 +346,12 @@ mtext(side = 2, "Relative bias (SSB)", line= 2, outer = T)
 mtext(side = 1, "Year", line = 2, outer = T)
 ```
 
+<!--
 ```{r self-test-res-3, echo = FALSE, fig.dim =c(7,9), fig.align="center", fig.cap = "Relative bias of SSB estimates from conditional self test simulations with Rec CPA uncertainty scalar fixed at estimated values."}
-condsim_files <- grep("cond_sim", dir(here::here("2023.RT.Runs","Run34","best_sims_alt"), full.names = T), value = T)
+condsim_files <- grep("cond_sim", dir(here::here("2023.RT.Runs","Run34"), full.names = T), value = T)
 sim_res <- lapply(condsim_files, readRDS)
-fit <- readRDS(here::here("2023.RT.Runs","Run34","fit_best.RDS"))
+#fit <- readRDS(here::here("2023.RT.Runs","Run34","fit_best.RDS"))
+fit <- Run34
 
 par(mfrow = c(2,1), mar = c(1,1,3,1), oma = c(4,4,1,1))
 titles <- c("North","South")
@@ -375,6 +377,7 @@ for(i in 1:2){
 mtext(side = 2, "Relative bias (SSB)", line= 2, outer = T)
 mtext(side = 1, "Year", line = 2, outer = T)
 ```
+-->
 <!-- MASE -->
 
 ```{r mase-by-index, echo = FALSE, out.width="100%", fig.align="center", fig.cap = "MASE statistics for each index at alternative prediction horizons."}
@@ -537,8 +540,9 @@ polygon(c(Ecov, rev(Ecov)), exp(c(ci[,1],rev(ci[,2]))), col=adjustcolor("black",
 knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","NAA_dev_tile.png"))
 ```
 
-```{r SSB-compare, echo = FALSE, fig.dim =c(7,9), fig.align="center", fig.cap = "Spawning stock biomass estimates from Runs 30, 33 and 34 (including the incorrect optimization). Polygons represent 95\\% confidence intervals."}
-rns <- c("Run30","Run33","Run34_bad","Run34")
+```{r SSB-compare, echo = FALSE, fig.dim =c(7,9), fig.align="center", fig.cap = "Spawning stock biomass estimates from Runs 30, 33 and 34. Polygons represent 95\\% confidence intervals."}
+#rns <- c("Run30","Run33","Run34_bad","Run34")
+rns <- c("Run30","Run33","Run34")
 res <- list()
 for(i in 1:length(rns)){
   res[[i]] <- list(Est = TMB:::as.list.sdreport(get(rns[i])$sdrep, report = TRUE, what = "Est")$log_SSB)
@@ -568,8 +572,9 @@ mtext(side = 1, "Year", outer = T, line = 2)
 
 ```
 
-```{r F-compare, echo = FALSE, fig.dim =c(7,9), fig.align="center", fig.cap = "Fully-selected fishing mortality estimates from Runs 30, 33 and 34 (including the incorrect optimization). Polygons represent 95\\% confidence intervals."}
-rns <- c("Run30","Run33","Run34_bad","Run34")
+```{r F-compare, echo = FALSE, fig.dim =c(7,9), fig.align="center", fig.cap = "Fully-selected fishing mortality estimates from Runs 30, 33 and 34. Polygons represent 95\\% confidence intervals."}
+#rns <- c("Run30","Run33","Run34_bad","Run34")
+rns <- c("Run30","Run33","Run34")
 res <- list()
 for(i in 1:length(rns)){
   res[[i]] <- list(Est = TMB:::as.list.sdreport(get(rns[i])$sdrep, report = TRUE, what = "Est")$log_FAA_by_region)
@@ -602,8 +607,9 @@ mtext(side = 1, "Year", outer = T, line = 2)
 ```
 
 
-```{r R-compare, echo = FALSE, fig.dim =c(7,9), fig.align="center", fig.cap = "Recruitment estimates from Runs 30, 33 and 34 (including the incorrect optimization). Polygons represent 95\\% confidence intervals."}
-rns <- c("Run30","Run33","Run34_bad","Run34")
+```{r R-compare, echo = FALSE, fig.dim =c(7,9), fig.align="center", fig.cap = "Recruitment estimates from Runs 30, 33 and 34. Polygons represent 95\\% confidence intervals."}
+#rns <- c("Run30","Run33","Run34_bad","Run34")
+rns <- c("Run30","Run33","Run34")
 res <- list()
 for(i in 1:length(rns)){
   res[[i]] <- list(Est = TMB:::as.list.sdreport(get(rns[i])$sdrep, report = TRUE, what = "Est")$log_NAA_rep)

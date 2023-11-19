@@ -143,40 +143,18 @@ mohns_rho(fit)
 saveRDS(fit, here("2023.RT.Runs",this_run, "fit.RDS"))
 setwd(here("2023.RT.Runs",this_run))
 plot_wham_output(fit)
-x <- TMB:::as.list.sdreport(fit, report=TRUE, what = "Std")$log_SSB
+# x <- TMB:::as.list.sdreport(fit, report=TRUE, what = "Std")$log_SSB
 
-x <- readRDS(here("2023.RT.Runs",this_run, "fit.RDS"))
-source(here("2023.RT.Runs", "kobe.plot.R"))
-kobe.plot(x, status.years=NULL, static = FALSE, single.plot = TRUE)
-
+# x <- readRDS(here("2023.RT.Runs",this_run, "fit.RDS"))
+# source(here("2023.RT.Runs", "kobe.plot.R"))
+# kobe.plot(x, status.years=NULL, static = FALSE, single.plot = TRUE)
+fit <- readRDS(here("2023.RT.Runs",this_run, "fit.RDS"))
 fit_proj <- project_wham(fit, proj.opts = list(proj_F_opt = c(5,3,3), proj_Fcatch = c(10000,10000,10000)), check.version = F)
-#setwd(here("2023.RT.Runs",this_run, "projection"))
+dir.create(here("2023.RT.Runs",this_run, "projections"))
+setwd(here("2023.RT.Runs",this_run, "projections"))
 saveRDS(fit_proj, here("2023.RT.Runs",this_run, "fit_proj.RDS"))
 plot_wham_output(fit_proj)
-wham:::plot.FXSPR.annual(fit_proj)
-
-#conditional sims in container on server
-source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
-fit_file <-here("2023.RT.Runs",this_run,"fit.RDS")
-res_dir <- here("2023.RT.Runs",this_run)
-wham.lab.loc <- "~/tmiller_net/work/wham_packages/multi_wham"
-set.seed(8675309)
-seeds <- sample(1e-9:1e9, 100)
-sim_res_all <- cond_sim_fn(fit_file=fit_file, seeds = seeds[1:20], res_dir = res_dir, 
-  wham.lab.loc = wham.lab.loc, n.cores = 16)
-saveRDS(sim_res_all, here::here("2023.RT.Runs",this_run,"self_test_res.RDS"))
-sim_res_all <- c(sim_res_all, 
-   cond_sim_fn(fit_file=fit_file, seeds = seeds[21:100], res_dir = res_dir, 
-   wham.lab.loc = wham.lab.loc, n.cores = 16))
-saveRDS(sim_res_all, here::here("2023.RT.Runs",this_run,"self_test_res.RDS"))
-
-
-sim_res_1 <- readRDS(here::here("2023.RT.Runs",this_run,"self_test_res.RDS"))
-sim_res_2 <- lapply(file.path(res_dir, paste0("cond_sim_",1:80, ".RDS")), function(x) try(readRDS(x)))
-names(sim_res_2[[1]])
-sim_res <- c(sim_res_1, sim_res_2)
-sim_res <- sim_res[!sapply(sim_res, is.character)]
-sim_res <- sim_res[!sapply(sim_res, function(x) is.na(x$obj))]
+# wham:::plot.FXSPR.annual(fit_proj)
 
 source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
 fit_file <-here("2023.RT.Runs",this_run,"fit.RDS")
@@ -188,44 +166,73 @@ init_vals <- mvtnorm::rmvnorm(100,mean = fit$opt$par, sigma = fit$sdrep$cov.fixe
 
 jit_res_1 <- jitter_fn(which_rows = 1:16, init_vals = init_vals, n.cores  = 16, fit_file = fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc)
 saveRDS(jit_res_1,here("2023.RT.Runs",this_run, "jit_res_1.RDS"))
-# jit_res_2 <- jitter_fn(which_rows = 17:100, init_vals = init_vals, n.cores  = 16, fit_file = fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc)
-# saveRDS(jit_res_2,here("2023.RT.Runs",this_run, "jit_res_2.RDS"))
-jit_res <- readRDS(here("2023.RT.Runs",this_run, "jit_res_1.RDS"))
+jit_res_2 <- jitter_fn(which_rows = 17:100, init_vals = init_vals, n.cores  = 16, fit_file = fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc)
+saveRDS(jit_res_2,here("2023.RT.Runs",this_run, "jit_res_2.RDS"))
+jit_res <- c(jit_res_1,jit_res_2)
+#jit_res <- readRDS(here("2023.RT.Runs",this_run, "jit_res_1.RDS"))
 
-z <- sapply(c(2,5,7), function(x) jit_res[[x]]$par)
-z <- t(apply(z,1,diff))
-range(z) #no difference in par values
+# z <- sapply(c(2,5,7), function(x) jit_res[[x]]$par)
+# z <- t(apply(z,1,diff))
+# range(z) #no difference in par values
 
-#NA for 15
-z <- sapply((1:16)[-c(2,5,7,15)], function(x) jit_res[[x]]$par)
-z <- t(apply(z,1,diff))
-range(z) #no difference in par values here either
+# #NA for 15
+# z <- sapply((1:16)[-c(2,5,7,15)], function(x) jit_res[[x]]$par)
+# z <- t(apply(z,1,diff))
+# range(z) #no difference in par values here either
 
-fit$fn(jit_res[[2]]$par)
-input <- fit$input
-input$par <- fit$env$parList()
-fit_best <- fit_wham(input, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
-mohns_rho(fit_best)
-saveRDS(fit_best, here("2023.RT.Runs",this_run, "fit_best.RDS"))
-setwd(here("2023.RT.Runs",this_run))
-plot_wham_output(fit_best)
+# fit$fn(jit_res[[2]]$par)
+# input <- fit$input
+# input$par <- fit$env$parList()
+# fit_best <- fit_wham(input, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
+# mohns_rho(fit_best)
+# saveRDS(fit_best, here("2023.RT.Runs",this_run, "fit_best.RDS"))
+# setwd(here("2023.RT.Runs",this_run))
+# plot_wham_output(fit_best)
+
+# fit_best_proj <- project_wham(fit_best, proj.opts = list(proj_F_opt = c(5,3,3), proj_Fcatch = c(10000,10000,10000)), check.version = F)
+# #setwd(here("2023.RT.Runs",this_run, "projection"))
+# saveRDS(fit_best_proj, here("2023.RT.Runs",this_run, "fit_best_proj.RDS"))
+# setwd(here("2023.RT.Runs",this_run, "projections"))
+# plot_wham_output(fit_best_proj)
+
+
+#conditional sims in container on server
+source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
+fit_file <-here("2023.RT.Runs",this_run,"fit.RDS")
+res_dir <- here("2023.RT.Runs",this_run)
+wham.lab.loc <- "~/tmiller_net/work/wham_packages/multi_wham"
+set.seed(8675309)
+seeds <- sample(0:1e9, 100)
+sim_res_all <- cond_sim_fn(which_seeds = 1:20, seeds = seeds, fit_file=fit_file, res_dir = res_dir, 
+  wham.lab.loc = wham.lab.loc, n.cores = 16)
+saveRDS(sim_res_all, here::here("2023.RT.Runs",this_run,"self_test_res.RDS"))
+sim_res_all <- cond_sim_fn(which_seeds = 21:100, seeds = seeds, fit_file=fit_file, res_dir = res_dir, 
+   wham.lab.loc = wham.lab.loc, n.cores = 16)
+sim_res_all <- c(sim_res_all, 
+   cond_sim_fn(which_seeds = 21:100, seeds = seeds, fit_file=fit_file, res_dir = res_dir, 
+   wham.lab.loc = wham.lab.loc, n.cores = 16))
+saveRDS(sim_res_all, here::here("2023.RT.Runs",this_run,"self_test_res.RDS"))
+
+
+sim_res_1 <- readRDS(here::here("2023.RT.Runs",this_run,"self_test_res.RDS"))
+sim_res_2 <- lapply(file.path(res_dir, paste0("cond_sim_",1:80, ".RDS")), function(x) try(readRDS(x)))
+names(sim_res_2[[1]])
+sim_res <- c(sim_res_1, sim_res_2)
+sim_res <- sim_res[!sapply(sim_res, is.character)]
+sim_res <- sim_res[!sapply(sim_res, function(x) is.na(x$obj))]
+
+
 # dir.create(here("2023.RT.Runs",this_run, "test"))
 # setwd(here("2023.RT.Runs",this_run, "test"))
 # plot_wham_output(fit_best)
 
-
-fit_best_proj <- project_wham(fit_best, proj.opts = list(proj_F_opt = c(5,3,3), proj_Fcatch = c(10000,10000,10000)), check.version = F)
-#setwd(here("2023.RT.Runs",this_run, "projection"))
-saveRDS(fit_best_proj, here("2023.RT.Runs",this_run, "fit_best_proj.RDS"))
-setwd(here("2023.RT.Runs",this_run, "projections"))
-plot_wham_output(fit_best_proj)
 
 source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
 fit_file <-here("2023.RT.Runs",this_run,"fit_best.RDS")
 res_dir <- here("2023.RT.Runs",this_run, "best_sims")
 wham.lab.loc <- "~/tmiller_net/work/wham_packages/multi_wham"
 set.seed(8675309)
-seeds <- sample(1e-9:1e9, 100)
+seeds <- sample(0:1e9, 100)
 sim_res_1 <- cond_sim_fn(which_seeds = 1:20, seeds = seeds, fit_file=fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc, n.cores = 16)
 saveRDS(sim_res_1, here::here("2023.RT.Runs",this_run,"best_sims", "self_test_1.RDS"))
 sim_res_2 <- cond_sim_fn(which_seeds = 21:100, seeds = seeds, fit_file=fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc, n.cores = 16)
@@ -243,33 +250,33 @@ index_paa_pars <- t(sapply(sim_res, function(x) x$par[names(x$par) %in% c("index
 rbind(fit_best$opt$par[names(fit_best$opt$par) == "index_paa_pars"],
 	apply(index_paa_pars,2, mean, na.rm = T))
 
-set.seed(8675309)
-fit_file <-here("2023.RT.Runs",this_run,"fit_best.RDS")
-fit <- readRDS(fit_file)
-init_vals <- mvtnorm::rmvnorm(100,mean = fit$opt$par, sigma = fit$sdrep$cov.fixed)
-res_dir <- here("2023.RT.Runs",this_run, "best_sims")
-jit_res_1 <- jitter_fn(which_rows = 1:16, init_vals = init_vals, n.cores  = 16, fit_file = fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc)
-saveRDS(jit_res_1,here("2023.RT.Runs",this_run, "jit_res_1.RDS"))
-jit_res_2 <- jitter_fn(which_rows = 17:100, init_vals = init_vals, n.cores  = 16, fit_file = fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc)
-# saveRDS(jit_res_2,here("2023.RT.Runs",this_run, "jit_res_2.RDS"))
-jit_res <- readRDS(here("2023.RT.Runs",this_run, "jit_res_1.RDS"))
+# set.seed(8675309)
+# fit_file <-here("2023.RT.Runs",this_run,"fit_best.RDS")
+# fit <- readRDS(fit_file)
+# init_vals <- mvtnorm::rmvnorm(100,mean = fit$opt$par, sigma = fit$sdrep$cov.fixed)
+# res_dir <- here("2023.RT.Runs",this_run, "best_sims")
+# jit_res_1 <- jitter_fn(which_rows = 1:16, init_vals = init_vals, n.cores  = 16, fit_file = fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc)
+# saveRDS(jit_res_1,here("2023.RT.Runs",this_run, "jit_res_1.RDS"))
+# jit_res_2 <- jitter_fn(which_rows = 17:100, init_vals = init_vals, n.cores  = 16, fit_file = fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc)
+#  saveRDS(jit_res_2,here("2023.RT.Runs",this_run, "jit_res_2.RDS"))
+# jit_res <- readRDS(here("2023.RT.Runs",this_run, "jit_res_1.RDS"))
 
-jitsim_files <- grep("jitter_sim", dir(here::here("2023.RT.Runs",this_run,"best_sims"), full.names = T), value = T)
-jit_res <- lapply(jitsim_files, readRDS)
-sapply(jit_res, function(x) x$obj)
+# jitsim_files <- grep("jitter_sim", dir(here::here("2023.RT.Runs",this_run,"best_sims"), full.names = T), value = T)
+# jit_res <- lapply(jitsim_files, readRDS)
+# sapply(jit_res, function(x) x$obj)
 
 source(here::here("2023.RT.Runs","jitter_sim_functions.R"))
 fit_file <-here("2023.RT.Runs",this_run,"fit_best.RDS")
-res_dir <- here("2023.RT.Runs",this_run, "best_sims_alt")
+res_dir <- here("2023.RT.Runs",this_run, "sims_alt")
 dir.create(res_dir)
 wham.lab.loc <- "~/tmiller_net/work/wham_packages/multi_wham"
 set.seed(8675309)
-seeds <- sample(1e-9:1e9, 100)
+seeds <- sample(0:1e9, 100)
 #don't estimate RecCPA CV scalars
 temp <- list(log_index_sig_scale = factor(rep(NA, length(fit$input$par$log_index_sig_scale))))
 sim_res_alt <- cond_sim_fn(which_seeds = 1:100, seeds = seeds, fit_file=fit_file, res_dir = res_dir, wham.lab.loc = wham.lab.loc, n.cores = 16, map_change = temp)
-saveRDS(sim_res_alt, here::here("2023.RT.Runs",this_run,"best_sims_alt", "self_test_all.RDS"))
-condsim_files <- grep("cond_sim", dir(here::here("2023.RT.Runs",this_run,"best_sims_alt"), full.names = T), value = T)
+saveRDS(sim_res_alt, here::here("2023.RT.Runs",this_run,"sims_alt", "self_test_all.RDS"))
+condsim_files <- grep("cond_sim", dir(here::here("2023.RT.Runs",this_run,"sims_alt"), full.names = T), value = T)
 sim_res <- lapply(condsim_files, readRDS)
 
 #MASE
@@ -280,14 +287,14 @@ library(tidyr) # gather()
 library(ggplot2)
 source(here::here("2023.RT.Runs", "calc_hindcast_mase.R"))
 source(here::here("2023.RT.Runs", "fit_hindcast.R"))
-fit <- readRDS(here("2023.RT.Runs",this_run,"fit_best.RDS"))
+fit <- readRDS(here("2023.RT.Runs",this_run,"fit.RDS"))
 drop <- list(indices=1:fit$input$data$n_indices, # Drop all indices when making predictions
   index_paa=1:fit$input$data$n_indices)
 temp <- fit_hindcast(fit, 1, drop, FALSE)
 
 fit_hindcasts <- make_mase_hindcasts(fit, peel.max = 7, # Number of peels
   drop=list(indices=1:fit$input$data$n_indices, # Drop all indices when making predictions
-  index_paa=1:fit$input$data$n_indices))
+  index_paa=1:fit$input$data$n_indices), wham.lab.loc = "c:/work/wham/old_packages/multi_wham")
 saveRDS(fit_hindcasts, here("2023.RT.Runs",this_run, "fit_hindcasts.RDS"))
 fit_hindcasts <- readRDS(here("2023.RT.Runs",this_run, "fit_hindcasts.RDS"))
 source(here::here("2023.RT.Runs", "calc_hindcast_mase.R"))
@@ -322,14 +329,12 @@ library(TMB)
 pkgbuild::compile_dll("c:/work/wham/wham", debug = FALSE)
 pkgload::load_all("c:/work/wham/wham")
 this_run <- "Run34"
-mod <- readRDS("c:/work/BSB.2023.RT.Modeling/2023.RT.Runs/Run34/fit_best.RDS")
+mod <- readRDS("c:/work/BSB.2023.RT.Modeling/2023.RT.Runs/Run34/fit.RDS")
 #mod <- fit_best
 temp <- mod$input
 temp$par <- mod$parList
 test <- fit_wham(temp, do.fit = F)
 test <- wham:::do_sdrep(test, save.sdrep = TRUE)
-fit_best$sdrep <- test$sdrep
-fit_best$rep <- test$rep
 
 mean(mod$rep$pred_NAA[1,1,which(mod$years>1999),1])
 std <- summary(mod$sdrep, "report")
@@ -353,55 +358,9 @@ sum(R_static_2000_mean[1:2] * exp(mod$rep$log_YPR_FXSPR_static[2,4:5]))
 exp(mod$rep$log_Y_FXSPR_static)
 
 
-plot.SARC.R.SSB <- function(mod, scale.ssb=1, scale.recruits=1, age.recruit = 1, ssb.units = 'mt', recruits.units = expression(10^3), stock = NULL)
-{
-  origpar <- par(no.readonly = TRUE)
-  par(mar = c(5,5,3,5), oma = c(0,0,0,1), family='serif')
-  years = mod$years
-  years_full = mod$years_full
-  nyrs <- length(years_full)
-  dat <- mod$input$data
-  if(is.null(stock) & dat$n_stocks> 1) {
-  	ssb <- apply(mod$rep$SSB,1, sum)
-  	R <- mod$rep$NAA[1,dat$spawn_regions[1],,1]
-  	for(i in 2:dat$n_stocks) R <- R + mod$rep$NAA[i,dat$spawn_regions[i],,1]
-  } else {
-  	ssb <- mod$rep$SSB[,stock]
-		R <- mod$rep$NAA[stock, dat$spawn_regions[stock],,1]
-	}
-	ssb.plot <- ssb[1:(nyrs-age.recruit)]/scale.ssb
-	recr.plot <- R[age.recruit + 1:(nyrs-age.recruit)]/scale.recruits
-	yr.text <- substr(years_full,3,4)
-  plot.colors <- viridisLite::viridis(n=2)
-	max.r <- max(recr.plot)
-	max.ssb <- max(ssb.plot)
-	scale.r <- max(ssb.plot)/max(recr.plot)
-	ylimr <- c(0,1.1*max(recr.plot))
-	barplot(recr.plot/scale.recruits, axisnames=FALSE, width=1, space=rep(0,nyrs-age.recruit), offset=rep(-0.5,nyrs-age.recruit), axes=FALSE, xpd=FALSE,
-		xlab = '', ylab ='', ylim = ylimr, xlim=c(0.5,nyrs-age.recruit - 0.5), col=plot.colors[1])
-	xr <-pretty(c(0,recr.plot/scale.recruits))
-	axis(2, at = xr, lab = xr )
-	axis(side=1, las=2, at=seq(0.5,nyrs-age.recruit-0.5, by=2),
-	labels=as.character(seq(years_full[1],years_full[nyrs-age.recruit], by=2)), cex=0.75, las=2)
 
-	y.ssb <- (ssb.plot)*max.r/max.ssb
-	lines(seq(0.5,nyrs-age.recruit-0.5, by=1), y.ssb, lwd=2, col = plot.colors[2])
-	x <- pretty(c(0,ssb.plot))
-	axis(4, at = c(0,x*max.r/max.ssb), lab = c(0,x))#, col=plot.colors[2], col.axis=plot.colors[2])
-	box()
-	mtext(side = 1, 'Year', line = 3)
-	mtext(side = 4, as.expression(substitute(paste("SSB (", ssb.units, ")", sep = ""), list(ssb.units = ssb.units[[1]]))), line = 3)#, col=plot.colors[2])
-	mtext(side = 2, as.expression(substitute(paste("Age-", age.recruit, " Recruits (", units, ")", sep = ''),
-		list(age.recruit = age.recruit[[1]], units = recruits.units[[1]]))), line = 3)
-  if(length(years_full) > length(years)) abline(v=length(years)-age.recruit, lty=2, lwd=2)
-  legend("topleft", fill = plot.colors, border = plot.colors, legend = c("Recruits", "SSB"))
-  if(is.null(stock) & dat$n_stocks>1) title("Total SSB and Recruitment", line = 1)
-  else title(paste0(mod$input$stock_names[stock], " in ", mod$input$region_names[dat$spawn_regions[stock]]), line = 1)
-	par(origpar)
-}  # end function
-
-mod <- readRDS("c:/work/BSB.2023.RT.Modeling/2023.RT.Runs/Run34/fit_best.RDS")
-mod <- readRDS("c:/work/BSB.2023.RT.Modeling/2023.RT.Runs/Run34/fit_best_proj.RDS")
-png(here::here("docs", "plots", "SSB_Rec_time_total.png"),width=10,height=10,units="in",res=72,family="")
-plot.SARC.R.SSB(mod)
-dev.off()
+# mod <- readRDS("c:/work/BSB.2023.RT.Modeling/2023.RT.Runs/Run34/fit_best.RDS")
+# mod <- readRDS("c:/work/BSB.2023.RT.Modeling/2023.RT.Runs/Run34/fit_best_proj.RDS")
+# png(here::here("docs", "plots", "SSB_Rec_time_total.png"),width=10,height=10,units="in",res=72,family="")
+# wham:::plot.SARC.R.SSB(mod)
+# dev.off()

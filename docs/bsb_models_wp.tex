@@ -126,7 +126,7 @@
 
 \title{Application of the Woods Hole Assessment Model to Black Sea Bass}
 \author{Timothy J. Miller\(^{1,*}\) \and Kiersten Curti\(^1\) \and Alex Hansell\(^1\)}
-\date{14 November, 2023}
+\date{19 November, 2023}
 
 \begin{document}
 \maketitle
@@ -172,6 +172,8 @@ We then found that the age composition for fall FAST and NEAMAP indices were inc
 From Run 19-27 we still had issues reducing patterns in OSA residuals and sometimes large patterns in retrospective patterns for the northern component. We then decided to iterate among alternative assumptions about selectivity and age composition models with the northern and southern components separately to resolve diagnostic problems more efficiently. These analyses resulted in different age composition model assumptions for different fleets and indices and the use of selectivity random effects for the northern fleets and indices (Table \ref{tab:age-comp-sel-table}).
 
 Runs 28-34 largely used these same assumptions. These last runs used more realistic assumptions about movement and more appropriate usage of the estimates from the stock synthesis runs (Fay et al., 2023). Run 31 assumed temporal random effects on the movement rate from the north to the south and Run 32 assumed a Beverton-Holt stock recruit relationships for both the north and south components, but convergence was problematic for both of these models. Run 33 investigated bottom temperature effects on recruitment and we found evidence of an effect on northern recruitment. Run 34 then relaxed an assumption common to many earlier runs about the estimated uncertainty in the Recreational CPA indices and allowed a scalar to be estimated in the model. Further details of model configuration of Runs 28-34 are described below.
+
+After these runs we discovered a coding error in constructing initial numbers at age under an equilibrium assumption. When fitting the corrected model, we saw small changes in results Run 34. For example, absolute differences in annual SSB estimates were less than 7\%. We refit Runs 30, 33, and 34 with the corrected model and none of the choices among these models would have changed.
 
 \hypertarget{seasonality-and-movement}{%
 \subsection{Seasonality and movement}\label{seasonality-and-movement}}
@@ -264,24 +266,22 @@ We assume the covariate in year \(y\) affects recruitment in the same years beca
 \hypertarget{jitter-analysis}{%
 \subsubsection{Jitter analysis}\label{jitter-analysis}}
 
-For this analysis we simulated fixed effects parameter vectors from a normal distribution with mean equal to the optimized values and covariance equal to the hessian-based covariance matrix. From refitting the model starting at 16 different simulated parameter vectors, we found 3 cases with a lower (\textasciitilde2 units) marginal negative log likelihood (Figure \ref{fig:jitter-res-1}). The gradients at these optimized values were satisfactory and there was no difference in parameter value among the 3 lower optimizations. In 1 of the 16 iterations, the model did not optimized satisfactorily, and in the other 12 iterations, the optimized marginal negative log-likelihood and parameter estimates were identical to the original fit. The parameters with estimates that differed most between the 2 optimization results were those associated with age composition observation dispersion parameters.
-
-Given the revised model fit with the lower marginal NLL, we used the same jittering method with 100 simulated parameter values as starting values (Figure \ref{fig:jitter-res-2}). Three of the fits failed to complete, but none of the iterations resulted in lower marginal negative log-likelihood than that from the revised model estimates. Three of the fits minimized to greater marginal NLLs, but the gradients indicate lack of convergence. \textbf{The revised model fit is the proposed base model.}
+For this analysis we simulated 100 fixed effects parameter vectors from a normal distribution with mean equal to the optimized values and covariance equal to the hessian-based covariance matrix of the optimzed model. All of the re-fits of the mdoel resulted in the same marginal negative log-likelihood. (Figure \ref{fig:jitter-res-1}). The gradients at these optimized values were all satisfactory with maximum absolute values less the \(10^{-9}\).
 
 \hypertarget{self-tests}{%
 \subsubsection{Self tests}\label{self-tests}}
 
-We performed a simulation self-test where new observations were simulated conditional on all random effects estimated in the proposed base model and the same model configuration was fit to each of the simulated data sets. For only 6 of the 100 simulated data sets, was the maximum absolute gradient for the fitted model was less than \(1\times10^{-6}\). This appeared to be attributable to the estimation of the scalar for the standard errors of the log-transformed Northern Recreational CPA index for which estimates nearly always tended to 0 However, even across all fits including those with poor convergence, the SSB estimates appeared to be reliable (Figure \ref{fig:self-test-res-2}). For comparison we also fit a model that assumed the standard error scalars for both the northern and southern Recreational CPA log-indices were fixed at the true values (estimates from the original data). We observed much better convergence with 87 fits having maximum absolute gradient for the fitted model was less than \(1\times10^{-6}\). Interestingly, estimation from this model implied slightly greater biases in some annual SSB estimates (Figure \ref{fig:self-test-res-3}).
+We performed a simulation self-test where new observations were simulated conditional on all random effects estimated in the proposed base model and the same model configuration was fit to each of the simulated data sets. For 7 of the the simulated data sets the model failed to optimize. The maximum absolute gradient was \(<10^{-6}\) for only 9 and \(<10^{-4}\) for 52 of the 93 successfully fitted models. The poor convergence appeared to be attributable to the estimation of the scalar for the standard errors of the log-transformed northern Recreational CPA index for which estimates tended to 0 for nearly all of the fits (\(<0.01\) for 83 fits). However, even across all fits including those with poor convergence, the SSB estimates appeared to be reliable (Figure \ref{fig:self-test-res-1}).
 
 \hypertarget{mase}{%
 \subsubsection{MASE}\label{mase}}
 
-We performed an analysis of the prediction skill of the proposed base model. We fit 7 configurations of the model where the last 1 to 7 years of aggregate index and age composition observations were removed sequentially (peels). We calculated the MASE statistics as described in Kell et al. (2021). The mean absolute scaled error (MASE) of the predictions at 1 to 5 years beyond the final year of index observations (horizons). The mean absolute errors are scaled by the mean absolute errors of so-called naïve predictions using the aggregate index observation from the final year of each peel. A MASE \textless{} 1 results when the mean absolute error is greater using the model than the naïve forecast. For the proposed base model, predictions for 3 of the 4 surveys performed similarly to naïve predictions across all horizons, but MASE scores were particularly poor for the northern region recreational CPA index (Figure \ref{fig:mase-by-index}). This poor performance occurs because the index has no trend and low variability over the years used for the calculation whereas the model predictions vary much more (Figure \ref{fig:mase-obs-pred-by-index}).
+We performed an analysis of the prediction skill of the proposed base model. We fit 7 configurations of the model where the last 1 to 7 years of aggregate index and age composition observations were removed sequentially (peels). We calculated the MASE statistics as described in Kell et al. (2021). The mean absolute scaled error (MASE) of the predictions at 1 to 5 years beyond the final year of index observations (horizons). The mean absolute errors are scaled by the mean absolute errors of so-called naïve predictions using the aggregate index observation from the final year of each peel. A MASE \textless{} 1 results when the mean absolute error is greater using the model than the naïve forecast. For the proposed base model, predictions for 3 of the 4 surveys performed similarly to naïve predictions across all horizons, but MASE scores were much greater than 1 for the northern region recreational CPA index at all horizons (Figure \ref{fig:mase-by-index}). The large MASE values occur because the index has no trend and low variability over the years used for the calculation whereas the model predictions vary much more (Figure \ref{fig:mase-obs-pred-by-index}).
 
 \hypertarget{one-step-ahead-residuals}{%
 \subsubsection{One-step-ahead residuals}\label{one-step-ahead-residuals}}
 
-We used one-step-ahead (OSA) residuals to evaluate mis-specification of the proposed base model. Pearson residuals do not have the appropriate properties (iid standard normal for a correctly specified model) for composition observations (Trijoulet et al., 2023) or for covariate and aggregate index and catch observations when temporal random effects are employed because of the lack of independence of observations (Thygesen et al., 2017).
+We used one-step-ahead (OSA) residuals to evaluate mis-specification of the proposed base model. Pearson residuals do not have the appropriate properties (independent standard normal for a correctly specified model) for composition observations (Trijoulet et al., 2023) or for covariate and aggregate index and catch observations when temporal random effects are employed because of the lack of independence of observations (Thygesen et al., 2017).
 
 There is no evidence of mis-specificaiton from the OSA residuals for aggregate catch of the northern commercial fleet (Figure \ref{fig:osa-North-comm-catch-summ}). There was some indication of trends in residuals of some of the age composition observations early in the time series and for the the first age class (Figures \ref{fig:osa-North-comm-paa-summ} and \ref{fig:osa-North-comm-paa}).
 
@@ -291,7 +291,7 @@ Neither the OSA residuals for the aggregate catch or the age composition of the 
 
 There was a little evidence of tendency toward negative OSA residuals for the Northern VAST index whereas there was some indication of positive residuals for the age composition observations, particularly at age 1 (Figures \ref{fig:osa-North-vast-catch-summ} to \ref{fig:osa-North-vast-paa})
 
-THe OSA residuals for the aggregate catch of the southern recreational fleet tended to be negative, but the residuals for the age composition observations did not show any evidence of mis-specification (Figures \ref{fig:osa-South-comm-catch-summ} to \ref{fig:osa-South-comm-paa}).
+THe OSA residuals for the aggregate catch of the southern commercial fleet tended to be negative, but the residuals for the age composition observations did not show any evidence of mis-specification (Figures \ref{fig:osa-South-comm-catch-summ} to \ref{fig:osa-South-comm-paa}).
 
 The OSA residuals for the aggregate catch of the southern recreational fleet were under-dispersed and those for the age composition were somewhat underdispersed, but no trends in either types of observations were apparent (Figures \ref{fig:osa-South-rec-catch-summ} to \ref{fig:osa-South-rec-paa})
 
@@ -302,7 +302,7 @@ The OSA residuals for the aggregate southern VAST index were somewhat over-dispe
 \hypertarget{retrospective-patterns}{%
 \subsubsection{Retrospective patterns}\label{retrospective-patterns}}
 
-We also examined retrospective patterns by fitting models where the terminal year is reduced sequentially by one year (peel) for seven years. Therefore, there are 7 fits of the proposed base model with the time series reduced by one to seven years. Multi-WHAM performs these fits when specified and will calculate Mohn's \(\rho\) for recruitment, SSB, and fully-selected \(F\). Absolute values of Mohn's \(\rho\) near 0 imply no pattern in estimation of these quantities as the time-series is sequentially extended. Although there was strong retrospective patterns in the most recent management track assessment for the northern component of the stock, there was no evidence of patterns for northern SSB (Mohn's \(\rho\) = -0.054) and \(F\) (Mohn's \(\rho\) = 0.058) for the proposed base model (Figures \ref{fig:North-retro-ssb} and \ref{fig:North-retro-F}). Similarly, no patterns were exhibited for the southern component of SSB (Mohn's \(\rho\) = -0.007) and regional \(F\) (Mohn's \(\rho\) = -0.045) (Figures \ref{fig:South-retro-ssb} and \ref{fig:South-retro-F}).
+We also examined retrospective patterns by fitting models where the terminal year is reduced sequentially by one year (peel) for seven years. Therefore, there are 7 fits of the proposed base model with the time series reduced by one to seven years. Multi-WHAM performs these fits when specified and will calculate Mohn's \(\rho\) for recruitment, SSB, and fully-selected \(F\). Absolute values of Mohn's \(\rho\) near 0 imply no pattern in estimation of these quantities as the time-series is sequentially extended. Although there was strong retrospective patterns in the most recent management track assessment for the northern component of the stock, there was no evidence of patterns for northern SSB (Mohn's \(\rho\) = -0.058) and \(F\) (Mohn's \(\rho\) = 0.06) for the proposed base model (Figures \ref{fig:North-retro-ssb} and \ref{fig:North-retro-F}). Similarly, no patterns were exhibited for the southern component of SSB (Mohn's \(\rho\) = -0.019) and regional \(F\) (Mohn's \(\rho\) = -0.05) (Figures \ref{fig:South-retro-ssb} and \ref{fig:South-retro-F}).
 
 \hypertarget{proposed-base-model-results}{%
 \section{Proposed base model results}\label{proposed-base-model-results}}
@@ -319,12 +319,12 @@ We found the best model of bottom temperature covariate effects included the eff
 
 The estimates of SSB, fully-selected fishing mortality, and recruitment were very similar for Runs 30, 33, and the incorrectly and correctly optimized fits for Run34 (Figures \ref{fig:SSB-compare} to \ref{fig:R-compare}).
 
-Allowing the scalar for the standard error of the log-transformed Rec CPA indices to be estimated in the proposed base model results in a slight increase in uncertainty of spawning stock biomass estimates (Figure \ref{fig:relative-se-ssb-R}).
+Allowing the scalar for the standard error of the log-transformed Rec CPA indices to be estimated in the proposed base model results in a slight increase in uncertainty of spawning stock biomass and recruitment estimates (Figure \ref{fig:relative-se-ssb-R}).
 
 \hypertarget{parameter-estimates}{%
 \subsection{Parameter estimates}\label{parameter-estimates}}
 
-The estimated fixed effects parameters other than those for annual fully-selected fishing mortality are provided in Table \ref{tab:par-table}. The parameters defining autocorrelation across years for the numbers at age deviations are positive for both regional stock components, but do not indicate particularly strong correlation which manifests in rapid return to 0 in projection years (Figure \ref{fig:NAA-devs}). The estimated correlation across age for both stock components suggest an independence assumption may be more parsimonious (confidence intervals include 0).
+The estimated fixed effects parameters other than those for annual fully-selected fishing mortality are provided in Table \ref{tab:par-table}. The parameters defining autocorrelation across years for the numbers at age deviations are positive for both regional stock components, but do not indicate particularly strong correlation (Figure \ref{fig:NAA-devs}). The estimated correlation across age for both stock components suggest an independence assumption may be more parsimonious (confidence intervals include 0).
 
 The posterior estimate of the movement rate from the north to the south for the northern component is much lower than the mean of the prior distribution estimated from the Stock Synthesis application (Figure \ref{fig:move-prior-posterior}).
 
@@ -340,9 +340,9 @@ The estimates of SSB for the northern component in recent years are the highest 
 
 Multi-WHAM generally has the same various options for calculating biological reference points as the current WHAM package. It will provide annual estimates of SPR-based reference points that use the annual inputs to the per-recruit calculations for F at a specified percentage of unfished spawning biomass per recruit. For black sea bass annual estimates of \(F_{40}\) and SSB at \(F_{40}\) are are provided as well as the status of annual F and SSB estimates relative to these reference points (Figures \ref{fig:annual-BRPs} and \ref{fig:annual-status}). See Miller (2023) for details on calculation of global \(F_{40}\) with multiple stocks and regions.
 
-For management, the current assessment uses the average by age of the most recent 5 years for maturity, SSB weight, catch weight, fleet selectivity, and natural mortality to calculate \(F_{40}\) and average of annual recruitment for years after 1999 for SSB at \(F_{40}\). We use these same configurations for the proposed base model. The average of recruitments since 1999 for each stock component are used to weight the stock-specific equilibrium spawning biomass per recruit to determine unfished spawning biomass per recruit and the value at 40\% of the unfished value. Total estimated fully selected fishing mortality achieving 40\% of unfished spawning biomass per recruit was \(\widehat F_{40}= 1.06\) and values for the north and south were 0.73 and 0.33, respectively. The percentages of unfished spawning biomass per recruit for the northern and southern components were 38\% and 42\%, respectively. The estimated total equilibrium SSB at \(F_{40}\) was 13,715 mt and for the northern and southern components estimates were 6566 and 7150 mt, respectively.
+For management, the current assessment uses the average by age of the most recent 5 years for maturity, SSB weight, catch weight, fleet selectivity, and natural mortality to calculate \(F_{40}\) and average of annual recruitment for years after 1999 for SSB at \(F_{40}\). We use these same configurations for the proposed base model. The average of recruitments since 1999 for each stock component are used to weight the stock-specific equilibrium spawning biomass per recruit to determine unfished spawning biomass per recruit and the value at 40\% of the unfished value. Total estimated fully selected fishing mortality achieving 40\% of unfished spawning biomass per recruit was \(\widehat F_{40}= 1.03\) and values for the north and south were 0.71 and 0.32, respectively. The percentages of unfished spawning biomass per recruit for the northern and southern components were 39\% and 41\%, respectively. The estimated total equilibrium SSB at \(F_{40}\) was 12,491 mt and for the northern and southern components estimates were 6474 and 6017 mt, respectively.
 
-Viewing the bivariate estimate of stock and harvest status as a posterior distribution, the current status is 0.59 probability of \(F>F_{40}\) and SSB \$\textgreater{}\(0.5\times SSB\)(F\_\{40\})\$ and 0.41 probability of \(F<F_{40}\) and SSB\(>0.5\times\) SSB\((F_{40})\), with negligible probability of SSB\(<0.5\times\) SSB\((F_{40})\) (Figure \ref{fig:kobe-status}).
+Viewing the bivariate estimate of stock and harvest status as a posterior distribution, the current status is 0.71 probability of \(F>F_{40}\) and SSB \$\textgreater{}\(0.5\times SSB\)(F\_\{40\})\$ and 0.29 probability of \(F<F_{40}\) and SSB\(>0.5\times\) SSB\((F_{40})\), with negligible probability of SSB\(<0.5\times\) SSB\((F_{40})\) (Figure \ref{fig:kobe-status}).
 
 \hypertarget{projections}{%
 \section{Projections}\label{projections}}
@@ -434,35 +434,16 @@ Truesdell, S., Curti, K., 2023. Recreational catch data. Working paper for the 2
 
 }
 
-\caption{Marginal negative log-likelihood and maximum absolute value of gradients for each of 16 jitter iterations.}\label{fig:jitter-res-1}
-\end{figure}
-\clearpage
-
-\begin{figure}
-
-{\centering \includegraphics{bsb_models_wp_files/figure-latex/jitter-res-2-1} 
-
-}
-
-\caption{Marginal negative log-likelihood and maximum absolute value of gradients for each of 100 jitter iterations from revised Run 34 fit. Red rug lines indicate fits that failed to complete.}\label{fig:jitter-res-2}
+\caption{Marginal negative log-likelihood and maximum absolute value of gradients for each of 100 jitter iterations from Run 34 fit. Red rug lines indicate fits that failed to complete.}\label{fig:jitter-res-1}
 \end{figure}
 
 \begin{figure}
 
-{\centering \includegraphics{bsb_models_wp_files/figure-latex/self-test-res-2-1} 
+{\centering \includegraphics{bsb_models_wp_files/figure-latex/self-test-res-1-1} 
 
 }
 
-\caption{Relative bias of SSB estimates from conditional self test simulations.}\label{fig:self-test-res-2}
-\end{figure}
-
-\begin{figure}
-
-{\centering \includegraphics{bsb_models_wp_files/figure-latex/self-test-res-3-1} 
-
-}
-
-\caption{Relative bias of SSB estimates from conditional self test simulations with Rec CPA uncertainty scalar fixed at estimated values.}\label{fig:self-test-res-3}
+\caption{Relative bias of SSB estimates from conditional self test simulations. Gray polygons represent 95\% confidence intervals.}\label{fig:self-test-res-1}
 \end{figure}
 
 \begin{figure}
@@ -759,7 +740,7 @@ Truesdell, S., Curti, K., 2023. Recreational catch data. Working paper for the 2
 
 }
 
-\caption{Spawning stock biomass estimates from Runs 30, 33 and 34 (including the incorrect optimization). Polygons represent 95\% confidence intervals.}\label{fig:SSB-compare}
+\caption{Spawning stock biomass estimates from Runs 30, 33 and 34. Polygons represent 95\% confidence intervals.}\label{fig:SSB-compare}
 \end{figure}
 
 \begin{figure}
@@ -768,7 +749,7 @@ Truesdell, S., Curti, K., 2023. Recreational catch data. Working paper for the 2
 
 }
 
-\caption{Fully-selected fishing mortality estimates from Runs 30, 33 and 34 (including the incorrect optimization). Polygons represent 95\% confidence intervals.}\label{fig:F-compare}
+\caption{Fully-selected fishing mortality estimates from Runs 30, 33 and 34. Polygons represent 95\% confidence intervals.}\label{fig:F-compare}
 \end{figure}
 
 \begin{figure}
@@ -777,7 +758,7 @@ Truesdell, S., Curti, K., 2023. Recreational catch data. Working paper for the 2
 
 }
 
-\caption{Recruitment estimates from Runs 30, 33 and 34 (including the incorrect optimization). Polygons represent 95\% confidence intervals.}\label{fig:R-compare}
+\caption{Recruitment estimates from Runs 30, 33 and 34. Polygons represent 95\% confidence intervals.}\label{fig:R-compare}
 \end{figure}
 
 \begin{figure}
@@ -1018,9 +999,9 @@ South VAST & Logistic-normal (AR1, 0s as missing) & age-specific (flat-topped at
 \toprule
   & AIC & North $\widehat{\sigma}_R$\\
 \midrule
-No effect & -1556.58 & 0.91\\
-North temperature effect only & -1567.42 & 0.72\\
-Both temperature effects & -1566.87 & 0.72\\
+No effect & -1551.79 & 0.92\\
+North temperature effect only & -1562.14 & 0.74\\
+Both temperature effects & -1561.61 & 0.74\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1032,15 +1013,15 @@ Both temperature effects & -1566.87 & 0.72\\
 \toprule
 Peel & No effect & North only & North and South\\
 \midrule
-0 & 10.85 & 0.00 & 0.55\\
-1 & 10.66 & 0.00 & 0.43\\
-2 & 9.63 & 0.00 & 0.71\\
-3 & 9.74 & 0.00 & 0.62\\
-4 & 9.50 & 0.00 & 0.76\\
+0 & 10.35 & 0.00 & 0.53\\
+1 & 10.17 & 0.00 & 0.38\\
+2 & 9.22 & 0.00 & 0.65\\
+3 & 9.29 & 0.00 & 0.56\\
+4 & 9.07 & 0.00 & 0.70\\
 \addlinespace
-5 & 8.94 & 0.00 & 0.48\\
-6 & 8.54 & 0.28 & 0.00\\
-7 & 8.17 & 0.07 & 0.00\\
+5 & 8.53 & 0.00 & 0.31\\
+6 & 8.20 & 0.36 & 0.00\\
+7 & 7.78 & 0.11 & 0.00\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1063,53 +1044,53 @@ Peel & No effect & North only & North and South\\
 \endfoot
 \bottomrule
 \endlastfoot
-BSB North mean log(R) intercept & $6.009$ & $0.899$ & $4.247$ & $7.770$\\
-BSB North in North NAA $\sigma$ (age 1) & $0.718$ & $0.101$ & $0.545$ & $0.945$\\
-BSB North in North NAA $\sigma$ (ages 2-8+) & $0.807$ & $0.047$ & $0.721$ & $0.904$\\
-BSB North in South NAA $\sigma$ (age 1) & $0.718$ & $0.101$ & $0.545$ & $0.945$\\
-BSB North  in North  NAA AR1 $\rho$ age & $0.091$ & $0.094$ & $-0.095$ & $0.271$\\
+BSB North mean log(R) intercept & $5.963$ & $0.915$ & $4.169$ & $7.756$\\
+BSB North in North NAA $\sigma$ (age 1) & $0.737$ & $0.103$ & $0.561$ & $0.968$\\
+BSB North in North NAA $\sigma$ (ages 2-8+) & $0.805$ & $0.046$ & $0.719$ & $0.901$\\
+BSB North in South NAA $\sigma$ (age 1) & $0.737$ & $0.103$ & $0.561$ & $0.968$\\
+BSB North  in North  NAA AR1 $\rho$ age & $0.084$ & $0.094$ & $-0.102$ & $0.264$\\
 \addlinespace
-BSB North  in North  NAA AR1 $\rho$ year & $0.256$ & $0.079$ & $0.096$ & $0.404$\\
-BSB South Mean Recruitment & $21252.124$ & $4468.181$ & $14074.738$ & $32089.604$\\
-BSB South in North NAA $\sigma$ (age 1) & $0.518$ & $0.079$ & $0.384$ & $0.700$\\
-BSB South in North NAA $\sigma$ (ages 2-8+) & $0.614$ & $0.070$ & $0.490$ & $0.769$\\
-BSB South in South NAA $\sigma$ (age 1) & $0.518$ & $0.079$ & $0.384$ & $0.700$\\
+BSB North  in North  NAA AR1 $\rho$ year & $0.258$ & $0.079$ & $0.098$ & $0.406$\\
+BSB South Mean Recruitment & $18267.747$ & $3635.191$ & $12368.018$ & $26981.735$\\
+BSB South in North NAA $\sigma$ (age 1) & $0.508$ & $0.079$ & $0.375$ & $0.690$\\
+BSB South in North NAA $\sigma$ (ages 2-8+) & $0.596$ & $0.072$ & $0.470$ & $0.756$\\
+BSB South in South NAA $\sigma$ (age 1) & $0.508$ & $0.079$ & $0.375$ & $0.690$\\
 \addlinespace
-BSB South in South NAA $\sigma$ (ages 2-8+) & $0.614$ & $0.070$ & $0.490$ & $0.769$\\
-BSB South  in North  NAA AR1 $\rho$ age & $-0.108$ & $0.114$ & $-0.323$ & $0.118$\\
-BSB South  in North  NAA AR1 $\rho$ year & $0.318$ & $0.101$ & $0.109$ & $0.501$\\
-BSB South  in South  NAA AR1 $\rho$ age & $-0.108$ & $0.114$ & $-0.323$ & $0.118$\\
-BSB South  in South  NAA AR1 $\rho$ year & $0.318$ & $0.101$ & $0.109$ & $0.501$\\
+BSB South in South NAA $\sigma$ (ages 2-8+) & $0.596$ & $0.072$ & $0.470$ & $0.756$\\
+BSB South  in North  NAA AR1 $\rho$ age & $-0.128$ & $0.116$ & $-0.345$ & $0.103$\\
+BSB South  in North  NAA AR1 $\rho$ year & $0.325$ & $0.104$ & $0.108$ & $0.512$\\
+BSB South  in South  NAA AR1 $\rho$ age & $-0.128$ & $0.116$ & $-0.345$ & $0.103$\\
+BSB South  in South  NAA AR1 $\rho$ year & $0.325$ & $0.104$ & $0.108$ & $0.512$\\
 \addlinespace
-North REC CPA fully selected q & $1.020\times 10^{-4}$ & $1.502\times 10^{-5}$ & $7.641\times 10^{-5}$ & $1.361\times 10^{-4}$\\
+North REC CPA fully selected q & $1.036\times 10^{-4}$ & $1.525\times 10^{-5}$ & $7.763\times 10^{-5}$ & $1.383\times 10^{-4}$\\
 North VAST Spring fully selected q & $0.016$ & $0.002$ & $0.012$ & $0.021$\\
-South REC CPA fully selected q & $1.521\times 10^{-4}$ & $2.024\times 10^{-5}$ & $1.171\times 10^{-4}$ & $1.974\times 10^{-4}$\\
-South VAST Spring fully selected q & $0.015$ & $0.002$ & $0.011$ & $0.019$\\
-Block 1: North Commercial Mean Selectivity for age 1 & $0.019$ & $0.015$ & $0.004$ & $0.088$\\
+South REC CPA fully selected q & $1.586\times 10^{-4}$ & $2.080\times 10^{-5}$ & $1.226\times 10^{-4}$ & $2.051\times 10^{-4}$\\
+South VAST Spring fully selected q & $0.016$ & $0.002$ & $0.013$ & $0.021$\\
+Block 1: North Commercial Mean Selectivity for age 1 & $0.021$ & $0.017$ & $0.004$ & $0.102$\\
 \addlinespace
-Block 1: North Commercial Mean Selectivity for age 2 & $0.326$ & $0.173$ & $0.094$ & $0.694$\\
-Block 1: North Commercial Mean Selectivity for age 3 & $0.814$ & $0.128$ & $0.455$ & $0.958$\\
+Block 1: North Commercial Mean Selectivity for age 2 & $0.335$ & $0.183$ & $0.091$ & $0.717$\\
+Block 1: North Commercial Mean Selectivity for age 3 & $0.823$ & $0.128$ & $0.455$ & $0.963$\\
 Block 1: North Commercial Mean Selectivity for age 4 & $1.000$ &  &  & \\
 Block 1: North Commercial Mean Selectivity for age 5 & $1.000$ &  &  & \\
 Block 1: North Commercial Mean Selectivity for age 6 & $1.000$ &  &  & \\
 \addlinespace
 Block 1: North Commercial Mean Selectivity for age 7 & $1.000$ &  &  & \\
 Block 1: North Commercial Mean Selectivity for age 8+ & $1.000$ &  &  & \\
-Block 2: North Recreational Mean Selectivity for age 1 & $0.029$ & $0.026$ & $0.005$ & $0.153$\\
-Block 2: North Recreational Mean Selectivity for age 2 & $0.325$ & $0.199$ & $0.075$ & $0.740$\\
-Block 2: North Recreational Mean Selectivity for age 3 & $0.558$ & $0.226$ & $0.173$ & $0.884$\\
+Block 2: North Recreational Mean Selectivity for age 1 & $0.032$ & $0.028$ & $0.006$ & $0.160$\\
+Block 2: North Recreational Mean Selectivity for age 2 & $0.337$ & $0.197$ & $0.083$ & $0.741$\\
+Block 2: North Recreational Mean Selectivity for age 3 & $0.566$ & $0.219$ & $0.185$ & $0.882$\\
 \addlinespace
-Block 2: North Recreational Mean Selectivity for age 4 & $0.787$ & $0.157$ & $0.371$ & $0.959$\\
-Block 2: North Recreational Mean Selectivity for age 5 & $0.888$ & $0.097$ & $0.542$ & $0.981$\\
-Block 2: North Recreational Mean Selectivity for age 6 & $0.950$ & $0.050$ & $0.709$ & $0.993$\\
+Block 2: North Recreational Mean Selectivity for age 4 & $0.787$ & $0.152$ & $0.384$ & $0.957$\\
+Block 2: North Recreational Mean Selectivity for age 5 & $0.880$ & $0.100$ & $0.533$ & $0.979$\\
+Block 2: North Recreational Mean Selectivity for age 6 & $0.940$ & $0.060$ & $0.659$ & $0.992$\\
 Block 2: North Recreational Mean Selectivity for age 7 & $1.000$ &  &  & \\
 Block 2: North Recreational Mean Selectivity for age 8+ & $1.000$ &  &  & \\
 \addlinespace
-Block 3: South Commercial $a_{50}$ & $2.465$ & $0.124$ & $2.229$ & $2.713$\\
-Block 3: South Commercial 1/slope (increasing) & $0.401$ & $0.034$ & $0.340$ & $0.472$\\
-Block 4: South Recreational $a_{50}$ & $2.843$ & $0.233$ & $2.405$ & $3.314$\\
-Block 4: South Recreational 1/slope (increasing) & $0.822$ & $0.101$ & $0.645$ & $1.042$\\
-Block 9: North REC CPA Mean Selectivity for age 1 & $0.158$ & $0.067$ & $0.065$ & $0.336$\\
+Block 3: South Commercial $a_{50}$ & $2.390$ & $0.126$ & $2.151$ & $2.644$\\
+Block 3: South Commercial 1/slope (increasing) & $0.400$ & $0.035$ & $0.337$ & $0.475$\\
+Block 4: South Recreational $a_{50}$ & $2.747$ & $0.274$ & $2.237$ & $3.306$\\
+Block 4: South Recreational 1/slope (increasing) & $0.853$ & $0.122$ & $0.642$ & $1.122$\\
+Block 9: North REC CPA Mean Selectivity for age 1 & $0.175$ & $0.061$ & $0.084$ & $0.328$\\
 \addlinespace
 Block 9: North REC CPA Mean Selectivity for age 2 & $1.000$ &  &  & \\
 Block 9: North REC CPA Mean Selectivity for age 3 & $1.000$ &  &  & \\
@@ -1119,18 +1100,18 @@ Block 9: North REC CPA Mean Selectivity for age 6 & $1.000$ &  &  & \\
 \addlinespace
 Block 9: North REC CPA Mean Selectivity for age 7 & $1.000$ &  &  & \\
 Block 9: North REC CPA Mean Selectivity for age 8+ & $1.000$ &  &  & \\
-Block 10: North VAST Spring Mean Selectivity for age 1 & $0.073$ & $0.027$ & $0.035$ & $0.148$\\
-Block 10: North VAST Spring Mean Selectivity for age 2 & $0.403$ & $0.092$ & $0.242$ & $0.589$\\
-Block 10: North VAST Spring Mean Selectivity for age 3 & $0.893$ & $0.060$ & $0.710$ & $0.966$\\
+Block 10: North VAST Spring Mean Selectivity for age 1 & $0.077$ & $0.028$ & $0.037$ & $0.152$\\
+Block 10: North VAST Spring Mean Selectivity for age 2 & $0.404$ & $0.090$ & $0.246$ & $0.584$\\
+Block 10: North VAST Spring Mean Selectivity for age 3 & $0.893$ & $0.058$ & $0.716$ & $0.965$\\
 \addlinespace
-Block 10: North VAST Spring Mean Selectivity for age 4 & $0.926$ & $0.039$ & $0.804$ & $0.975$\\
+Block 10: North VAST Spring Mean Selectivity for age 4 & $0.925$ & $0.040$ & $0.800$ & $0.975$\\
 Block 10: North VAST Spring Mean Selectivity for age 5 & $1.000$ &  &  & \\
 Block 10: North VAST Spring Mean Selectivity for age 6 & $1.000$ &  &  & \\
 Block 10: North VAST Spring Mean Selectivity for age 7 & $1.000$ &  &  & \\
 Block 10: North VAST Spring Mean Selectivity for age 8+ & $1.000$ &  &  & \\
 \addlinespace
-Block 11: South REC CPA Selectivity for age 1 & $0.399$ & $0.070$ & $0.273$ & $0.541$\\
-Block 11: South REC CPA Selectivity for age 2 & $0.824$ & $0.076$ & $0.626$ & $0.929$\\
+Block 11: South REC CPA Selectivity for age 1 & $0.454$ & $0.078$ & $0.309$ & $0.608$\\
+Block 11: South REC CPA Selectivity for age 2 & $0.883$ & $0.081$ & $0.618$ & $0.972$\\
 Block 11: South REC CPA Selectivity for age 3 & $1.000$ &  &  & \\
 Block 11: South REC CPA Selectivity for age 4 & $1.000$ &  &  & \\
 Block 11: South REC CPA Selectivity for age 5 & $1.000$ &  &  & \\
@@ -1138,7 +1119,7 @@ Block 11: South REC CPA Selectivity for age 5 & $1.000$ &  &  & \\
 Block 11: South REC CPA Selectivity for age 6 & $1.000$ &  &  & \\
 Block 11: South REC CPA Selectivity for age 7 & $1.000$ &  &  & \\
 Block 11: South REC CPA Selectivity for age 8+ & $1.000$ &  &  & \\
-Block 12: South VAST Spring Selectivity for age 1 & $0.370$ & $0.080$ & $0.231$ & $0.535$\\
+Block 12: South VAST Spring Selectivity for age 1 & $0.399$ & $0.086$ & $0.246$ & $0.574$\\
 Block 12: South VAST Spring Selectivity for age 2 & $1.000$ &  &  & \\
 \addlinespace
 Block 12: South VAST Spring Selectivity for age 3 & $1.000$ &  &  & \\
@@ -1148,38 +1129,38 @@ Block 12: South VAST Spring Selectivity for age 6 & $1.000$ &  &  & \\
 Block 12: South VAST Spring Selectivity for age 7 & $1.000$ &  &  & \\
 \addlinespace
 Block 12: South VAST Spring Selectivity for age 8+ & $1.000$ &  &  & \\
-Block 1: North Commercial Selectivity RE $\sigma$ & $0.406$ & $0.116$ & $0.233$ & $0.710$\\
-Block 1: North Commercial Selectivity RE AR1 $\rho$ (age) & $0.479$ & $0.138$ & $0.339$ & $0.940$\\
-Block 1: North Commercial Selectivity RE AR1 $\rho$ (year) & $0.590$ & $0.082$ & $0.582$ & $0.967$\\
-Block 2: North Recreational Selectivity RE $\sigma$ & $0.208$ & $0.030$ & $0.156$ & $0.277$\\
+Block 1: North Commercial Selectivity RE $\sigma$ & $0.405$ & $0.115$ & $0.232$ & $0.707$\\
+Block 1: North Commercial Selectivity RE AR1 $\rho$ (age) & $0.491$ & $0.131$ & $0.372$ & $0.943$\\
+Block 1: North Commercial Selectivity RE AR1 $\rho$ (year) & $0.594$ & $0.080$ & $0.594$ & $0.968$\\
+Block 2: North Recreational Selectivity RE $\sigma$ & $0.204$ & $0.031$ & $0.152$ & $0.274$\\
 \addlinespace
-Block 2: North Recreational Selectivity RE AR1 $\rho$ (age) & $0.519$ & $0.063$ & $0.650$ & $0.910$\\
-Block 2: North Recreational Selectivity RE AR1 $\rho$ (year) & $0.733$ & $0.024$ & $0.874$ & $0.983$\\
-Block 9: North REC CPA Selectivity RE $\sigma$ & $0.257$ & $0.067$ & $0.154$ & $0.428$\\
-Block 9: North REC CPA Selectivity RE AR1 $\rho$ (year) & $0.659$ & $0.077$ & $0.543$ & $0.988$\\
-Block 10: North VAST Spring Selectivity RE $\sigma$ & $0.745$ & $0.151$ & $0.501$ & $1.109$\\
+Block 2: North Recreational Selectivity RE AR1 $\rho$ (age) & $0.512$ & $0.067$ & $0.634$ & $0.908$\\
+Block 2: North Recreational Selectivity RE AR1 $\rho$ (year) & $0.733$ & $0.024$ & $0.875$ & $0.983$\\
+Block 9: North REC CPA Selectivity RE $\sigma$ & $0.233$ & $0.066$ & $0.133$ & $0.408$\\
+Block 9: North REC CPA Selectivity RE AR1 $\rho$ (year) & $0.638$ & $0.086$ & $0.508$ & $0.985$\\
+Block 10: North VAST Spring Selectivity RE $\sigma$ & $0.751$ & $0.150$ & $0.508$ & $1.112$\\
 \addlinespace
-Block 10: North VAST Spring Selectivity RE AR1 $\rho$ (age) & $0.116$ & $0.249$ & $-0.276$ & $0.635$\\
-Block 10: North VAST Spring Selectivity RE AR1 $\rho$ (year) & $0.341$ & $0.168$ & $0.182$ & $0.845$\\
-North Commercial in North age comp, Dirichlet-multinomial: dispersion ($\phi$) & $54.899$ & $7.007$ & $42.749$ & $70.503$\\
-North Recreational in North age comp, logistic-normal: $\sigma$ & $2.832$ & $0.337$ & $2.243$ & $3.576$\\
-South Commercial in South age comp, logistic-normal: $\sigma$ & $33.924$ & $3.453$ & $27.789$ & $41.413$\\
+Block 10: North VAST Spring Selectivity RE AR1 $\rho$ (age) & $0.114$ & $0.249$ & $-0.277$ & $0.632$\\
+Block 10: North VAST Spring Selectivity RE AR1 $\rho$ (year) & $0.328$ & $0.173$ & $0.159$ & $0.834$\\
+North Commercial in North age comp, Dirichlet-multinomial: dispersion ($\phi$) & $54.355$ & $6.906$ & $42.374$ & $69.724$\\
+North Recreational in North age comp, logistic-normal: $\sigma$ & $2.796$ & $0.341$ & $2.201$ & $3.553$\\
+South Commercial in South age comp, logistic-normal: $\sigma$ & $34.240$ & $3.461$ & $28.085$ & $41.743$\\
 \addlinespace
-South Commercial in South age comp, logistic-normal: $\rho$ & $0.719$ & $0.061$ & $0.585$ & $0.823$\\
-South Recreational in South age comp, logistic-normal: $\sigma$ & $27.914$ & $4.330$ & $20.596$ & $37.831$\\
-South Recreational in South age comp, logistic-normal: $\rho$ & $0.910$ & $0.027$ & $0.842$ & $0.951$\\
-North REC CPA in North age comp, logistic-normal: $\sigma$ & $4.301$ & $0.395$ & $3.592$ & $5.149$\\
-North VAST Spring in North age comp, Dirichlet-multinomial: dispersion ($\phi$) & $28.550$ & $3.233$ & $22.868$ & $35.644$\\
+South Commercial in South age comp, logistic-normal: $\rho$ & $0.726$ & $0.060$ & $0.596$ & $0.827$\\
+South Recreational in South age comp, logistic-normal: $\sigma$ & $28.332$ & $4.308$ & $21.031$ & $38.168$\\
+South Recreational in South age comp, logistic-normal: $\rho$ & $0.907$ & $0.027$ & $0.839$ & $0.948$\\
+North REC CPA in North age comp, logistic-normal: $\sigma$ & $4.247$ & $0.394$ & $3.541$ & $5.093$\\
+North VAST Spring in North age comp, Dirichlet-multinomial: dispersion ($\phi$) & $28.493$ & $3.206$ & $22.853$ & $35.524$\\
 \addlinespace
-South REC CPA in South age comp, logistic-normal: $\sigma$ & $27.466$ & $4.520$ & $19.893$ & $37.921$\\
-South REC CPA in South age comp, logistic-normal: $\rho$ & $0.927$ & $0.024$ & $0.864$ & $0.962$\\
-South VAST Spring in South age comp, logistic-normal: $\sigma$ & $48.175$ & $3.878$ & $41.143$ & $56.408$\\
-South VAST Spring in South age comp, logistic-normal: $\rho$ & $0.661$ & $0.057$ & $0.542$ & $0.762$\\
-stock BSB North $\mu$ from North to South (intercept) & $0.009$ & $0.001$ & $0.006$ & $0.011$\\
+South REC CPA in South age comp, logistic-normal: $\sigma$ & $27.775$ & $4.451$ & $20.288$ & $38.025$\\
+South REC CPA in South age comp, logistic-normal: $\rho$ & $0.922$ & $0.025$ & $0.858$ & $0.959$\\
+South VAST Spring in South age comp, logistic-normal: $\sigma$ & $48.771$ & $3.958$ & $41.599$ & $57.179$\\
+South VAST Spring in South age comp, logistic-normal: $\rho$ & $0.670$ & $0.056$ & $0.553$ & $0.769$\\
+stock BSB North $\mu$ from North to South (intercept) & $0.009$ & $0.001$ & $0.007$ & $0.012$\\
 \addlinespace
 stock BSB North $\mu$ from South to North (intercept) & $0.332$ & $0.043$ & $0.253$ & $0.421$\\
-North REC CPA log-index observation SD scalar & $4.736$ & $1.433$ & $2.618$ & $8.569$\\
-South REC CPA log-index observation SD scalar & $5.306$ & $1.270$ & $3.319$ & $8.482$\\
+North REC CPA log-index observation SD scalar & $5.003$ & $1.425$ & $2.863$ & $8.744$\\
+South REC CPA log-index observation SD scalar & $5.197$ & $1.238$ & $3.258$ & $8.291$\\
 Ecov North BT: $\mu$ & $6.803$ & $0.190$ & $6.431$ & $7.175$\\
 Ecov North BT: $\sigma$ & $1.131$ & $0.109$ & $0.937$ & $1.367$\\
 \addlinespace
@@ -1187,7 +1168,7 @@ Ecov North BT: AR1 $\rho$ & $0.290$ & $0.121$ & $0.040$ & $0.506$\\
 Ecov South BT: $\mu$ & $7.606$ & $0.148$ & $7.316$ & $7.895$\\
 Ecov South BT: $\sigma$ & $1.017$ & $0.092$ & $0.852$ & $1.215$\\
 Ecov South BT: AR1 $\rho$ & $0.149$ & $0.124$ & $-0.099$ & $0.380$\\
-BSB North Recruitment Ecov: North BT $\beta_1$ & $0.460$ & $0.117$ & $0.232$ & $0.688$\\*
+BSB North Recruitment Ecov: North BT $\beta_1$ & $0.460$ & $0.119$ & $0.226$ & $0.693$\\*
 \end{longtable}
 \end{landscape}
 
