@@ -1,0 +1,390 @@
+---
+title:  "Application of WHAM to Black Sea Bass"
+subtitle: "Black sea bass Research Track"
+author: 
+  - "Tim Miller, Kierten Curti, Alex Hansell"
+output:
+  xaringan::moon_reader:
+    self_contained: true
+    css: ["xaringan-themer_16_9.css", "slides-style_TMB201.css"]
+    lib_dir: libs
+    nature:
+      ratio: '16:9'
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+
+layout: true
+
+.footnote[U.S. Department of Commerce | National Oceanic and Atmospheric Administration | National Marine Fisheries Service]
+
+
+<style type="text/css">
+
+code.cpp{
+  font-size: 14px;
+}
+code.r{
+  font-size: 14px;
+}
+
+
+</style>
+
+```{css, echo=FALSE}
+pre {
+  max-height: 400px;
+  max-width: 800px;
+  overflow-y: auto;
+}
+
+```
+
+
+```{r setup, include=FALSE}
+#options(htmltools.dir.version = FALSE)
+#library(knitr)
+#knitr::opts_chunk$set(cache = TRUE)
+#knitr::opts_knit$set(root.dir = here::here())
+#library(kableExtra)
+#library(imager)
+#here::i_am("c:/work/BSB_RT")
+
+library(here)
+
+```
+
+```{r xaringan-tile-view, echo=FALSE}
+# this gives you a tile navigation if you type "O" at any time
+#xaringanExtra::use_tile_view()
+```
+
+---
+#Outline <br>
+
+* General description of new features of multi-stock extension of WHAM (TOR 4)
+* Synopsis of runs completed for black sea bass (TOR 4)
+* Results from proposed base model (TOR 4)
+* Reference points (TOR 5)
+* Projections (TOR 6)
+---
+
+#Multi-WHAM <br>
+
+New features:
+* stock-specific abundance at age and by region
+* seasonal intervals within years
+* effects of environmental covariates on mortality rates by stock, region, and age
+* effects of environmental covariates on recruitment by stock
+* variation in movement rates by stock, region-to-region, season, age, and year
+* effects of environmental covariates on movement rates by stock, region-to-region, season, and age
+* mortality and movement modeled sequentially or simultaneously
+* stock-specific stock-recruitment models
+* priors for movement rates
+* seasonal operation of fleets
+* more options for initial abundance at age
+* options for weighting of stock-specific SSB/R for global SPR-based reference points
+
+**In following slides, everything is stock-specific unless otherwise noted**
+---
+
+
+#Abundance transitions: Baranov
+
+* For a single region, the numbers at age $a$ surviving, dying from fishing, and dying from other causes (e.g., $M$) over a unit time interval (e.g., 1 year) are $$N_{L,t+1,a} = N_{t,a} S_{t,a} = N_{t,a} e^{-Z_{t,a}}$$ $$N_{C,t+1} = N_{t,a} H_{t,a} = N_t \frac{F_{t,a}}{Z_{t,a}}\left(1 - e^{-Z_{t,a}}\right)$$ $$N_{K,t+1} = N_{t,a} D_{t,a} = N_t \frac{M_{t,a}}{Z_{t,a}}\left(1 - e^{-Z_{t,a}}\right).$$
+
+---
+
+#Abundance transitions: Baranov
+* More generally, for an interval of length $\delta$: $$N_{L,t+\delta,a} = N_{t,a} S(t,\delta,a) = N_{t,a} e^{-Z_{t,a}\delta}$$
+$$N_{C,t+\delta} = N_{t,a} H(t,\delta,a) = N_t \frac{F_{t,a}}{Z_{t,a}}\left(1 - e^{-Z_{t,a}\delta}\right)$$ $$N_{K,t+\delta} = N_{t,a} D(t,\delta,a) = N_t \frac{M_{t,a}}{Z_{t,a}}\left(1 - e^{-Z_{t,a}\delta}\right).$$
+---
+
+# Vector-Matrix form
+
+* Define the vector of numbers at age $a$ at time $t$ that are alive, previously captured, and previously dead to to natural mortality: $$\mathbf{N}_{t,a} = (N_{L,t,a}', N_{C,t,a}', N_{K,t,a}')'$$ and the probability transition matrix: $$\mathbf{P}_{t,\delta,a} = \begin{bmatrix} S(t,\delta,a) & H(t,\delta,a) & D(t,\delta,a) \\ 0 & 1 & 0\\ 0 & 0 & 1\\ \end{bmatrix}$$
+* The abundance in each category at the end of the interval $\delta$ is $$\mathbf{N}_{t+\delta,a} =  \mathbf{P}_{t,\delta,a}' \mathbf{N}_{t,a}$$
+* The probability transition matrix over multiple seasons (e.g., a year) is just the product of the seasonal matrices: $$\mathbf{P}_{t,\delta_1 + \delta_2,a} = \mathbf{P}_{t,\delta_1,a} \mathbf{P}_{t,\delta_2,a}$$
+* If $t$ is the beginning of the year we typically set $N_{C,t,a}= 0$ to obtain cumulative catch over the yearly interval.
+
+---
+
+#Multiple regions
+
+* When there are $n_R$ regions and $n_F$ fleets, the probability transition matrix is generalized to
+$$\mathbf{P}_{t,\delta,a} = \begin{bmatrix} \mathbf{O}(t,\delta,a) & \mathbf{H}(t,\delta,a) & \mathbf{D}(t,\delta,a) \\ 0 & \mathbf{I}_{H} & 0\\ 0 & 0 & \mathbf{1}_{D} \end{bmatrix}$$
+$\mathbf{O}(t,\delta,a)$ is the $n_R \times n_R$ matrix defining survival and movement from one region (row) to another (column) over the interval $\delta$:
+$$\mathbf{O}(t,\delta,a) =\begin{bmatrix} O_{1,1}(t,\delta,a) & \cdots & O_{1,n_R}(t,\delta,a) \\ \vdots & \ddots & \vdots \\ O_{n_R,1}(t,\delta,a) & \cdots & O_{n_R,n_R}(t,\delta,a) \end{bmatrix}$$
+$\mathbf{H}(t,\delta,a)$ is the $n_R \times n_F$ matrix defining proportions captured in each fleet (column) given alive in each region (row) at the beginning of the interval:
+$$\mathbf{H}(t,\delta,a) = \begin{bmatrix} H_{1,1}(t,\delta,a) & \cdots & H_{1,n_F}(t,\delta,a) \\ \vdots & \ddots & \vdots \\ H_{n_R,1}(t,\delta,a) & \cdots & H_{n_R,n_F}(t,\delta,a) \end{bmatrix}$$
+---
+
+#Multiple regions
+
+* Multi-WHAM currently assumes each fleet operates in a single region so each column of $\mathbf{H}(t,\delta,a)$ has at most 1 non-zero value.
+* $\mathbf{D}(t,\delta,a)$ is $n_R \times 1$ in Multi-WHAM to minimize dimensions of $\mathbf{P}$, but could theoretically be $n_R \times n_R$ if tracking numbers dead due to natural mortality by region was of interest.
+* Multi-WHAM can assume survival and movement processes are sequential or simultaneous within a seasonal interval.
+  * For sequential survival occurs over the interval as usual and movement is assumed to happen instantly at the end of the interval:
+$$\mathbf{O}(t,\delta,a) = \mathbf{S}(t,\delta,a)\boldsymbol{\mu}(t,\delta,a).$$
+  * For simultaneous survival and movement, movement parameters are instantaneous rates like mortality. There is an infinitesimal matrix that is a function of the instantaneous rates which is exponentiated for the probability transition matrix: 
+  $$\mathbf{P}_{t,\delta,a} = e^{\mathbf{A}_{t,\delta, a}\delta}$$
+---
+
+#Sequential survival and movement
+
+* $\mathbf{S}$ is a diagonal matrix of proportions surviving in each region (given they start in that region):
+    $$\mathbf{S}(t,\delta,a) = \begin{bmatrix} e^{-Z_1(t,\delta,a)} & 0 & \cdots & 0 \\ 0 & e^{-Z_2(t,\delta,a)} & \cdots & 0 \\ \vdots & \vdots & \ddots & \vdots \\ 0 & \cdots & 0 & e^{-Z_R(t,\delta,a)} \end{bmatrix}$$
+* $\boldsymbol{\mu}$ is matrix of proportions moving from one region to another or staying (given they start in that region) 
+$$\boldsymbol{\mu}(t,\delta,a) = \begin{bmatrix} 1-\sum_{r' \neq 1} \mu_{1\rightarrow r'} & \mu_{1\rightarrow 2} & \cdots & \mu_{1\rightarrow R} \\ \mu_{2\rightarrow 1} & 1-\sum_{r' \neq 2} \mu_{2\rightarrow r'} & \cdots & \mu_{2\rightarrow R} \\ \vdots & \vdots & \ddots & \vdots \\ \mu_{R\rightarrow 1} & \cdots & \mu_{R\rightarrow R-1} & 1-\sum_{r' \neq R} \mu_{R\rightarrow r'} \end{bmatrix}$$
+The rows sum to 1 and each of the $\mu_{r\rightarrow r'}$ parameters may be year, age, and season-specific.
+
+---
+
+#Simultaneous survival and movement
+
+* For the scenario where 1 fleet operates in each region the instantaneous rate matrix is
+ $$\mathbf{A}_{t,\delta, a} = \begin{bmatrix} a_{1} & \mu_{1\rightarrow 2} & \cdots & \mu_{1\rightarrow R} & F_{t,a,1} & 0 & \cdots & 0 & M_{t,a,1} \\ \mu_{2\rightarrow 1} & a_{2} & \cdots & \mu_{2\rightarrow R} & 0 & F_{t,a,2} & \cdots & 0 & M_{t,a,2} \\ \vdots & \vdots & \ddots & \vdots & \vdots & \vdots & \ddots & 0 & \vdots \\ \mu_{R\rightarrow 1} & \cdots & \cdots & a_{R} & 0 & \cdots & 0 & F_{t,a,R} & M_{t,a,R} \\ \mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{0} \end{bmatrix}.$$ where $a_{r} = -\left(\sum_{r' \neq r} \mu_{1\rightarrow r'} + F_{t,a,r} + M_{t,a,r}\right)$ (rows sum to 0).
+* The component matrices $\mathbf{O}$, $\mathbf{H}$, and $\mathbf{D}$ are obtained from exponentiating $\mathbf{A}$. 
+* This option is still considered experimental because it is currently computationally inefficient.
+
+---
+
+# Movement parameters
+
+* There are at most $n_R-1$ parameters for each season $(i)$ and region $(r)$ for either the sequential or simultaneous configurations. 
+* Movement parameters are estimated on a transformed scale. 
+  * simultaneously: log scale
+  * sequential: additive logit link transformation (like a multinomial regression)
+* Age- and/or year-specific (1D or 2D AR1/iid) random effects are normally distributed on the transformed scale $$f(\mu_{r \rightarrow r',i,y,a}) = \theta_{r \rightarrow r',i} + \epsilon_{r \rightarrow r',i,y,a}$$ $$Cov\left(\epsilon_{r \rightarrow r',i,y,a},\epsilon_{r \rightarrow r',i,y',a'}\right) = \frac{\rho_{r \rightarrow r',i,\mathcal{A}}^{|a-a'|}\rho_{r \rightarrow r',i,\mathcal{Y}}^{|y-y'|}\sigma^2_{r \rightarrow r',i}}{\left(1 - \rho_{r \rightarrow r',i,\mathcal{A}}^2\right)\left(1 - \rho_{r \rightarrow r',i,\mathcal{Y}}^2\right)}$$
+* Mean, variance and correlation parameters for the random effects are season- and region-to-region-specfic.
+* Covariate effects can be age-, season-, and/or region-to-region-specific: $$f(\mu_{r \rightarrow r',i,y,a}) = \theta_{r \rightarrow r',i} + \sum^{n_E}_{k=1} \beta_{a,i,r \rightarrow r',k} E_k$$ and the same orthogonal polynomial options in the current version of WHAM are available. 
+---
+
+#Movement parameters
+* Movement parameters can including both random and environmental effects: $$f(\mu_{r \rightarrow r',i,y,a}) = \theta_{r \rightarrow r',i} + r_{r \rightarrow r',i,y,a} + \sum^{n_E}_{k=1} \beta_{r \rightarrow r',i,k} E_{k,y}$$
+* Multi-WHAM currently has no likelihood component for tagging observations, but priors can be configured from auxiliary movement parameter estimates. 
+* When prior distributions are used, the (mean) movement parameters are random effects with the mean defined by the user-defined fixed effect counterpart and standard deviation $$\gamma_{r \rightarrow r',i} \sim \text{N}\left(\theta_{r \rightarrow r',i}, \sigma^2_{r \rightarrow r',i}\right)$$  and the transformed movement parameter is defined instead as $$f(\mu_{r \rightarrow r',i,y,a}) = \gamma_{r \rightarrow r',i} + r_{r \rightarrow r',i,y,a} + \sum^{n_E}_{k=1} \beta_{r \rightarrow r',i,k} E_{k,y}$$.
+
+---
+
+#Natural mortality
+
+
+When not estimated, (mean) mortality rates may be region-, and age-specific $\mu_{M,r,a}$. When age- and year-specific random effects $m_{r,y,a}$ are allowed, variance and correlation parameters can be region-specific. The options for each region are
+
+* `none`: (default) No random effects by age or year.
+* `iid_a`: uncorrelated M by age, constant in time.
+* `iid_y`: uncorrelated M by year, constant all ages.
+* `ar1_a`: M correlated by age (AR1), constant in time.
+* `ar1_y`: M correlated by year (AR1), constant all ages.
+* `iid_ay`: M uncorrelated by year and age (2D).
+* `ar1_ay`: M correlated by year and age (2D AR1).
+
+Any environmental covariate effects can be region- and age-specific. The general configuration of log natural mortality is $$\log\left( M_{r,y,a}\right) = \mu_{M,r,a} + m_{r,y,a} + \sum^{n_E}_{k=1} \beta_{r,a,k} E_{k,y}$$
+
+---
+
+#Initial Abundance at age
+
+The options for parameterizing initial numbers at age have been expanded in Multi-WHAM:
+* `age-specific`: $\log N_{1,r,a}$ are fixed effects. 
+* `equilibrium`: $\log N_{1,r,1}$ (initial recruitment) and $\log F$ are fixed effects defining equilibrium numbers at age in the first year.
+* `iid`: $\log N_{1,r,a} \sim \text{N}\left(\eta_{r},\sigma^2_{r}\right)$ are iid random effects.
+* `ar1`: $\log N_{1,r,a} \sim \text{N}\left(\eta_{r},\frac{\sigma^2_{r}}{\left(1-\rho_{r}^2\right)}\right)$ are AR1 random effects.
+
+---
+
+#Equilibrium assumption
+
+* Natural mortality and selectivity for fleet-specific fishing mortality at age are the same as those that occur during the first year of the model.
+* With the assumption that each stock spawns in 1 region, there is only 1 $\log N_{1,r,1}$ parameter.
+* The equilibrium calculations are essentially the same as those for SSB/R and Y/R calculations.
+* The $n_R \times n_R$ equilibrium probability matrix of survival to age $a$ and being in each region is $$\widetilde {\mathbf{O}}_{a} = \left\{ \begin{array}{ll} \prod^{a-1}_{i=0}\mathbf{O}_{i}  & 1\leq a<A\\ \left[\prod^{a-1}_{i=0}\mathbf{O}_{i}\right] \mathbf{O}_{+} & a = A \end{array} \right.$$ where $\mathbf{O}_{0} = {\bf I}$.
+* $\mathbf{O}_{i}$ is the upper left survival and movement sub-matrix of the probability transition matrix for age $i$ as defined previously. For the plus group $a=A$, $\mathbf{O}_{+} = \left(\mathbf{I} - \mathbf{O}_{A}\right)^{-1}$ is a "fundamental matrix" derived using the matrix generalization of the summation of a convergent geometric series. 
+* Equilibrium abundance at age is $$N_{1,r,a} = N_{1,r} \widetilde {\mathbf{O}}_{a}(s_r,r)$$ where $s_r$ is the region of spawning and $\mathbf{O}(i,j)$ is the element in row $i$ and column $j$ of the matrix $\mathbf{O}$.
+
+---
+
+
+#Abundance at age transitions
+
+* The numbers at age are vector analogs of the equations for numbers at age in the standard WHAM model  
+* Options for configuring recruitment are the same as the standard WHAM package. 
+* If recruitment is assumed to be a function of SSB, it is only the SSB in the spawning region at the time of spawning. 
+* For ages $a = 2,...,A-1$, where $A$ is the plus group, The vector of numbers at age $a$ by region in year $y$ is $$\log\left(\mathbf{N}_{y,a}\right) =  \log\left(\mathbf{O}_{y-1,a-1}' \mathbf{N}_{y-1,a-1}\right) + \boldsymbol{\varepsilon}_{y,a}$$ and for the plus group $$\log\left(\mathbf{N}_{y,A}\right) =  \log\left(\mathbf{O}_{y-1,A-1}' \mathbf{N}_{y-1,A-1} + \mathbf{O}_{y-1,A}' \mathbf{N}_{y-1,A}\right) + \boldsymbol{\varepsilon}_{y,A}.$$
+* The region-specific errors $\boldsymbol{\varepsilon}_{y,a}$ are independent, but within regions, abundance at age have the same autoregressive options as the standard WHAM package. Generally, variance parameters can be region and age specific $\sigma_{r,a}$ and age and/or year AR1 correlation parameters can be region-specific $(\rho_{\mathcal{A},r}$, $\rho_{\mathcal{Y},r})$.
+* "Survival" transitions can be deterministic $(\boldsymbol{\varepsilon}_{y,a} = 0)$ as in traditional statistical catch at age models.
+
+---
+
+# Aggregate catch and index observations
+
+* The likelihood equations for catch and index observations are the same as the standard WHAM package.
+* The predicted catch is a function of the abundance at age of each stock and probabilities of capture in each fleet.
+* The predicted catch biomass at age for fleet $f$:
+
+$$\widehat{C}_{f,a,y} = \left(\sum^{n_S}_{s=1} \sum^{n_R}_{r=1} H_{s,a,y}(r,f) N_{s,r,a,y}\right) c_{f,a,y}.$$
+For index $i$ the predicted index at age is 
+
+$$\hat{I}_{a,y,i} = q_i s_{a,y,i} N_{a,y}W_{a,y,i} e^{-Z_{a,y}f_{y,i}}.$$
+
+where $q_i$ is the catchability and $f_{y,i}$ is the fraction of the annual time step elapsed when the index is observed. There are options for indices to be in terms of abundance (numbers) or biomass and $W_{a,y,i} = 1$ for the former.
+
+---
+
+# Catch and index age composition
+
+
+---
+
+#Bridge building: Similar estimates
+```{r, echo = FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","compare_one_stock_models.png"))
+```
+
+---
+#Bridge building: Similar estimates
+```{r, echo = FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","compare_two_stock_less.png"))
+```
+
+---
+
+
+layout: false
+class: middle, center
+
+# Application to Black Sea Bass
+
+
+---
+
+layout: true
+
+---
+
+#Jittering initial values for combined model
+
+Create an unfitted model and use random draws around default initial values for fitting.
+.pull-left[
+```{r, eval = FALSE}
+temp <- fit_wham(input0_less, do.fit=F) 
+set.seed(123)
+jit.nll <- sapply(1:100, function(x){
+	nlminb(rnorm(length(temp$par), mean = temp$par, sd = 0.1), temp$fn, temp$gr, control = list(iter.max = 1000, eval.max = 1000))$obj	
+})
+```
+]
+.pull-right[
+```{r, echo = FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","jitter_plot_scaa.png"))
+```
+]
+---
+
+#Bridge building: Success!
+```{r, echo = FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","compare_two_stock_less_multi_good.png"))
+```
+---
+
+
+#Movement hypothesis:
+```{r, echo = FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","migration_diagram_1.jpg"))
+```
+Currently:
+* All Jan 1 recruitment for a given stock only in respective regions
+* All North fish move back to their spawning region at end of season 5
+* All North fish remain in spawning region until end of season 7
+* Spawning season is only time when whole North population is in spawning region
+* South population is only in South.
+
+---
+
+#Movement hypothesis 1
+1. Fit model with assumed movement prob = 0.1 both north to south and south to north (done)
+2. Fit model with prior on movement (mean = 0.1, sd = 0.5?) (not done)
+  * movement probabilities can be different from north to south and south to north 
+3. Fit model with yearly RE on movement. (not done)
+4. Fit model with covariate effects and yearly RE. (not done)
+
+
+---
+
+layout: false
+class: middle, center
+
+# Reference points (TOR 5)
+
+
+---
+
+layout: true
+
+
+---
+
+# Equilibrium per recruit calculations
+
+
+The $n_r \times n_r$ matrix of equilibrium spawning stock biomass per recruit for stock $s$ in region $r'$ (columns) given recruiting in region $r$ (rows) is defined as
+\begin{equation}\label{eq:ssbpr}
+ \widetilde {\mathbf{O}}_s({\widetilde F}) = \sum^{A}_{a=1} \mathbf{O}_{s,a} \mathbf{O}_{s,a}(\delta_s) \text{diag}\left({\bf f}_{s,a}\right)
+\end{equation}
+where $\mathbf{O}_{s,a}(\delta_s)$ is $n_r x n_r$ is the matrix of probabilities of surviving and occurring in region $r'$ at age $a+\delta_s$ given starting in region $r$ at age $a$. It is the upper left sub-matrix of the probability transition matrix defined over the same interval (eq. \ref{eq:ptm}). Similarly,
+\begin{equation}\label{eq:equilibrium.survival}
+ \mathbf{O}_{s,a} = \left\{
+ \begin{array}{ll}
+\prod^{a-1}_{i=0}\mathbf{O}_{s,i}  & 1\leq a<A\\
+\left[\prod^{a-1}_{i=0}\mathbf{O}_{s,i}\right] \mathbf{O}_{S,+} & a = A
+ \end{array}
+\right.
+\end{equation}
+is the upper left sub-matrix of the probability transition matrix of states at age $a$ (columns) given being in each state (rows) at recruitment (age 1) where $\mathbf{O}_{s,0} = {\bf I}$. For the plus group $a=A$, $\mathbf{O}_{s,+} = \left(\mathbf{I} - \mathbf{O}_{s,A}\right)^{-1}$ is a ``fundamental matrix'' derived using the matrix version of the  geometric series [@kemenysnell60]. $\mathbf{f}_{s,a}$ is the vector of fecundities (product of weight and maturity) at age $a$ in each region. 
+
+
+---
+
+# Proportions at age
+```{r, echo = FALSE, fig.dim =c(8,5), fig.align="center"}
+mod <- readRDS(here::here("2023.RT.Runs", "Run34", "fit_repmore.RDS"))
+par(mfrow = c(1,2), oma = c(4,4,0,0),mar = c(1,2,3,1))
+stock <- c("North", "South")
+for(i in 1:2){
+	propAA0 <- mod$rep$NAAPR0_static[i,,i,i]
+	propAA0 <- propAA0/sum(propAA0)
+	propAAF40 <- mod$rep$NAAPR_FXSPR_static[i,,i,i]
+	propAAF40 <- propAAF40/sum(propAAF40)
+	propAA_term <- mod$rep$NAA[i,i,33,]
+	propAA_term <- propAA_term/sum(propAA_term)
+
+	plot(1:8, propAA0, ylim = c(0,0.45), xaxt = "n", ylab = "", type = 'n', xlab = "")
+	grid(col = gray(0.7))
+	lines(1:8,propAA0)
+	lines(1:8, propAAF40, lty = 2)
+	lines(1:8, propAA_term, col = "blue")
+	axis(1, at = 1:8, labels = mod$ages.lab)
+	if(i == 1) legend("topright", legend = c("Equilibrium unfished", "Equilibrium at F40", "2021"), col = c("black","black", "blue"), lty = c(1,2,1))
+	mtext(side = 3, stock[i], line = 0, outer = F)
+}
+mtext(side = 1, outer = T, "Age", line = 2.5)
+mtext(side = 2, outer = T, "Proportion", line = 2.5)
+```
+
+---
+
+layout: false
+class: middle, center
+
+# Projections (TOR 6)
+
+
+---
+
+layout: true
+
+
+---

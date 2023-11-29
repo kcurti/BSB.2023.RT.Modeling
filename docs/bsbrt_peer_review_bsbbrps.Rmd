@@ -1,0 +1,280 @@
+---
+title:  "Biological reference points for WHAM application to Black Sea Bass"
+subtitle: "Black sea bass Research Track"
+author: 
+  - "Tim Miller, Kierten Curti, Alex Hansell"
+output:
+  xaringan::moon_reader:
+    self_contained: true
+    css: ["xaringan-themer_16_9.css", "slides-style_TMB201.css"]
+    lib_dir: libs
+    nature:
+      ratio: '16:9'
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+
+layout: true
+
+.footnote[U.S. Department of Commerce | National Oceanic and Atmospheric Administration | National Marine Fisheries Service]
+
+
+<style type="text/css">
+
+code.cpp{
+  font-size: 14px;
+}
+code.r{
+  font-size: 14px;
+}
+
+
+</style>
+
+```{css, echo=FALSE}
+pre {
+  max-height: 400px;
+  max-width: 800px;
+  overflow-y: auto;
+}
+
+```
+
+
+```{r setup, include=FALSE}
+#options(htmltools.dir.version = FALSE)
+#library(knitr)
+#knitr::opts_chunk$set(cache = TRUE)
+#knitr::opts_knit$set(root.dir = here::here())
+#library(kableExtra)
+#library(imager)
+#here::i_am("c:/work/BSB_RT")
+
+library(here)
+
+```
+
+```{r xaringan-tile-view, echo=FALSE}
+# this gives you a tile navigation if you type "O" at any time
+#xaringanExtra::use_tile_view()
+```
+
+---
+#Outline <br>
+
+* General description of reference points in multi-stock extension of WHAM (TOR 5)
+* BRPs for black sea bass application (TOR 5)
+---
+
+# Equilibrium per recruit calculations
+
+
+The $n_r \times n_r$ matrix of equilibrium spawning stock biomass per recruit for stock $s$ in region $r'$ (columns) given recruiting in region $r$ (rows) is defined as
+$$\widetilde {\mathbf{O}}_s({\widetilde F}) = \sum^{A}_{a=1} \mathbf{O}_{s,a} \mathbf{O}_{s,a}(\delta_s) \text{diag}\left({\bf f}_{s,a}\right)$$
+
+where $\mathbf{O}_{s,a}(\delta_s)$ is $n_r x n_r$ is the matrix of probabilities of surviving and occurring in region $r'$ at age $a+\delta_s$ given starting in region $r$ at age $a$. It is the upper left sub-matrix of the probability transition matrix defined over the same interval. Similarly,
+$$\mathbf{O}_{s,a} = \left\{ \begin{array}{ll} \prod^{a-1}_{i=0}\mathbf{O}_{s,i}  & 1\leq a<A\\ \left[\prod^{a-1}_{i=0}\mathbf{O}_{s,i}\right] \mathbf{O}_{s,+} & a = A \end{array}\right.$$
+is the upper left sub-matrix of the probability transition matrix of states at age $a$ (columns) given being in each state (rows) at recruitment (age 1) where $\mathbf{O}_{s,0} = {\bf I}$. For the plus group $a=A$, $\mathbf{O}_{s,+} = \left(\mathbf{I} - \mathbf{O}_{s,A}\right)^{-1}$ is a "fundamental matrix" derived using the matrix version of the  geometric series. $\mathbf{f}_{s,a}$ is the vector of fecundities (product of weight and maturity) at age $a$ in each region. 
+
+
+---
+
+# Average FAA for black sea bass BRPs 
+
+* Fishing mortality at age is averaged over last five years by fleet
+
+```{r, echo = F, eval = T}
+mod <- readRDS(here::here("2023.RT.Runs", "Run34", "fit_repmore.RDS"))
+x <- round(mod$rep$FAA_static,2)
+rownames(x) <- mod$input$fleet_names
+colnames(x) <- mod$ages.lab
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+---
+
+# Selectivity for black sea bass BRPs 
+
+* Average fishing mortality at age and fleet is divided by the maximum of the total average FAA.
+
+```{r, echo = F, eval = T}
+x <- round(apply(mod$rep$FAA_static,2,sum),2)
+names(x) <- mod$ages.lab
+x <- knitr::kable(rbind(x), booktabs = T, escape=F, row.names = F)
+knitr::knit_print(x)
+```
+$$\\[12pt]$$
+```{r, echo = F, eval = T}
+x <- round(mod$rep$FAA_static/apply(mod$rep$FAA_static,2,sum)[8],2)
+rownames(x) <- mod$input$fleet_names
+colnames(x) <- mod$ages.lab
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+---
+
+# Weight at age for black sea bass BRPs
+
+* Weight at age for SSB and fleets are averaged over last 5 years
+
+```{r, echo = F, eval = T}
+x<- round(mod$rep$waa_ssb_static, 2)
+rownames(x) <- mod$input$stock_names
+colnames(x) <- mod$ages.lab
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+$$\\[12pt]$$
+```{r, echo = F, eval = T}
+x<- round(mod$rep$waa_catch_static, 2)
+rownames(x) <- mod$input$fleet_names
+colnames(x) <- mod$ages.lab
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+---
+
+# Maturity and M at age for black sea bass BRPs
+
+```{r, echo = F, eval = T}
+x<- round(mod$rep$mature_static, 2)
+rownames(x) <- mod$input$stock_names
+colnames(x) <- mod$ages.lab
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+$$\\[12pt]$$
+```{r, echo = F, eval = T}
+x<- round(exp(mod$rep$log_M_static)[,1,], 2)
+rownames(x) <- mod$input$stock_names
+colnames(x) <- mod$ages.lab
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+---
+
+# Unfished equlibrium survival for black sea bass BRPs (North)
+
+.pull-left[
+Recruits
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR0_static[1,1,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+Age 2
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR0_static[1,2,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+]
+
+.pull-right[
+Age 3
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR0_static[1,3,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+Age 4
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR0_static[1,4,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+]
+
+---
+
+# Unfished equlibrium survival for black sea bass BRPs (North)
+
+.pull-left[
+Age 5
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR0_static[1,5,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+Age 6
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR0_static[1,6,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+]
+
+.pull-right[
+Age 7
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR0_static[1,7,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+Age 8
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR0_static[1,8,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+]
+
+---
+
+# Proportions at age
+```{r, echo = FALSE, fig.dim =c(8,5), fig.align="center"}
+par(mfrow = c(1,2), oma = c(4,4,0,0),mar = c(1,2,3,1))
+stock <- c("North", "South")
+for(i in 1:2){
+	propAA0 <- mod$rep$NAAPR0_static[i,,i,i]
+	propAA0 <- propAA0/sum(propAA0)
+	propAAF40 <- mod$rep$NAAPR_FXSPR_static[i,,i,i]
+	propAAF40 <- propAAF40/sum(propAAF40)
+	propAA_term <- mod$rep$NAA[i,i,33,]
+	propAA_term <- propAA_term/sum(propAA_term)
+
+	plot(1:8, propAA0, ylim = c(0,0.45), xaxt = "n", ylab = "", type = 'n', xlab = "")
+	grid(col = gray(0.7))
+	lines(1:8,propAA0)
+	lines(1:8, propAAF40, lty = 2)
+	lines(1:8, propAA_term, col = "blue")
+	axis(1, at = 1:8, labels = mod$ages.lab)
+	if(i == 1) legend("topright", legend = c("Equilibrium unfished", "Equilibrium at F40", "2021"), col = c("black","black", "blue"), lty = c(1,2,1))
+	mtext(side = 3, stock[i], line = 0, outer = F)
+}
+mtext(side = 1, outer = T, "Age", line = 2.5)
+mtext(side = 2, outer = T, "Proportion", line = 2.5)
+```
+
+---
+
+layout: false
+class: middle, center
+
+# Projections (TOR 6)
+
+
+---
+
+layout: true
+
+
+---

@@ -19,9 +19,10 @@
  *
  * ------------------------------------------------------- */
 @import url(https://fonts.googleapis.com/css?family=Raleway:300,300i&display=swap);
+/*@import url('https://fonts.googleapis.com/css?family=Nunito:300&text=0123456789');@charset "UTF-8";*/
+@import url('https://fonts.googleapis.com/css?family=Nunito:300,300i&display=swap');
 @import url(https://fonts.googleapis.com/css?family=Raleway&display=swap);
 @import url(https://fonts.googleapis.com/css?family=Source+Code+Pro&display=swap);
-
 
 :root {
   /* Fonts */
@@ -63,7 +64,8 @@ html {
 }
 
 body {
-  font-family: var(--text-font-family), var(--text-font-family-fallback), var(--text-font-base);
+  font-family: 'Nunito', 'Raleway', sans-serif;
+  /*font-family: var(--text-font-family), var(--text-font-family-fallback), var(--text-font-base);*/
   font-weight: 300;
   color: var(--text-color);
 }

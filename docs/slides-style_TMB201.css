@@ -19,6 +19,13 @@
   --cornhusk-30: #F4DBB330;
 }
 
+/* body {
+  font-family: 'Nunito', 'Raleway', sans-serif;
+}
+.class {
+font-variant-numeric: lining-nums;
+} */
+
 
 /* Title slide customization */
 .title-slide h1 {
@@ -175,9 +182,9 @@ pre {
 
 /* Progress bar */
 /* https://github.com/yihui/xaringan/wiki/Progressbar */
-.remark-slide-number {
+/*.remark-slide-number {
   position: inherit;
-}
+}*/
 
 .remark-slide-number .progress-bar-container {
   position: absolute;

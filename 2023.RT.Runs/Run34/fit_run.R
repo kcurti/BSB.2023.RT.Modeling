@@ -335,6 +335,43 @@ temp <- mod$input
 temp$par <- mod$parList
 test <- fit_wham(temp, do.fit = F)
 test <- wham:::do_sdrep(test, save.sdrep = TRUE)
+saveRDS(test, file = "c:/work/BSB.2023.RT.Modeling/2023.RT.Runs/Run34/fit_repmore.RDS")
+
+par(mfrow = c(1,2))
+stock <- c("North", "South")
+for(i in 1:2){
+	propAA0 <- test$rep$NAAPR0_static[i,,i,i]
+	propAA0 <- propAA0/sum(propAA0)
+	propAAF40 <- test$rep$NAAPR_FXSPR_static[i,,i,i]
+	propAAF40 <- propAAF40/sum(propAAF40)
+	propAA_term <- test$rep$NAA[i,i,33,]
+	propAA_term <- propAA_term/sum(propAA_term)
+
+	plot(1:8, propAA0, ylim = c(0,0.45), xaxt = "n", ylab = "Proportion at age", type = 'n', xlab = "Age")
+	grid(col = gray(0.7))
+	lines(1:8,propAA0)
+	lines(1:8, propAAF40, lty = 2)
+	lines(1:8, propAA_term, col = "blue")
+	axis(1, at = 1:8, labels = test$ages.lab)
+	legend("topright", legend = c("Equilibrium unfished", "Equilibrium at F40", "2021"), col = c("black","black", "blue"), lty = c(1,2,1))
+	mtext(side = 3, stock[i], line = 1, outer = F)
+}
+x <- round(test$rep$FAA_static,2)
+rownames(x) <- test$input$fleet_names
+colnames(x) <- test$ages.lab
+x
+x <- round(apply(test$rep$FAA_static,2,sum),2)
+names(x) <- test$ages.lab
+x
+x <- round(test$rep$FAA_static/apply(test$rep$FAA_static,2,sum)[8],2)
+rownames(x) <- test$input$fleet_names
+colnames(x) <- test$ages.lab
+x
+x <- round(test$rep$sel_static,2)
+rownames(x) <- test$input$fleet_names
+colnames(x) <- test$ages.lab
+x
+
 
 mean(mod$rep$pred_NAA[1,1,which(mod$years>1999),1])
 std <- summary(mod$sdrep, "report")
