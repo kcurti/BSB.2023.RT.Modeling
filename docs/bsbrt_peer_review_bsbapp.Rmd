@@ -18,7 +18,9 @@ output:
 
 layout: true
 
+
 .footnote[U.S. Department of Commerce | National Oceanic and Atmospheric Administration | National Marine Fisheries Service]
+
 
 
 <style type="text/css">
@@ -60,84 +62,6 @@ library(here)
 
 ```
 
-```{r xaringan-tile-view, echo=FALSE}
-# this gives you a tile navigation if you type "O" at any time
-#xaringanExtra::use_tile_view()
-```
-
----
-#Outline <br>
-
-* General description of new features of multi-stock extension of WHAM (TOR 4)
----
-
-#Bridge building: Similar estimates
-```{r, echo = FALSE, out.width="75%", fig.align="center"}
-knitr::include_graphics(here::here("docs","plots","compare_one_stock_models.png"))
-```
-
----
-#Bridge building: Similar estimates
-```{r, echo = FALSE, out.width="75%", fig.align="center"}
-knitr::include_graphics(here::here("docs","plots","compare_two_stock_less.png"))
-```
-
----
-
-
-layout: false
-class: middle, center
-
-# Application to Black Sea Bass
-
-
----
-
-layout: true
-
----
-
-#Jittering initial values for combined model
-
-Create an unfitted model and use random draws around default initial values for fitting.
-.pull-left[
-```{r, eval = FALSE}
-temp <- fit_wham(input0_less, do.fit=F) 
-set.seed(123)
-jit.nll <- sapply(1:100, function(x){
-	nlminb(rnorm(length(temp$par), mean = temp$par, sd = 0.1), temp$fn, temp$gr, control = list(iter.max = 1000, eval.max = 1000))$obj	
-})
-```
-]
-.pull-right[
-```{r, echo = FALSE, out.width="80%", fig.align="center"}
-knitr::include_graphics(here::here("docs","plots","jitter_plot_scaa.png"))
-```
-]
----
-
-#Bridge building: Success!
-```{r, echo = FALSE, out.width="75%", fig.align="center"}
-knitr::include_graphics(here::here("docs","plots","compare_two_stock_less_multi_good.png"))
-```
----
-
-
-#Movement hypothesis:
-```{r, echo = FALSE, out.width="80%", fig.align="center"}
-knitr::include_graphics(here::here("docs","plots","migration_diagram_1.jpg"))
-```
-Currently:
-* All Jan 1 recruitment for a given stock only in respective regions
-* All North fish move back to their spawning region at end of season 5
-* All North fish remain in spawning region until end of season 7
-* Spawning season is only time when whole North population is in spawning region
-* South population is only in South.
-
----
-
-#Evidence for bottom temperature effects on recruitment
-
 ```{r, echo = F, eval = T}
 library(TMB)
 null_mod <- readRDS(here::here("2023.RT.Runs","Run33","fit_no_effect.RDS"))
@@ -155,6 +79,867 @@ ssb_tot_ind <- which(rownames(std) == "log_SSB_all")
 #sum(exp(std[which(rownames(std) == "log_SSB_FXSPR_static")[1:2],1]))
 predR_ind <- which(rownames(std) == "log_SPR_FXSPR")
 ```
+
+```{r xaringan-tile-view, echo=FALSE}
+# this gives you a tile navigation if you type "O" at any time
+#xaringanExtra::use_tile_view()
+```
+
+---
+#Outline <br>
+
+* Description of proposed base model
+* Results
+* Diagnostics
+* Path to the base model
+  * Initial bridge building
+  * Progression of model development
+
+---
+
+layout: false
+class: middle, center
+
+# Description of proposed base model
+
+
+---
+
+layout: true
+
+.footnote[U.S. Department of Commerce | National Oceanic and Atmospheric Administration | National Marine Fisheries Service]
+
+
+---
+
+# General attributes
+
+* 2 regions
+  * North
+  * South
+* 2 stock components:
+  * North
+  * South
+* Model years: 1989 - 2021
+* Ages: 1-8+
+* 2 Environmental processes (1959-2022)
+  * Bottom temperature in North
+  * Bottom temperature in South
+
+---
+
+#Movement configuration:
+
+```{r, echo = FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","migration_diagram_1.jpg"))
+```
+* All Jan 1 recruitment for a given stock component only in respective regions
+* North fish can only move from south to north in first 5 seasons
+* North fish can only move from north to south in last 4 seasons
+* Any remaining North fish that are in the south move back to their spawning region at end of season 5
+* All North fish remain in North spawning region until end of season 7
+* Spawning season is only time when whole North population is in spawning region
+* South population stays in South.
+
+---
+
+#Movement configuration:
+
+* The monthly/seasonal movement matrix after spawning:
+$$\mathbf{p}_{1} = \begin{bmatrix} 1-p_1 & p_1 \\ 0 & 1 \\ \end{bmatrix}$$
+* Before spawning:
+$$\mathbf{p}_{2} = \begin{bmatrix} 1 &  0 \\ p_2 & 1-p_2 \\ \end{bmatrix}$$
+
+---
+
+#Movement rates from Stock Synthesis
+
+* The Stock Synthesis model has 2 seasons (6 months each) 
+* proportion $P_1$ of the northern component moves to the south in one season and some proportion $P_2$ move back to the south in the second season. 
+* The movement matrices for each season are $$\mathbf{P}_{1} = \begin{bmatrix} 1-P_1 & P_1 \\ 0 & 1 \\ \end{bmatrix}$$
+and $$\mathbf{P}_{2} = \begin{bmatrix} 1 &  0 \\ P_2 & 1-P_2 \\ \end{bmatrix}$$
+
+---
+
+#Transforming to shorter seasons in WHAM
+
+* Approximate the monthly movement matrices as the roots of $\mathbf{P}_1$ and $\mathbf{P}_2$ defined by the number of months of movement for each season (5 and 4, respectively): 
+  * Given the proportion parameter, the eigen decomposition of the matrices can be used to define the roots $$\mathbf{P}_1^{\frac{1}{5}} = \mathbf{V}_1 \mathbf{D}_1^{\frac{1}{5}} \mathbf{V}_1^{-1}$$ $$\mathbf{P}_2^{\frac{1}{4}} = \mathbf{V}_2 \mathbf{D}_2^{\frac{1}{4}} \mathbf{V}_2^{-1}$$ where $\mathbf{V}_i$ and $\mathbf{D}_i$ are the matrix of eigenvectors (columnwise) and the diagonal matrix of corresponding eigenvalues of $\mathbf{P}_i$ for parameter $P_i$. 
+
+---
+
+#Parameterizing the prior distribution
+
+* The actual SS parameter estimates $x_1=-1.44$ and $x_2=1.94$ are transformations of $P_1=0.11$ and $P_2=0.78$ such that
+$$P_i = \frac{1}{1 + 2e^{-x_i}}$$
+* Multi-WHAM uses an additive logit transformation (simply a logit transformation when there are only two regions): 
+$$p_i = \frac{1}{1+e^{-y_i}}$$
+---
+
+#Parameterizing the movement prior distributions
+
+Used a parametric bootstrap approach:
+* Simulate 1000 values from a normal distribution with mean and standard deviation defined by the SS parameter estimate and standard error $\tilde x_i \sim N(x_i, SE(x_i))$. 
+* For each simulated value 
+  * construct $\mathbf{P}_i$, 
+  * take the appropriate root,
+  * calculated inverse logit for $\tilde y_i$. 
+  * calculate the mean and SD of the simulated values $\tilde y_i$. 
+  * mean values did not differ meaningfully from the transformation of the original estimates: $y_1 = -3.79$ and $y_2 = -0.79$
+  * SD was approximately 0.2 for both parameters.
+* distributions for random effects defining the movement parameters configured using the mean and SD from the bootstraps.
+---
+
+#Initial abundance at age
+
+* With the movement configuration, northern origin fish (ages 2+) can occur in the southern region on January 1. 
+* Estimating initial numbers at age as separate parameters can be challenging even in single-stock models. 
+* To avoid difficulties, we used the equilibrium assumption described previously. 
+* Two parameters are estimated for each regional stock component: an initial recruitment and an equilibrium full F across all fleets.
+
+---
+
+#Recruitment and Survival/movement transitions
+
+* 2DAR1 (age and year) correlated random effects for both the northern and southern components.
+* Variance and correlation parameters are different for the northern and southern components.
+* Northern component:
+  * abundance at age 1 on January 1 (recruitment) is only allowed in the northern region, 
+  * older individuals may occur in either region on Jan 1 (based on movement description)
+  * survival random effects will occur for abundances at age in both regions. 
+  * Base model assumes very small variance for the transitions in the southern region (approximately SCAA)
+    * 2DAR1 models with estimated variance for this region would not converge (correlation could not be estimated).
+
+---
+
+# Observations 
+
+* Aggregate catch: 2 fleets in each region:
+  * Commercial (1989-2021)
+  * Recreational (1989-2021)
+* Aggregate indices: 2 in each region:
+  * Spring VAST (1989-2021)
+  * Recreational CPA (1989-2021)
+* Age composition for all fleets and indices (1989-2021)
+* Model-based Bottom temperature observation in each region (1959-2022)
+
+---
+
+# Selectivity
+
+$$\\[12pt]$$
+
+```{r, echo = F, eval = T}
+age_comp_names <- c("North Commercial", "North Recreational", "South Commercial", "South Recreational",
+  "North Recreational CPA", "North VAST", "South Recreational CPA", "South VAST")
+mean_sel_mod <- c("age-specific (flat-topped at ages > 3)",
+  "age-specific (flat-topped at ages > 6)",
+  "logistic", "logistic",
+  "age-specific (flat-topped at ages > 1)",
+  "age-specific (flat-topped at ages > 4)",
+  "age-specific (flat-topped at ages > 2)",
+  "age-specific (flat-topped at ages > 1)")
+sel_re_mod <- c("2D-AR1 (age and year)", 
+  "2D-AR1 (age and year)",
+  "None",
+  "None",
+  "AR1 (year)",
+  "2D-AR1 (age and year)",
+  "None",
+  "None")
+out <- cbind.data.frame("Data component" = age_comp_names,  
+  "Mean Selectivity model" = mean_sel_mod, "Random effects configuration" = sel_re_mod)
+
+out %>% kable(format = type, booktabs = T, escape=F, row.names = F, align = c(rep("l",3)))
+```
+
+---
+
+# Age composition models
+
+$$\\[12pt]$$
+
+```{r, echo = F, eval = T}
+age_comp_names <- c("North Commercial", "North Recreational", "South Commercial", "South Recreational",
+  "North Recreational CPA", "North VAST", "South Recreational CPA", "South VAST")
+age_comp_mod <- c("Dirichlet-Multinomial", "Logistic-normal (0s as missing)", "Logistic-normal (AR1, 0s as missing)","Logistic-normal (AR1, 0s as missing)", "Logistic-normal (0s as missing)","Dirichlet-Multinomial","Logistic-normal (AR1, 0s as missing)","Logistic-normal (AR1, 0s as missing)")
+out <- cbind.data.frame("Data component" = age_comp_names,  "Age Composition Likelihood" = age_comp_mod)
+
+out %>% kable(format = type, booktabs = T, escape=F, row.names = F,
+    align = c(rep("l",2)))
+```
+---
+
+#Uncertainty in Rec CPA indices
+
+* CVs provided by analyses that generated Rec CPA indices were deemed implausibly small (CVs: 0.02 to 0.06).
+* In many early runs and proposed base model we estimated a scalar of the SD of the log-aggregate Rec CPA indices.
+  * Estimates of the scalar were usually approximately 5 for the north and the south Rec CPA indices.
+* Estimation included in the proposed base model allow more realistic estimates of uncertainty in model output.
+
+---
+
+#Bottom Temperature effects on recruitment
+
+* Included model-based bottom temperature observations in the BSB model.
+* Very small uncertainty in observations (SEs: 0.03 to 0.09).
+* Modeled latent covariate as AR1 process.
+* Fit models with and without effects on northern and southern recruitment $$\log R_y = \mu_R + \beta x_y + \epsilon_y.$$
+  * Examined AIC for full model and all retrospective peels.
+* Might be worth exploring an alternative effect on $M$ for age 1.
+  * Would also affect reference points and projections differently.
+
+---
+
+
+layout: false
+class: middle, center
+
+#Results
+
+
+---
+
+layout: true
+
+.footnote[U.S. Department of Commerce | National Oceanic and Atmospheric Administration | National Marine Fisheries Service]
+
+
+---
+
+# SSB, R: North
+
+```{r echo = FALSE, out.width="50%", fig.show = "hold", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SSB_Rec_time_BSB_North.png"))
+```
+---
+
+# SSB, R: South
+
+```{r echo = FALSE, out.width="50%", fig.show = "hold", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SSB_Rec_time_BSB_South.png"))
+```
+---
+
+# SSB, R: Total
+
+```{r echo = FALSE, out.width="50%", fig.show = "hold", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SSB_Rec_time_total.png"))
+```
+---
+
+# SSB, F
+
+```{r SSB-F, echo = FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SSB_F_trend.png"))
+```
+---
+
+#F by fleet
+
+```{r F-by-fleet, echo = FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","F_byfleet.png"))
+```
+---
+
+# Bottom temperature
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","Ecov_1_North_BT.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","Ecov_2_South_BT.png"))
+```
+]
+---
+
+
+# Northern recruitment and bottom temperature
+
+```{r echo = F, eval = T, out.width = "50%", fig.align = "center"}
+std <- summary(Run34$sdrep, "fixed")
+inds <- list(ssb =which(rownames(std) == "log_SSB_all"))
+
+Ecov_est <- Run34$rep$Ecov_out_R[1,,1]
+Ecov <- seq(min(Ecov_est), max(Ecov_est), 0.01)
+ind_slope <-which(rownames(std) == "Ecov_beta_R")
+ind_int <- which(rownames(std) == "mean_rec_pars")[1] #north
+
+beta <- std[c(ind_int,ind_slope),1]
+cov.beta <- Run34$sdrep$cov.fixed[c(ind_int,ind_slope),c(ind_int,ind_slope)]
+X <- cbind(1, Ecov)
+pred.log.R <- c(X%*%beta)
+sd.pred.log.R <- diag(X %*% cov.beta %*% t(X))
+ci <- qnorm(0.975)*sd.pred.log.R
+ci <- pred.log.R + cbind(-ci,ci)
+plot(Ecov, exp(pred.log.R), type = 'l', xlab = "Bottom Temperature", ylab = bquote(North~hat(R)))
+polygon(c(Ecov, rev(Ecov)), exp(c(ci[,1],rev(ci[,2]))), col=adjustcolor("black", alpha.f=0.4), border = "transparent")
+
+```
+---
+
+# NAA random effects deviations 
+
+```{r echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","NAA_dev_tile.png"))
+```
+---
+
+#Selectivity
+
+```{r selectivity, echo = FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SelAA_tile.png"))
+```
+---
+
+# Prior and posterior movement rates
+
+```{r move-prior-posterior, fig.dim =c(14,7), echo = F, eval= T}
+dlogitnorm <- function(x, p, sigma){
+
+	y <- log(x/(1-x))
+	mu <- log(p/(1-p))
+	fx <- dnorm(y, mu, sigma, log = F) /(x*(1-x)) 
+	return(fx)
+}
+
+par(mfrow = c(1,2), mar = c(4,4,1,1), oma = c(1,1,1,1))
+ps <- seq(0,0.1,0.001)
+#prior for both north-south and south-north
+plot(ps, dlogitnorm(ps,0.02214863, 0.2), type = 'l', lwd = 2, xlab = "P(North to South)", ylab = "f(P)", ylim = c(0,300))
+abline(v=0.02214863, lwd =2)
+#posterior for north to south
+lines(ps, dlogitnorm(ps, p = Run34$rep$mu[1,8,8,1,1,2], sigma = TMB:::as.list.sdreport(Run34$sdrep, "Std")$mu_prior_re[1,8,1,1]), lwd = 2, col = "red")
+abline(v=Run34$rep$mu[1,8,8,1,1,2], col = "red", lwd = 2)
+
+ps <- seq(0,0.6,0.001)
+plot(ps, dlogitnorm(ps,0.3130358, 0.2), type = 'l', lwd = 2, xlab = "P(South to North)", ylab = "f(P)")
+abline(v=0.3130358, lwd =2)
+#posterior for north to south
+lines(ps, dlogitnorm(ps, p = Run34$rep$mu[1,8,1,1,2,1], sigma = TMB:::as.list.sdreport(Run34$sdrep, "Std")$mu_prior_re[1,8,2,1]), lwd = 2, col = "red")
+abline(v=Run34$rep$mu[1,8,1,1,2,1], col = "red", lwd = 2)
+
+```
+
+---
+
+
+layout: false
+class: middle, center
+
+# Diagnostics for base model
+
+
+---
+
+layout: true
+
+.footnote[U.S. Department of Commerce | National Oceanic and Atmospheric Administration | National Marine Fisheries Service]
+
+
+---
+
+# Jitter analysis
+
+* Simulated 100 fixed effects parameter vectors from a normal distribution with mean equal to the optimized values and covariance equal to the hessian-based covariance matrix of the optimzed model. 
+* All of the re-fits of the mdoel resulted in the same marginal negative log-likelihood. 
+* The gradients at these optimized values were all satisfactory with maximum absolute values less the $10^{-9}$.
+
+---
+
+#Jitter analysis
+
+
+```{r, echo = FALSE, fig.dim =c(14,7), fig.align="center"}
+jitsim_files <- grep("jitter_sim", dir(here::here("2023.RT.Runs","Run34"), full.names = T), value = T)
+jit_res <- lapply(jitsim_files, readRDS)
+par(mfrow = c(1,2), oma = c(5,1,1,1), mar = c(1,5,1,1))
+x <- round(sapply(jit_res, function(x) x$obj),5)
+#x <- round(exp(log(-x)),5)
+#plot(x, xlab = "", ylab = "", log = "y", xaxt = 'n', yaxt = "n", ylim = c(max(x,na.rm=T),min(x,na.rm=T)))
+plot(x, xlab = "", ylab = "", xaxt = 'n', yaxt = "n", ylim = c(max(x,na.rm=T)+2,min(x,na.rm=T)-2))
+axis(2)#, at = pretty(x), labels = -pretty(x))
+rug((1:length(x))[which(is.na(x))], lwd = 3, ticksize = 0.05, col= "red")
+axis(1, labels = T)
+grid(col = gray(0.7))
+mtext(side = 2, "Marginal NLL", line = 2)
+x <- sapply(jit_res, function(x) max(abs(x$grad)))
+xlabs <- pretty(x)
+#ymax <- max(x[which(x<1e-6)], na.rm =T)
+plot(x, xlab = "", ylab = "", log = "y")#, ylim = c(0,ymax))
+rug((1:length(x))[which(is.na(x))], lwd = 3, ticksize = 0.05, col= "red")
+grid(col = gray(0.7))
+mtext(side = 1, "Iteration", outer = TRUE, line = 2)
+mtext(side = 2, "Maximum absolute\ngradient", line = 2)
+```
+
+---
+
+#Self-test
+
+* Simulated new observations conditional on all random effects estimated in the proposed base model 
+* Fitted the same model configuration each of the simulated data sets. 
+* For 7 of the the simulated data sets the model failed to optimize. 
+* The maximum absolute gradient was $<10^{-6}$ for only 9 and $<10^{-4}$ for 52 of the 93 successfully fitted models. 
+* The poor convergence appeared to be attributable to the estimation of the scalar for the standard errors of the log-transformed northern Recreational CPA index
+  * Estimates tended to 0 for nearly all of the fits ($<0.01$ for 83 fits). 
+* Even across all fits including those with poor convergence, the SSB estimates appeared to be reliable.
+
+---
+#Self-test
+
+```{r, echo = FALSE, fig.dim =c(14,7), fig.align="center"}
+condsim_files <- grep("cond_sim", dir(here::here("2023.RT.Runs","Run34"), full.names = T), value = T)
+sim_res <- lapply(condsim_files, readRDS)
+#fit <- readRDS(here::here("2023.RT.Runs","Run34","fit_best.RDS"))
+fit <- Run34
+
+par(mfrow = c(1,2), mar = c(1,1,3,1), oma = c(4,4,1,1))
+titles <- c("North","South")
+for(i in 1:2){
+	SSB_n <- sapply(sim_res, function(x) x$SSB[,i])
+	reccpapars <- sapply(sim_res, function(x) x$par[names(x$par) %in% c("log_index_sig_scale")])
+	reldiff <- (SSB_n - fit$rep$SSB[,i])/fit$rep$SSB[,i]
+	good_grad <- which(sapply(sim_res, function(x) max(abs(x$grad))<1e-5))
+	bias_est <- apply(reldiff,1,mean, na.rm =T)
+	bias_se <- apply(reldiff,1,sd, na.rm =T)/sqrt(sum(!is.na(reldiff[1,])))
+	# bias_est <- apply(reldiff[,good_grad],1,mean)
+	# bias_se <- apply(reldiff[,good_grad],1,sd)/sqrt(length(good_grad))
+	bias_lo <- bias_est - qnorm(0.975)*bias_se
+	bias_hi <- bias_est + qnorm(0.975)*bias_se
+	plot(fit$years, bias_est, ylim = range(c(bias_lo,bias_hi)), xlab = "", ylab = "")
+	abline(h=0, col = "red")
+	grid(col = gray(0.7))
+	mtext(side =3, titles[i], line = 0, outer = F)
+	polygon(c(fit$years,rev(fit$years)), c(bias_lo, rev(bias_hi)), col=adjustcolor("black", alpha.f=0.4), border = "transparent")
+}
+mtext(side = 2, "Relative bias (SSB)", line= 2, outer = T)
+mtext(side = 1, "Year", line = 2, outer = T)
+```
+---
+
+#MASE
+
+* We fit 7 configurations of the model where the last 1 to 7 years of aggregate index and age composition observations were removed sequentially (peels). 
+* Calculate the mean absolute scaled error (MASE) of the predictions at 1 to 5 years beyond the final year of index observations (horizons). 
+  * The mean absolute errors are scaled by the mean absolute errors of so-called naïve predictions using the aggregate index observation from the final year of each peel. 
+* A MASE < 1 results when the mean absolute error is greater using the model than the naïve forecast. 
+* For the proposed base model, predictions for 3 of the 4 surveys performed similarly to naïve predictions across all horizons, 
+* BUT MASE scores were much greater than 1 for the northern region recreational CPA index at all horizons. 
+  * The large MASE values occur because the index has no trend and low variability over the years used for the calculation whereas the model predictions vary much more.
+
+---
+
+#MASE
+
+```{r echo = FALSE, out.width = "50%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","mase_WHAM for unnamed stock.png"))
+```
+---
+
+#MASE
+```{r echo = FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","predicted_vs_obs_WHAM for unnamed stock.png"))
+```
+---
+
+
+#One-step-ahead residuals
+
+* For composition observations and for aggregate observations in state-space models, Pearson residuals do not have the appropriate properties: 
+  * independent standard normal for a correctly specified model
+* Due to lack of independence of observations.
+* One-step-ahead (OSA) residuals have this property
+* However, understanding causes of mis-specification can be difficult.
+
+
+---
+
+
+<!-- OSA North Comm-->
+
+#OSA: North commercial fleet
+
+.pull-left[
+* no evidence of mis-specification aggregate catch. 
+]
+
+.pull-right[
+```{r, echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_catch_4panel_North_Commercial.png"))
+```
+]
+---
+
+#OSA: North commercial fleet
+
+* some indication of trends in residuals of some of the age composition observations early in the time series and for the the first age class. 
+
+.pull-left[
+```{r, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_paa_6panel_North_Commercial.png"))
+```
+]
+.pull-right[
+```{r, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","Catch_age_comp_osa_resids_North_Commercial.png"))
+```
+]
+---
+
+<!-- OSA North Rec-->
+
+#OSA: North recreational fleet
+
+.pull-left[
+* residuals appeared satisfactory. 
+]
+
+.pull-right[
+```{r osa-North-rec-catch-summ, echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_catch_4panel_North_Recreational.png"))
+```
+]
+---
+
+#OSA: North recreational fleet
+
+* residuals showed some tendency of underdispersion
+
+.pull-left[
+```{r osa-North-rec-paa-summ, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_paa_6panel_North_Recreational.png"))
+```
+]
+.pull-right[
+```{r osa-North-rec-paa, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","Catch_age_comp_osa_resids_North_Recreational.png"))
+```
+]
+---
+
+<!-- OSA North rec cpa -->
+
+#OSA: North Rec CPA index
+
+.pull-left[
+* no signs of mis-specification
+]
+.pull-right[
+```{r osa-North-reccpa-catch-summ, echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_catch_4panel_North_REC_CPA.png"))
+```
+]
+---
+
+#OSA: North Rec CPA index
+
+* no signs of mis-specification
+
+.pull-left[
+```{r osa-North-reccpa-paa-summ, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_paa_6panel_North_REC_CPA.png"))
+```
+]
+.pull-right[
+```{r osa-North-reccpa-paa, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","Catch_age_comp_osa_resids_North_REC_CPA.png"))
+```
+]
+---
+
+<!-- OSA North vast -->
+
+#OSA: North VAST index
+
+.pull-left[
+* some evidence of tendency toward negative residuals
+]
+.pull-right[
+```{r osa-North-vast-catch-summ, echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_catch_4panel_North_VAST_Spring.png"))
+```
+]
+---
+
+#OSA: North VAST index
+
+* some indication of positive residuals, particularly at age 1
+
+.pull-left[
+```{r osa-North-vast-paa-summ, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_paa_6panel_North_VAST_Spring.png"))
+```
+]
+.pull-right[
+```{r osa-North-vast-paa, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","Catch_age_comp_osa_resids_North_VAST_Spring.png"))
+```
+]
+---
+
+<!-- OSA South Comm-->
+
+#OSA: South commercial fleet
+
+.pull-left[
+* residuals tended to be negative
+]
+.pull-right[
+```{r osa-South-comm-catch-summ, echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_catch_4panel_South_Commercial.png"))
+```
+]
+---
+
+#OSA: South commercial fleet
+
+* no evidence of mis-specification
+
+.pull-left[
+```{r osa-South-comm-paa-summ, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_paa_6panel_South_Commercial.png"))
+```
+]
+.pull-right[
+```{r osa-South-comm-paa, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","Catch_age_comp_osa_resids_South_Commercial.png"))
+```
+]
+---
+
+<!-- OSA South Rec-->
+
+#OSA: South recreational fleet
+
+.pull-left[
+* residuals were under-dispersed but no trends. 
+]
+.pull-right[
+```{r osa-South-rec-catch-summ, echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_catch_4panel_South_Recreational.png"))
+```
+]
+---
+
+#OSA: South recreational fleet
+
+* somewhat underdispersed, but no trends
+
+.pull-left[
+```{r osa-South-rec-paa-summ, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_paa_6panel_South_Recreational.png"))
+```
+]
+.pull-right[
+```{r osa-South-rec-paa, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","Catch_age_comp_osa_resids_South_Recreational.png"))
+```
+]
+---
+
+<!-- OSA South rec cpa -->
+
+#OSA: South Rec CPA index
+
+.pull-left[
+* somewhat under-dispersed
+]
+.pull-right[
+```{r osa-South-reccpa-catch-summ, echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_catch_4panel_South_REC_CPA.png"))
+```
+]
+---
+
+#OSA: South Rec CPA index
+
+* a few large negative residuals at older ages, but otherwise no apparent trends
+
+.pull-left[
+```{r osa-South-reccpa-paa-summ, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_paa_6panel_South_REC_CPA.png"))
+```
+]
+.pull-right[
+```{r osa-South-reccpa-paa, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","Catch_age_comp_osa_resids_South_REC_CPA.png"))
+```
+]
+---
+
+<!-- OSA South vast -->
+
+#OSA: South VAST index
+
+.pull-left[
+* somewhat over-dispersed
+]
+.pull-right[
+```{r osa-South-vast-catch-summ, echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_catch_4panel_South_VAST_Spring.png"))
+```
+]
+---
+
+#OSA: South VAST index
+
+* some trend with observed proportion and age
+
+.pull-left[
+```{r osa-South-vast-paa-summ, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","OSA_resid_paa_6panel_South_VAST_Spring.png"))
+```
+]
+.pull-right[
+```{r osa-South-vast-paa, echo = FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "diagnostics","Catch_age_comp_osa_resids_South_VAST_Spring.png"))
+```
+]
+---
+
+#Retrospective patterns
+
+* Seven peels of the base model.
+* Strong retrospective patterns in the most recent management track assessment for the northern component of the stock, do not occur in base model.
+
+---
+
+#Retrospective patterns: North SSB
+.pull-left[
+```{r echo = FALSE, fig.show="hold", out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "retro","BSB_North_SSB_retro.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, fig.show="hold", out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "retro","BSB_North_SSB_retro_relative.png"))
+```
+]
+---
+
+#Retrospective patterns: North F (average of ages 6-7)
+.pull-left[
+```{r echo = FALSE, fig.show="hold", out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "retro","North_Fbar_retro.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, fig.show="hold", out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "retro","North_Fbar_retro_relative.png"))
+```
+]
+---
+
+#Retrospective patterns: South SSB
+.pull-left[
+```{r echo = FALSE, fig.show="hold", out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "retro","BSB_South_SSB_retro.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, fig.show="hold", out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "retro","BSB_South_SSB_retro_relative.png"))
+```
+]
+---
+
+#Retrospective patterns: South F (average of ages 6-7)
+.pull-left[
+```{r echo = FALSE, fig.show="hold", out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "retro","South_Fbar_retro.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, fig.show="hold", out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "retro","South_Fbar_retro_relative.png"))
+```
+]
+---
+
+
+layout: false
+class: middle, center
+
+# Path to the base model
+
+
+---
+
+layout: true
+
+.footnote[U.S. Department of Commerce | National Oceanic and Atmospheric Administration | National Marine Fisheries Service]
+
+
+---
+
+#Bridging from ASAP to WHAM
+
+.pull-left[
+* Time series of observations not updated
+* Use previous fleet definitions.
+* Management track ASAP 
+* Separate fits in standard WHAM
+* Simultaneous (separate) fits in Multi-WHAM
+]
+
+.pull-right[
+```{r compare-asap-wham, echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots","compare_one_stock_models.png"))
+```
+]
+---
+
+# Early runs (1-18)
+
+* See table in the working paper
+* used updated and new observations 
+* included surveys as either separate indices or combined in fall and spring VAST indices (other than the recreational CPA)
+* explored alternative selectivity and age comp likelihood assumptions: reduce patterns in age comp OSA residuals. 
+* WG determined to use aggregate VAST indices that account for changes in catchability.
+* However, age comp for fall VAST and NEAMAP were incorrectly calculated
+* Runs 19+ only used the spring VAST and Rec CPA indices.
+
+---
+
+# Middle runs (19-27)
+
+* issues with patterns in OSA residuals remained 
+* sometimes large retrospective patterns for the northern component. 
+* After Run 27, we used separate models for north and south to more efficiently explore alternative assumptions about selectivity and age composition likelihoods
+* These analyses resulted in assumptions that remained the same across all later runs
+  * Different age composition model assumptions for some of the fleets and indices 
+  * Use of selectivity random effects for the northern fleets and indices. 
+
+---
+
+# Late runs (28-34)
+
+* Corrected some previous assumptions about movement
+  * rates from SS were not corrected for differences in seasonal time steps
+  * rates of movement for northern component to and from north were both occurring over all seasonal intervals outside of spawning
+  * incorrect movement rate from south to north.
+* Runs 30+ assume negligible variance of survival random effects for northern origin fish occurring in the south on Jan 1.
+  * allows yearly AR1 correlation to be estimated.
+* Runs that did not converge well:
+  * Run 31 assumed temporal random effects on the movement rate from the north to the south
+  * Run 32 assumed a Beverton-Holt stock recruit relationships for both the north and south components
+* Run 33 investigated bottom temperature effects on recruitment and we found evidence of an effect on northern recruitment.  
+* Run 34 relaxed estimated scalar for uncertainty in the Recreational CPA indices
+* After these runs we discovered a coding error in constructing initial numbers at age under an equilibrium assumption. 
+  * small changes in results Run 34: absolute differences in annual SSB estimates were less than 7%. 
+  * Refit Runs 30, 33, and 34 with the corrected model and 
+  * None of the choices among these models would have changed.
+
+
+---
+
+#Evidence for bottom temperature effects on recruitment
+
+$$\\[12pt]$$
 
 .pull-left[
 ```{r, echo = F, eval = T}
@@ -183,228 +968,144 @@ knitr::knit_print(out)
 
 ```
 ]
----
-
-layout: false
-class: middle, center
-
-# Reference points (TOR 5)
-
 
 ---
 
-layout: true
-
-
----
-
-# Equilibrium per recruit calculations
-
-
-The $n_r \times n_r$ matrix of equilibrium spawning stock biomass per recruit for stock $s$ in region $r'$ (columns) given recruiting in region $r$ (rows) is defined as
-$$\widetilde {\mathbf{O}}_s({\widetilde F}) = \sum^{A}_{a=1} \mathbf{O}_{s,a} \mathbf{O}_{s,a}(\delta_s) \text{diag}\left({\bf f}_{s,a}\right)$$
-
-where $\mathbf{O}_{s,a}(\delta_s)$ is $n_r x n_r$ is the matrix of probabilities of surviving and occurring in region $r'$ at age $a+\delta_s$ given starting in region $r$ at age $a$. It is the upper left sub-matrix of the probability transition matrix defined over the same interval. Similarly,
-$$\mathbf{O}_{s,a} = \left\{ \begin{array}{ll} \prod^{a-1}_{i=0}\mathbf{O}_{s,i}  & 1\leq a<A\\ \left[\prod^{a-1}_{i=0}\mathbf{O}_{s,i}\right] \mathbf{O}_{s,+} & a = A \end{array}\right.$$
-is the upper left sub-matrix of the probability transition matrix of states at age $a$ (columns) given being in each state (rows) at recruitment (age 1) where $\mathbf{O}_{s,0} = {\bf I}$. For the plus group $a=A$, $\mathbf{O}_{s,+} = \left(\mathbf{I} - \mathbf{O}_{s,A}\right)^{-1}$ is a "fundamental matrix" derived using the matrix version of the  geometric series. $\mathbf{f}_{s,a}$ is the vector of fecundities (product of weight and maturity) at age $a$ in each region. 
-
+# Comparison of Runs 30, 33 and 34
+* Run 30: like run 34, but fixed Rec CPA CVs, no temperature effects on northern recruitment.
+* Run 33: like Run 34, but fixed Rec CPA CVs
+* The estimates of SSB, fully-selected fishing mortality, and recruitment were very similar for Runs 30, 33, and 34
 
 ---
 
-# Average FAA for black sea bass BRPs 
+# Comparison of Runs 30, 33 and 34: SSB
 
-* Fishing mortality at age is averaged over last five years by fleet
-
-```{r, echo = F, eval = T}
-mod <- readRDS(here::here("2023.RT.Runs", "Run34", "fit_repmore.RDS"))
-x <- round(mod$rep$FAA_static,2)
-rownames(x) <- mod$input$fleet_names
-colnames(x) <- mod$ages.lab
-x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
-knitr::knit_print(x)
-```
----
-
-# Selectivity for black sea bass BRPs 
-
-* Average fishing mortality at age and fleet is divided by the maximum of the total average FAA.
-
-```{r, echo = F, eval = T}
-x <- round(apply(mod$rep$FAA_static,2,sum),2)
-names(x) <- mod$ages.lab
-x <- knitr::kable(rbind(x), booktabs = T, escape=F, row.names = F)
-knitr::knit_print(x)
-```
-$$\\[12pt]$$
-```{r, echo = F, eval = T}
-x <- round(mod$rep$FAA_static/apply(mod$rep$FAA_static,2,sum)[8],2)
-rownames(x) <- mod$input$fleet_names
-colnames(x) <- mod$ages.lab
-x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
-knitr::knit_print(x)
-```
----
-
-# Weight at age for black sea bass BRPs
-
-* Weight at age for SSB and fleets are averaged over last 5 years
-
-```{r, echo = F, eval = T}
-x<- round(mod$rep$waa_ssb_static, 2)
-rownames(x) <- mod$input$stock_names
-colnames(x) <- mod$ages.lab
-x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
-knitr::knit_print(x)
-```
-$$\\[12pt]$$
-```{r, echo = F, eval = T}
-x<- round(mod$rep$waa_catch_static, 2)
-rownames(x) <- mod$input$fleet_names
-colnames(x) <- mod$ages.lab
-x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
-knitr::knit_print(x)
-```
----
-
-# Maturity and M at age for black sea bass BRPs
-
-```{r, echo = F, eval = T}
-x<- round(mod$rep$mature_static, 2)
-rownames(x) <- mod$input$stock_names
-colnames(x) <- mod$ages.lab
-x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
-knitr::knit_print(x)
-```
-$$\\[12pt]$$
-```{r, echo = F, eval = T}
-x<- round(exp(mod$rep$log_M_static)[,1,], 2)
-rownames(x) <- mod$input$stock_names
-colnames(x) <- mod$ages.lab
-x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
-knitr::knit_print(x)
-```
----
-
-# Unfished equlibrium survival for black sea bass BRPs (North)
-
-.pull-left[
-Recruits
-```{r, echo = F, eval = T}
-x<- round(mod$rep$NAAPR0_static[1,1,,], 2)
-rownames(x) <- mod$input$region_names
-colnames(x) <- mod$input$region_names
-x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
-knitr::knit_print(x)
-```
-Age 2
-```{r, echo = F, eval = T}
-x<- round(mod$rep$NAAPR0_static[1,2,,], 2)
-rownames(x) <- mod$input$region_names
-colnames(x) <- mod$input$region_names
-x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
-knitr::knit_print(x)
-```
-]
-
-.pull-right[
-Age 3
-```{r, echo = F, eval = T}
-x<- round(mod$rep$NAAPR0_static[1,3,,], 2)
-rownames(x) <- mod$input$region_names
-colnames(x) <- mod$input$region_names
-x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
-knitr::knit_print(x)
-```
-Age 4
-```{r, echo = F, eval = T}
-x<- round(mod$rep$NAAPR0_static[1,4,,], 2)
-rownames(x) <- mod$input$region_names
-colnames(x) <- mod$input$region_names
-x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
-knitr::knit_print(x)
-```
-]
-
----
-
-# Unfished equlibrium survival for black sea bass BRPs (North)
-
-.pull-left[
-Age 5
-```{r, echo = F, eval = T}
-x<- round(mod$rep$NAAPR0_static[1,5,,], 2)
-rownames(x) <- mod$input$region_names
-colnames(x) <- mod$input$region_names
-x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
-knitr::knit_print(x)
-```
-Age 6
-```{r, echo = F, eval = T}
-x<- round(mod$rep$NAAPR0_static[1,6,,], 2)
-rownames(x) <- mod$input$region_names
-colnames(x) <- mod$input$region_names
-x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
-knitr::knit_print(x)
-```
-]
-
-.pull-right[
-Age 7
-```{r, echo = F, eval = T}
-x<- round(mod$rep$NAAPR0_static[1,7,,], 2)
-rownames(x) <- mod$input$region_names
-colnames(x) <- mod$input$region_names
-x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
-knitr::knit_print(x)
-```
-Age 8
-```{r, echo = F, eval = T}
-x<- round(mod$rep$NAAPR0_static[1,8,,], 2)
-rownames(x) <- mod$input$region_names
-colnames(x) <- mod$input$region_names
-x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
-knitr::knit_print(x)
-```
-]
-
----
-
-# Proportions at age
-```{r, echo = FALSE, fig.dim =c(8,5), fig.align="center"}
-par(mfrow = c(1,2), oma = c(4,4,0,0),mar = c(1,2,3,1))
-stock <- c("North", "South")
-for(i in 1:2){
-	propAA0 <- mod$rep$NAAPR0_static[i,,i,i]
-	propAA0 <- propAA0/sum(propAA0)
-	propAAF40 <- mod$rep$NAAPR_FXSPR_static[i,,i,i]
-	propAAF40 <- propAAF40/sum(propAAF40)
-	propAA_term <- mod$rep$NAA[i,i,33,]
-	propAA_term <- propAA_term/sum(propAA_term)
-
-	plot(1:8, propAA0, ylim = c(0,0.45), xaxt = "n", ylab = "", type = 'n', xlab = "")
-	grid(col = gray(0.7))
-	lines(1:8,propAA0)
-	lines(1:8, propAAF40, lty = 2)
-	lines(1:8, propAA_term, col = "blue")
-	axis(1, at = 1:8, labels = mod$ages.lab)
-	if(i == 1) legend("topright", legend = c("Equilibrium unfished", "Equilibrium at F40", "2021"), col = c("black","black", "blue"), lty = c(1,2,1))
-	mtext(side = 3, stock[i], line = 0, outer = F)
+```{r SSB-compare, echo = FALSE, fig.dim =c(14,7), fig.align="center"}
+#rns <- c("Run30","Run33","Run34_bad","Run34")
+rns <- c("Run30","Run33","Run34")
+res <- list()
+for(i in 1:length(rns)){
+  res[[i]] <- list(Est = TMB:::as.list.sdreport(get(rns[i])$sdrep, report = TRUE, what = "Est")$log_SSB)
+  res[[i]]$se <- TMB:::as.list.sdreport(get(rns[i])$sdrep, report = TRUE, what = "Std")$log_SSB
+  res[[i]]$ci_lo <- exp(res[[i]]$Est - qnorm(0.975)*res[[i]]$se)
+  res[[i]]$ci_hi <- exp(res[[i]]$Est + qnorm(0.975)*res[[i]]$se)
 }
-mtext(side = 1, outer = T, "Age", line = 2.5)
-mtext(side = 2, outer = T, "Proportion", line = 2.5)
+cols <- viridisLite::viridis(n=length(rns))
+par(mfrow = c(1,2), oma = c(4,4,1,1), mar = c(1,2,1,1))
+for(s in 1:2){
+  maxy <- max(sapply(res, function(x) max(x$ci_hi[,s])))
+  plot(Run34$years, res[[1]]$ci_hi[,s], type = 'n', ylab = '', xlab = '', 
+    ylim = c(0, maxy))
+  grid(col = gray(0.7))
+  for(i in 1:length(rns)) {
+    lines(Run34$years, exp(res[[i]]$Est[,s]), col = cols[i])
+    polygon(c(Run34$years,rev(Run34$years)), c(res[[i]]$ci_lo[,s],rev(res[[i]]$ci_hi[,s])), 
+      col = adjustcolor(cols[i], alpha.f = 0.4), border = "transparent")
+  }
+  mtext(side = 3, Run34$input$stock_names[s], line = 0, outer = F)
+}
+legend("topleft", col = cols, lty = 1, legend = rns)
+mtext(side = 2, "SSB (mt)", line = 2, outer = T)
+mtext(side = 1, "Year", outer = T, line = 2)
+
+```
+---
+
+# Comparison of Runs 30, 33 and 34: Fishing mortality
+
+```{r F-compare, echo = FALSE, fig.dim =c(14,7), fig.align="center"}
+#rns <- c("Run30","Run33","Run34_bad","Run34")
+rns <- c("Run30","Run33","Run34")
+res <- list()
+for(i in 1:length(rns)){
+  res[[i]] <- list(Est = TMB:::as.list.sdreport(get(rns[i])$sdrep, report = TRUE, what = "Est")$log_FAA_by_region)
+  res[[i]]$se <- TMB:::as.list.sdreport(get(rns[i])$sdrep, report = TRUE, what = "Std")$log_FAA_by_region
+  res[[i]]$ci_lo <- exp(res[[i]]$Est - qnorm(0.975)*res[[i]]$se)
+  res[[i]]$ci_hi <- exp(res[[i]]$Est + qnorm(0.975)*res[[i]]$se)
+  res[[i]]$which_age <- apply(res[[i]]$Est[s,,],1,function(x) which(x==max(x))[1])
+}
+cols <- viridisLite::viridis(n=length(rns))
+par(mfrow = c(1,2), oma = c(4,4,1,1), mar = c(1,2,1,1))
+for(s in 1:2){
+  maxy <- max(sapply(res, function(x) max(x$ci_hi[s,,][cbind(1:33,x$which_age)])))
+  plot(Run34$years, res[[1]]$ci_hi[s,,1], type = 'n', ylab = '', xlab = '', 
+    ylim = c(0, maxy))
+  grid(col = gray(0.7))
+  for(i in 1:length(rns)) {
+    lines(Run34$years, exp(res[[i]]$Est[s,,][cbind(1:33,res[[i]]$which_age)]), col = cols[i])
+    polygon(c(Run34$years,rev(Run34$years)),
+      c(res[[i]]$ci_lo[s,,][cbind(1:33,res[[i]]$which_age)],rev(res[[i]]$ci_hi[s,,][cbind(1:33,res[[i]]$which_age)])), 
+      col = adjustcolor(cols[i], alpha.f = 0.4), border = "transparent")
+  }
+  mtext(side = 3, Run34$input$region_names[s], line = 0, outer = F)
+}
+legend("topright", col = cols, lty = 1, legend = rns)
+mtext(side = 2, "Fully-selected F", line = 2, outer = T)
+mtext(side = 1, "Year", outer = T, line = 2)
+
+```
+---
+
+# Comparison of Runs 30, 33 and 34: Recruitment
+
+```{r echo = FALSE, fig.dim =c(14,7), fig.align="center"}
+#rns <- c("Run30","Run33","Run34_bad","Run34")
+rns <- c("Run30","Run33","Run34")
+res <- list()
+for(i in 1:length(rns)){
+  res[[i]] <- list(Est = TMB:::as.list.sdreport(get(rns[i])$sdrep, report = TRUE, what = "Est")$log_NAA_rep)
+  res[[i]]$se <- TMB:::as.list.sdreport(get(rns[i])$sdrep, report = TRUE, what = "Std")$log_NAA_rep
+  res[[i]]$ci_lo <- exp(res[[i]]$Est - qnorm(0.975)*res[[i]]$se)
+  res[[i]]$ci_hi <- exp(res[[i]]$Est + qnorm(0.975)*res[[i]]$se)
+}
+cols <- viridisLite::viridis(n=length(rns))
+par(mfrow = c(1,2), oma = c(4,4,1,1), mar = c(1,2,1,1))
+for(s in 1:2){
+  maxy <- max(sapply(res, function(x) max(x$ci_hi[s,s,,1])))
+  plot(Run34$years, res[[1]]$ci_hi[s,s,,1], type = 'n', ylab = '', xlab = '', 
+    ylim = c(0, maxy))
+  grid(col = gray(0.7))
+  for(i in 1:length(rns)) {
+    lines(Run34$years, exp(res[[i]]$Est[s,s,,1]), col = cols[i])
+    polygon(c(Run34$years,rev(Run34$years)), c(res[[i]]$ci_lo[s,s,,1],rev(res[[i]]$ci_hi[s,s,,1])), 
+      col = adjustcolor(cols[i], alpha.f = 0.4), border = "transparent")
+  }
+  mtext(side = 3, Run34$input$stock_names[s], line = 0, outer = F)
+}
+legend("topleft", col = cols, lty = 1, legend = rns)
+mtext(side = 2, "Recruitment (1000s)", line = 2, outer = T)
+mtext(side = 1, "Year", outer = T, line = 2)
+
 ```
 
 ---
 
-layout: false
-class: middle, center
 
-# Projections (TOR 6)
+#Expected recruitment with and without temperature effects 
 
-
+```{r echo = F, eval = T, out.width = "50%", fig.align = "center"}
+plot(Run33$years_full[-1], Run33$rep$pred_NAA[1,1,-1,1], type = 'l', xlab = "Year", ylab = bquote(Median~ hat(italic(R)[y]*"|"*italic(x)[y])))
+lines(null_mod$years[-1], null_mod$rep$pred_NAA[1,1,-1,1], col = "blue")
+```
 ---
 
-layout: true
+# Comparison of Runs 33 and 34
 
+* Allowing the scalar for the standard error of the log-transformed Rec CPA indices to be estimated in the proposed base model results in a slight increase in uncertainty of spawning stock biomass and recruitment estimates.
+* fitted models with $(\text{SE}_1)$ and without $(\text{SE}_2)$ the scalar of the Recreational CPA index standard errors estimated.
+```{r relative-se-ssb-R, echo = F, eval = T, fig.dim = c(14,6), fig.align="center"}
+par(mfrow = c(1,2), mar = c(1,5,3,1), oma = c(4,1,1,1))
 
----
+sd33 <- TMB:::as.list.sdreport(Run33$sdrep, report=TRUE, what = "Std")$log_SSB[,1]
+sd34 <- TMB:::as.list.sdreport(Run34$sdrep, report=TRUE, what = "Std")$log_SSB[,1]
+
+plot(Run33$years_full, sd34/sd33, ylab = bquote(SE[1](widehat(SSB))*"/"*SE[2](widehat(SSB))), xlab = "", type = "l")
+abline(h = 1, lty = 2, col = "red")
+
+sd33 <- TMB:::as.list.sdreport(Run33$sdrep, report=TRUE, what = "Std")$log_NAA_rep[1,1,,1]
+sd34 <- TMB:::as.list.sdreport(Run34$sdrep, report=TRUE, what = "Std")$log_NAA_rep[1,1,,1]
+
+plot(Run33$years_full, sd34/sd33, ylab = bquote(SE[1](hat(R))*"/"*SE[2](hat(R))), xlab = "", type = "l")
+mtext(side = 1, "Year", outer = T, line = 2)
+abline(h = 1, lty = 2, col = "red")
+```
