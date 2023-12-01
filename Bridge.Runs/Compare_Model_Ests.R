@@ -10,9 +10,9 @@ rm(list=ls())
 ls()
 
 comp.dir <- 'Bridge.Runs'
-run.list <- paste("Run",9:10,sep='')
-fig.basename <- 'Runs9-10'
-reg <- 'south'
+run.list <- paste("Run",c(7,9),sep='')
+fig.basename <- 'Runs7and9'
+reg <- 'north'
 
 F.yr <- tibble()
 SSB.yr <- tibble()
@@ -54,4 +54,5 @@ Rect.yr %>% ggplot(aes(Year, est)) +
   geom_ribbon(aes(ymin = lo, ymax = hi, fill=Run), alpha = 0.2, linetype='blank') +
   ylab("Recruitment")
 ggsave(file.path('Bridge.Runs/Comparison_Figures',paste(fig.basename,reg,'Rect.png',sep='.')),device='png')
+
 
