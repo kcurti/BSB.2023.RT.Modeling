@@ -10,9 +10,9 @@ rm(list=ls())
 ls()
 
 comp.dir <- 'Bridge.Runs'
-run.list <- paste("Run",c(7,9),sep='')
-fig.basename <- 'Runs7and9'
-reg <- 'north'
+run.list <- paste("Run",c(0,1),sep='')
+fig.basename <- 'Runs0-1'
+reg <- 'south'
 
 F.yr <- tibble()
 SSB.yr <- tibble()
@@ -23,7 +23,13 @@ for (run in run.list)
   # run <- run.list[[1]]
   run.env <- new.env()
   
-  load(file.path(comp.dir, run, "wham", reg, "outputs", paste(run,reg,"WHAM.Outputs.RDATA",sep='.')), envir=run.env)
+  if(run=='Run0')
+  {
+    load(file.path(comp.dir, run, "outputs", paste(run,reg,"WHAM.Outputs.RDATA",sep='.')), envir=run.env)
+  } else {
+    load(file.path(comp.dir, run, "wham", reg, "outputs", paste(run,reg,"WHAM.Outputs.RDATA",sep='.')), envir=run.env)
+  }
+  
   SSB.yr <- bind_rows(SSB.yr, run.env$SSB.yr %>% mutate(Run = run))
   F.yr <- bind_rows(F.yr, run.env$F.yr %>% mutate(Run = run))
   Rect.yr <- bind_rows(Rect.yr, run.env$Rect.yr %>% mutate(Run = run))
