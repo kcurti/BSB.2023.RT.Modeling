@@ -1017,7 +1017,7 @@ Separate fits for north and south regions
 * 5: Update maturity
 * 6: Add NEAMAP
 * 7: Update remaining spring state indices (added VAST as well but didn’t turn them on)
-* 8: Rec CPA and both spring and fall VAST
+* `r colorize("8: Rec CPA and both spring and fall VAST", gray(0.7))`
 * 9: Rec CPA and VAST spring only (also a combined stock run that matches the single stock results. This combined run will be used for later runs.)
 
 ---
@@ -1075,7 +1075,7 @@ Separate fits for north and south regions
 * `r colorize("5: Update maturity", "red")`
 * `r colorize("6: Add NEAMAP", "red")`
 * `r colorize("7: Update remaining spring state indices (added VAST as well but didn’t turn them on)", "red")`
-* 8: Rec CPA and both spring and fall VAST
+* `r colorize("8: Rec CPA and both spring and fall VAST", gray(0.7))`
 * 9: Rec CPA and VAST spring only (also a combined stock run that matches the single stock results. This combined run will be used for later runs.)
 
 ---
@@ -1133,57 +1133,66 @@ Separate fits for north and south regions
 * 5: Update maturity
 * 6: Add NEAMAP
 * `r colorize("7: Update remaining spring state indices (added VAST as well but didn’t turn them on)", "red")`
-* `r colorize("8: Rec CPA and both spring and fall VAST", "red")`
+* `r colorize("8: Rec CPA and both spring and fall VAST", gray(0.7))`
 * `r colorize("9: Rec CPA and VAST spring only (also a combined stock run that matches the single stock results. This combined run will be used for later runs.)", "red")`
 
 ---
 
-# Bridge runs 7, 8, and 9
+# Bridge runs 7 and 9
 
 .pull-left[
 ```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
-knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7-9.north.F.png"))
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7and9.north.F.png"))
 ```
 ]
 .pull-right[
 ```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
-knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7-9.south.F.png"))
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7and9.south.F.png"))
 ```
 ]
 ---
 
-# Bridge runs 7, 8, and 9
+# Bridge runs 7 and 9
 
 .pull-left[
 ```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
-knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7-9.north.SSB.png"))
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7and9.north.SSB.png"))
 ```
 ]
 .pull-right[
 ```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
-knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7-9.south.SSB.png"))
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7and9.south.SSB.png"))
 ```
 ]
 ---
 
-# Bridge runs 7, 8, and 9
+# Bridge runs 7 and 9
 
 .pull-left[
 ```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
-knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7-9.north.Rect.png"))
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7and9.north.Rect.png"))
 ```
 ]
 .pull-right[
 ```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
-knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7-9.south.Rect.png"))
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7and9.south.Rect.png"))
 ```
 ]
+---
+
+#Retrospective patterns for north remained
+
+```{r, echo = FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics(here::here("docs", "plots", "bridge_mohns_rho_north_SSB.png"))
+```
 ---
 
 # Early research track runs (1-18)
 
 * See table in the working paper
-* Used updated and new observations 
+* Used updated and new observations
+* **included random effects on recruitment and survival/movement transitions of older ages**
+  * **random effects for the transitions was a minimum requirement to remove retro for northern component**
 * Included surveys as either separate indices or combined in fall and spring VAST indices (other than the recreational CPA)
 * Explored alternative selectivity and age comp likelihood assumptions: reduce patterns in age comp OSA residuals. 
 * WG determined to use aggregate VAST indices that account for changes in catchability.
@@ -1215,13 +1224,63 @@ knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7-9.
   * Run 31 assumed temporal random effects on the movement rate from the north to the south
   * Run 32 assumed a Beverton-Holt stock recruit relationships for both the north and south components
 * Run 33 investigated bottom temperature effects on recruitment and we found evidence of an effect on northern recruitment.  
-* Run 34 relaxed estimated scalar for uncertainty in the Recreational CPA indices
+* Run 34 estimated scalar for uncertainty in the Recreational CPA indices
 * **After these runs we discovered a coding error in constructing initial numbers at age under an equilibrium assumption. 
   * Small changes in results Run 34: absolute differences in annual SSB estimates were less than 7%. 
   * **Refit Runs 30, 33, and 34 with the corrected model** 
     * None of the choices among these models would have changed.
 
 
+---
+
+# North Retros patterns neglibile 
+
+```{r, echo = FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics(here::here("docs", "plots", "late_RTRuns_mohns_rho_north_SSB.png"))
+```
+---
+
+
+# Bridge run 9 and RT run 30
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("2023.RT.Runs","Comparison_Figures", "BridgeRun9_RTRun30.north.F.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("2023.RT.Runs","Comparison_Figures", "BridgeRun9_RTRun30.south.F.png"))
+```
+]
+---
+
+# Bridge run 9 and RT run 30
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("2023.RT.Runs","Comparison_Figures", "BridgeRun9_RTRun30.north.SSB.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("2023.RT.Runs","Comparison_Figures", "BridgeRun9_RTRun30.south.SSB.png"))
+```
+]
+---
+
+# Bridge run 9 and RT run 30
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("2023.RT.Runs","Comparison_Figures", "BridgeRun9_RTRun30.north.Rect.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("2023.RT.Runs","Comparison_Figures", "BridgeRun9_RTRun30.south.Rect.png"))
+```
+]
 ---
 
 #Evidence for bottom temperature effects on recruitment

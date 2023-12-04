@@ -530,7 +530,7 @@ layout: true
   * Optional for M, and movement
   * Uncertainty in these estimates grows in projection years moving away from observations
   * **Under AR1 model projected random effects converge to the mean of the process** 
-* For other dynamics WHAM user specifies years to average (default is the same as that for prevailing BRPs).
+* For other dynamics user specifies years to average (default is the same as that for prevailing BRPs).
 * Various options for projected (year-specific) fully-selected F or FAA:
   * Status quo
   * $F_{40}$ (or some other percentage)
@@ -540,13 +540,13 @@ layout: true
   
 ---
 
-# Example projection: 
-* 3-year projection
-  * Total Catch = 10 kmt in 2022
-  * Fully-selected total F = $F_{40}$ in 2023, 2024
-  * Bottom temperature: 
-    * AR1 process random effects are forecast for 2022 and 2024 (observations end after 2022)
-  * 2DAR1 process random effects for recruitment and survival are forecast
+# 3-year projection example: 
+
+* Total Catch = 10 kmt in 2022
+* Fully-selected total F = $F_{40}$ in 2023, 2024
+* Bottom temperature: 
+  * AR1 process random effects are forecast for 2022 and 2024 (observations end after 2022)
+* 2DAR1 process random effects for recruitment and survival are forecast
 
 ---
 
