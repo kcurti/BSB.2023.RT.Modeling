@@ -890,14 +890,14 @@ layout: true
 
 ---
 
-#Comparing ASAP with standard WHAM and Multi-WHAM
+#Comparing ASAP with standard WHAM and Multi-WHAM: Run 0
 
 .pull-left[
-* Based on data used in last management track 
+* Based on data used in 2021 management track 
   * Time series of observations not updated
   * Use previous fleet definitions (Trawl and Non-Trawl).
 * Compared
-  * Management track ASAP 
+  * 2021 Management track ASAP 
   * Separate fits in standard WHAM
   * Simultaneous (separate) fits in Multi-WHAM
 ]
@@ -912,6 +912,7 @@ knitr::include_graphics(here::here("docs","plots","compare_one_stock_models.png"
 # Bridge runs
 
 Separate fits for north and south regions
+* 0: 2021 MT configuration
 * 1: Turn off all indices but NEFSC Spring BTS and Rec CPA
 * 2: Update fishery catches, fishing fleets and catch WAA estimates to comm/rec fleets
 * 3: Update Spring BTS and Rec CPA
@@ -927,6 +928,30 @@ Separate fits for north and south regions
 # Bridge runs
 
 Separate fits for north and south regions
+* `r colorize("0: 2021 MT configuration", "red")`
+* `r colorize("1: Turn off all indices but NEFSC Spring BTS and Rec CPA", "red")`
+* 2: Update fishery catches, fishing fleets and catch WAA estimates to comm/rec fleets
+* 3: Update Spring BTS and Rec CPA
+* 4: Add 2020-2021
+* 5: Update maturity
+* 6: Add NEAMAP
+* 7: Update remaining spring state indices (added VAST as well but didn’t turn them on)
+* `r colorize("8: Rec CPA and both spring and fall VAST", gray(0.7))`
+* 9: Rec CPA and VAST spring only (also a combined stock run that matches the single stock results. This combined run will be used for later runs.)
+
+---
+
+# Bridge runs 0 and 1
+
+```{r echo = FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("docs", "plots", "compare_two_stock_less_multi_good.png"))
+```
+---
+
+# Bridge runs
+
+Separate fits for north and south regions
+* 0: 2021 MT configuration
 * `r colorize("1: Turn off all indices but NEFSC Spring BTS and Rec CPA", "red")` 
 * `r colorize("2: Update fishery catches, fishing fleets and catch WAA estimates to comm/rec fleets", "red")`
 * `r colorize("3: Update Spring BTS and Rec CPA", "red")` 
@@ -984,6 +1009,7 @@ knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs1-3.
 # Bridge runs
 
 Separate fits for north and south regions
+* 0: 2021 MT configuration
 * 1: Turn off all indices but NEFSC Spring BTS and Rec CPA
 * 2: Update fishery catches, fishing fleets and catch WAA estimates to comm/rec fleets
 * `r colorize("3: Update Spring BTS and Rec CPA", "red")`
@@ -1041,6 +1067,7 @@ knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs3-4.
 # Bridge runs
 
 Separate fits for north and south regions
+* 0: 2021 MT configuration
 * 1: Turn off all indices but NEFSC Spring BTS and Rec CPA
 * 2: Update fishery catches, fishing fleets and catch WAA estimates to comm/rec fleets
 * 3: Update Spring BTS and Rec CPA
@@ -1098,6 +1125,7 @@ knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs4-7.
 # Bridge runs
 
 Separate fits for north and south regions
+* 0: 2021 MT configuration
 * 1: Turn off all indices but NEFSC Spring BTS and Rec CPA
 * 2: Update fishery catches, fishing fleets and catch WAA estimates to comm/rec fleets
 * 3: Update Spring BTS and Rec CPA
