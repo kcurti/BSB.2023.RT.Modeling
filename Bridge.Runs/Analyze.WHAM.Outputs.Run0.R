@@ -92,13 +92,13 @@ calc.uncertainty <- function(series)  {
 }  
   
 
-# Annual F
-F.yr <- 
-  bind_cols(Year = model.yrs, 
-            log.est = as.vector(WHAM_output.ests[['log_F_tot']]),
-            log.se = as.vector(WHAM_output.sd[['log_F_tot']])
-  ) %>%
-  calc.uncertainty() 
+# Annual F  ### THE F IS NOT CORRECT - should be max(log_FAA_by_region)
+# F.yr <- 
+#   bind_cols(Year = model.yrs, 
+#             log.est = as.vector(WHAM_output.ests[['log_F_tot']]),
+#             log.se = as.vector(WHAM_output.sd[['log_F_tot']])
+#   ) %>%
+#   calc.uncertainty() 
 
   
 # Annual SSB
