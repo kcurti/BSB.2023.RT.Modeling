@@ -118,9 +118,9 @@ $$\mathbf{H}(t,\delta,a) = \begin{bmatrix} H_{1,1}(t,\delta,a) & \cdots & H_{1,n
 * Multi-WHAM currently assumes each fleet operates in a single region so each column of $\mathbf{H}(t,\delta,a)$ has at most 1 non-zero value.
 * $\mathbf{D}(t,\delta,a)$ is $n_R \times 1$ in Multi-WHAM to minimize dimensions of $\mathbf{P}$, but could theoretically be $n_R \times n_R$ if tracking numbers dead due to natural mortality by region was of interest.
 * Multi-WHAM can assume survival and movement processes are sequential or simultaneous within a seasonal interval.
-  * For sequential survival occurs over the interval as usual and movement is assumed to happen instantly at the end of the interval:
+  * When sequential, survival occurs over the interval as usual and movement is assumed to happen instantly at the end of the interval:
 $$\mathbf{O}(t,\delta,a) = \mathbf{S}(t,\delta,a)\boldsymbol{\mu}(t,\delta,a).$$
-  * For simultaneous survival and movement, movement parameters are instantaneous rates like mortality. There is an infinitesimal matrix that is a function of the instantaneous rates which is exponentiated for the probability transition matrix: 
+  * When simultaneous, movement parameters are instantaneous rates like mortality. There is an infinitesimal matrix that is a function of the instantaneous rates which is exponentiated for the probability transition matrix: 
   $$\mathbf{P}_{t,\delta,a} = e^{\mathbf{A}_{t,\delta, a}\delta}$$
 ---
 
@@ -149,22 +149,22 @@ The rows sum to 1 and each of the $\mu_{r\rightarrow r'}$ parameters may be year
 * Movement parameters are estimated on a transformed scale. 
   * simultaneously: log scale
   * sequential: additive logit link transformation (like a multinomial regression)
-* Age- and/or year-specific (1D or 2D AR1/iid) random effects are normally distributed on the transformed scale $$f(\mu_{r \rightarrow r',i,y,a}) = \theta_{r \rightarrow r',i} + \epsilon_{r \rightarrow r',i,y,a}$$ $$Cov\left(\epsilon_{r \rightarrow r',i,y,a},\epsilon_{r \rightarrow r',i,y',a'}\right) = \frac{\rho_{r \rightarrow r',i,\mathcal{A}}^{|a-a'|}\rho_{r \rightarrow r',i,\mathcal{Y}}^{|y-y'|}\sigma^2_{r \rightarrow r',i}}{\left(1 - \rho_{r \rightarrow r',i,\mathcal{A}}^2\right)\left(1 - \rho_{r \rightarrow r',i,\mathcal{Y}}^2\right)}$$
+* Age- and/or year-specific (1D or 2D AR1/iid) random effects are normally distributed on the transformed scale $$f(\mu_{r \rightarrow r',i,a,y}) = \theta_{r \rightarrow r',i} + \epsilon_{r \rightarrow r',i,a,y}$$ $$Cov\left(\epsilon_{r \rightarrow r',i,a,y},\epsilon_{r \rightarrow r',i,a',y'}\right) = \frac{\rho_{r \rightarrow r',i,\mathcal{A}}^{|a-a'|}\rho_{r \rightarrow r',i,\mathcal{Y}}^{|y-y'|}\sigma^2_{r \rightarrow r',i}}{\left(1 - \rho_{r \rightarrow r',i,\mathcal{A}}^2\right)\left(1 - \rho_{r \rightarrow r',i,\mathcal{Y}}^2\right)}$$
 * Mean, variance and correlation parameters for the random effects are season- and region-to-region-specfic.
-* Covariate effects can be age-, season-, and/or region-to-region-specific: $$f(\mu_{r \rightarrow r',i,y,a}) = \theta_{r \rightarrow r',i} + \sum^{n_E}_{k=1} \beta_{a,i,r \rightarrow r',k} E_k$$ and the same orthogonal polynomial options in the current version of WHAM are available. 
+* Covariate effects can be age-, season-, and/or region-to-region-specific: $$f(\mu_{r \rightarrow r',i,a,y}) = \theta_{r \rightarrow r',i} + \sum^{n_E}_{k=1} \beta_{a,i,r \rightarrow r',k} E_{k,y}$$ and the same orthogonal polynomial options in the current version of WHAM are available. 
 ---
 
 #Movement parameters
-* Movement parameters can including both random and environmental effects: $$f(\mu_{r \rightarrow r',i,y,a}) = \theta_{r \rightarrow r',i} + r_{r \rightarrow r',i,y,a} + \sum^{n_E}_{k=1} \beta_{r \rightarrow r',i,k} E_{k,y}$$
-* Multi-WHAM currently has no likelihood component for tagging observations, but priors can be configured from auxiliary movement parameter estimates. 
-* When prior distributions are used, the (mean) movement parameters are random effects with the mean defined by the user-defined fixed effect counterpart and standard deviation $$\gamma_{r \rightarrow r',i} \sim \text{N}\left(\theta_{r \rightarrow r',i}, \sigma^2_{r \rightarrow r',i}\right)$$  and the transformed movement parameter is defined instead as $$f(\mu_{r \rightarrow r',i,y,a}) = \gamma_{r \rightarrow r',i} + r_{r \rightarrow r',i,y,a} + \sum^{n_E}_{k=1} \beta_{r \rightarrow r',i,k} E_{k,y}$$.
+* Movement parameters can including both random and environmental effects: $$f(\mu_{r \rightarrow r',i,a,y}) = \theta_{r \rightarrow r',i} + \epsilon_{r \rightarrow r',i,a,y} + \sum^{n_E}_{k=1} \beta_{r \rightarrow r',i,k} E_{k,y}$$
+* **Multi-WHAM currently has no likelihood component for tagging observations, but priors can be configured from auxiliary movement parameter estimates.**
+* When prior distributions are used, the (mean) movement parameters are random effects with the mean defined by the user-defined fixed effect counterpart and standard deviation $$\gamma_{r \rightarrow r',i} \sim \text{N}\left(\theta_{r \rightarrow r',i}, \sigma^2_{r \rightarrow r',i}\right)$$  and the transformed movement parameter is defined instead as $$f(\mu_{r \rightarrow r',i,a,y}) = \gamma_{r \rightarrow r',i} + \epsilon_{r \rightarrow r',i,a,y} + \sum^{n_E}_{k=1} \beta_{r \rightarrow r',i,k} E_{k,y}$$.
 
 ---
 
 #Natural mortality
 
 
-When not estimated, (mean) mortality rates may be region-, and age-specific $\mu_{M,r,a}$. When age- and year-specific random effects $m_{r,y,a}$ are allowed, variance and correlation parameters can be region-specific. The options for each region are
+When not estimated, (mean) mortality rates may be region-, and age-specific $\mu_{M,r,a}$. When age- and year-specific random effects $m_{r,a,y}$ are allowed, variance and correlation parameters can be region-specific. The options for each region are
 
 * `none`: (default) No random effects by age or year.
 * `iid_a`: uncorrelated M by age, constant in time.
@@ -174,7 +174,7 @@ When not estimated, (mean) mortality rates may be region-, and age-specific $\mu
 * `iid_ay`: M uncorrelated by year and age (2D).
 * `ar1_ay`: M correlated by year and age (2D AR1).
 
-Any environmental covariate effects can be region- and age-specific. The general configuration of log natural mortality is $$\log\left( M_{r,y,a}\right) = \mu_{M,r,a} + m_{r,y,a} + \sum^{n_E}_{k=1} \beta_{r,a,k} E_{k,y}$$
+Any environmental covariate effects can be region- and age-specific. The general configuration of log natural mortality is $$\log\left( M_{r,a,y}\right) = \mu_{M,r,a} + m_{r,a,y} + \sum^{n_E}_{k=1} \beta_{r,a,k} E_{k,y}$$
 
 ---
 
@@ -205,9 +205,9 @@ The options for parameterizing initial numbers at age have been expanded in Mult
 * The numbers at age are vector analogs of the equations for numbers at age in the standard WHAM model  
 * Options for configuring recruitment are the same as the standard WHAM package. 
 * If recruitment is assumed to be a function of SSB, it is only the SSB in the spawning region at the time of spawning. 
-* For ages $a = 2,...,A-1$, where $A$ is the plus group, The vector of numbers at age $a$ by region in year $y$ is $$\log\left(\mathbf{N}_{y,a}\right) =  \log\left(\mathbf{O}_{y-1,a-1}' \mathbf{N}_{y-1,a-1}\right) + \boldsymbol{\varepsilon}_{y,a}$$ and for the plus group $$\log\left(\mathbf{N}_{y,A}\right) =  \log\left(\mathbf{O}_{y-1,A-1}' \mathbf{N}_{y-1,A-1} + \mathbf{O}_{y-1,A}' \mathbf{N}_{y-1,A}\right) + \boldsymbol{\varepsilon}_{y,A}.$$
-* The region-specific errors $\boldsymbol{\varepsilon}_{y,a}$ are independent, but within regions, abundance at age have the same autoregressive options as the standard WHAM package. Generally, variance parameters can be region and age specific $\sigma_{r,a}$ and age and/or year AR1 correlation parameters can be region-specific $(\rho_{\mathcal{A},r}$, $\rho_{\mathcal{Y},r})$.
-* "Survival" transitions can be deterministic $(\boldsymbol{\varepsilon}_{y,a} = 0)$ as in traditional statistical catch at age models.
+* For ages $a = 2,...,A-1$, where $A$ is the plus group, The vector of numbers at age $a$ by region in year $y$ is $$\log\left(\mathbf N_{a,y}\right) =  \log\left(\mathbf{O}_{a-1,y-1}' \mathbf{N}_{a-1,y-1}\right) + \boldsymbol{\varepsilon}_{a,y}$$ and for the plus group $$\log\left(\mathbf{N}_{A,y}\right) =  \log\left(\mathbf{O}_{A-1,y-1}' \mathbf{N}_{A-1,y-1} + \mathbf{O}_{A,y-1}' \mathbf{N}_{A,y-1}\right) + \boldsymbol{\varepsilon}_{A,y}.$$
+* The region-specific errors $\boldsymbol{\varepsilon}_{a,y}$ are independent, but within regions, abundance at age have the same autoregressive options as the standard WHAM package. Generally, variance parameters can be region and age specific $\sigma_{r,a}$ and age and/or year AR1 correlation parameters can be region-specific $(\rho_{\mathcal{A},r}$, $\rho_{\mathcal{Y},r})$.
+* "Survival" transitions can be deterministic $(\boldsymbol{\varepsilon}_{a,y} = 0)$ as in traditional statistical catch at age models.
 
 ---
 
@@ -223,7 +223,23 @@ The options for parameterizing initial numbers at age have been expanded in Mult
 # Spawning biomass
 
 * Like the standard version of wham, the spawning biomass is a function of survival through the year up to the time of spawning.
-* When spawning for a given stock occurs in one region SSB is $$\text{SSB}_{y,a} = \sum^A_{a=1} w_{y,a} m_{y,a} \sum^{n_R}_{r=1} N_{y,a,r} \mathbf{O}(\delta_s,r,r_s)$$ where $\mathbf{O}(\delta_s,r,r_s)$ is the element of the survival and movement matrix from the beginning of the year to the time of spawning that corresponds to starting in region $r$ and being alive in the spawning region $r_s$ at the time of spawning.
+* When spawning for a given stock occurs in one region SSB is $$\text{SSB}_{a,y} = \sum^A_{a=1} w_{a,y} m_{a,y} \sum^{n_R}_{r=1} N_{a,r,y} \mathbf{O}_{a,y}(\delta_s,r,r_s)$$ where $\mathbf{O}_{a,y}(\delta_s,r,r_s)$ is the element of the survival and movement matrix from the beginning of the year to the time of spawning that corresponds to starting in region $r$ and being alive in the spawning region $r_s$ at the time of spawning.
+
+---
+
+# Fishing mortality
+
+* Fishing mortality is treated the same as the standard WHAM package
+  * F at age for each fleet is estimated as the product of fully selected F and selectivity at age: $F_{f,a,y} = F_{f,y} s_{f,a,y}$
+* In standard WHAM a fully-selected total F is also reported as the maximum of the total F at age summed across fleets
+$$F_{\text{total}, a, y} = \sum^{n_f}_{i=1} F_{f,a,y}$$
+$$F_{\text{total},y} = \underset{a}{\arg\max} F_{\text{total},a,y}$$
+* In Multi-WHAM a fully-selected total F by summing across fleets is also reported.
+  * **But these fleets may occur in different regions**
+  * The magnitude of the total F increases with more regions (that have fishing)
+  * There are different ways to average across fleets/regions, but the best way is debatable
+  * **Most important is that the representation of F in the model is consistent with that in reference points**
+
 
 ---
 
