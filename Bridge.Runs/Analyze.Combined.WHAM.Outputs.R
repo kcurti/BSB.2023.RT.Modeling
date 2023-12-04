@@ -13,11 +13,11 @@ ls()
 
 ### Run details
 
-run.no <- 'Run7'
+run.no <- 'Run9'
 reg <- 'combined'
 
-# run.dir <- file.path("Bridge.Runs",run.no, "wham", reg)
-run.dir <- file.path("2023.RT.Runs",run.no)
+run.dir <- file.path("Bridge.Runs",run.no, "wham", reg)
+# run.dir <- file.path("2023.RT.Runs",run.no)
 
 # model.rds <- paste(reg, "fit.RDS", sep="_")
 model.rds <- "fit.RDS"
