@@ -66,24 +66,47 @@ library(here)
 
 * General description of reference points in multi-stock extension of WHAM (TOR 5)
 * BRPs for black sea bass application (TOR 5)
+* Description of projections
+* Example 3 year projection for black sea bass
 ---
 
-# Equilibrium per recruit calculations
+# Equilibrium SSB per recruit calculations
 
 
-The $n_r \times n_r$ matrix of equilibrium spawning stock biomass per recruit for stock $s$ in region $r'$ (columns) given recruiting in region $r$ (rows) is defined as
-$$\widetilde {\mathbf{O}}_s({\widetilde F}) = \sum^{A}_{a=1} \mathbf{O}_{s,a} \mathbf{O}_{s,a}(\delta_s) \text{diag}\left({\bf f}_{s,a}\right)$$
+The $n_r \times n_r$ matrix of equilibrium spawning stock biomass per recruit for stock $s$ in region $r'$ (columns) given recruiting in region $r$ (rows) as a function of a fully-selected F, $\widetilde F$, is defined as
+$$\widetilde {\mathbf{O}}_s\left({\widetilde F}\right) = \sum^{A}_{a=1} \mathbf{O}_{s,a}\left({\widetilde F}\right) \mathbf{O}_{s,a}\left({\widetilde F},\delta_s\right) \text{diag}\left({\bf f}_{s,a}\right)$$
 
-where $\mathbf{O}_{s,a}(\delta_s)$ is $n_r x n_r$ is the matrix of probabilities of surviving and occurring in region $r'$ at age $a+\delta_s$ given starting in region $r$ at age $a$. It is the upper left sub-matrix of the probability transition matrix defined over the same interval. Similarly,
-$$\mathbf{O}_{s,a} = \left\{ \begin{array}{ll} \prod^{a-1}_{i=0}\mathbf{O}_{s,i}  & 1\leq a<A\\ \left[\prod^{a-1}_{i=0}\mathbf{O}_{s,i}\right] \mathbf{O}_{s,+} & a = A \end{array}\right.$$
-is the upper left sub-matrix of the probability transition matrix of states at age $a$ (columns) given being in each state (rows) at recruitment (age 1) where $\mathbf{O}_{s,0} = {\bf I}$. For the plus group $a=A$, $\mathbf{O}_{s,+} = \left(\mathbf{I} - \mathbf{O}_{s,A}\right)^{-1}$ is a "fundamental matrix" derived using the matrix version of the  geometric series. $\mathbf{f}_{s,a}$ is the vector of fecundities (product of weight and maturity) at age $a$ in each region. 
+where $\mathbf{O}_{s,a}({\widetilde F},\delta_s)$ is $n_r \times n_r$ is the matrix of probabilities of surviving and occurring in region $r'$ at age $a+\delta_s$ given starting in region $r$ at age $a$. It is the upper left sub-matrix of the probability transition matrix defined over the same interval. Similarly,
+$$\mathbf{O}_{s,a}\left({\widetilde F}\right) = \left\{ \begin{array}{ll} \prod^{a-1}_{i=0}\mathbf{O}_{s,i}\left({\widetilde F}\right)  & 1\leq a<A\\ \left[\prod^{a-1}_{i=0}\mathbf{O}_{s,i}\left({\widetilde F}\right)\right] \mathbf{O}_{s,+}\left({\widetilde F}\right) & a = A \end{array}\right.$$
+is the upper left sub-matrix of the probability transition matrix of states at age $a$ (columns) given being in each state (rows) at recruitment (age 1) where $\mathbf{O}_{s,0} = {\bf I}$. For the plus group $a=A$, $\mathbf{O}_{s,+} = \left(\mathbf{I} - \mathbf{O}_{s,A}\right)^{-1}$. $\mathbf{f}_{s,a}$ is the vector of fecundities (product of weight and maturity) at age $a$ in each region. 
 
 
 ---
+
+# Equilibrium Yield per recruit calculations
+
+The matrix of equilibrium yield per recruit in each fleet (columns) as a function of $\widetilde F$  given recruiting in a given region (rows) is calculated as
+$$\widetilde {\mathbf{Y}}_s\left({\widetilde F}\right) = \sum^{A}_{a=1} \mathbf{O}_{s,a}\left({\widetilde F}\right) \mathbf{H}_{s,a}\left({\widetilde F}\right) \text{diag}\left({\bf c}_{s,a}\right)$$
+where ${\bf c}_a$ is the vector of catch weight at age for each fleet, and ${\bf H}_{s,a}$ is the submatrix of $\mathbf{P}_{s,a}$ with the probabilities of being captured in each fleet over the interval from $a$ to $a+1$. 
+* Currently, the model cannot distinguish catch weight at age by stock. 
+  * An empirical catch weight at age for the combined capture of all stocks is used. 
+
+---
+
+# Combining SSB/R across stocks to determine $F_{40}$
+
+* To find $F_{40}$, we use a weighted average of stock-specific components of spawning biomass per recruit as a function of fully-selected $F$:
+$$\widetilde {\mathcal{S}}\left({\widetilde F}\right) = \sum^{n_S}_{i=1} \omega_{i} \widetilde {\mathbf{O}}_i\left({\widetilde F},r = r(s_i), r' = r(s_i)\right)$$
+* weights can be user-specified or as a function of average recruitment for the different stocks:
+$$\omega_i = \frac{\overline R_i}{\sum^{n_S}_{i = 1} \overline R_i}$$
+
+---
+
 
 # Average FAA for black sea bass BRPs 
 
-* Fishing mortality at age is averaged over last five years by fleet
+* All inputs to SSB/R and YPR/R are averaged over last five years
+* FAA is averaged by fleet
 
 ```{r, echo = F, eval = T}
 mod <- readRDS(here::here("2023.RT.Runs", "Run34", "fit_repmore.RDS"))
@@ -136,7 +159,9 @@ knitr::knit_print(x)
 ```
 ---
 
-# Maturity and M at age for black sea bass BRPs
+# Maturity, M, movement at age for black sea bass BRPs
+
+$$\\[6pt]$$
 
 ```{r, echo = F, eval = T}
 x<- round(mod$rep$mature_static, 2)
@@ -145,7 +170,7 @@ colnames(x) <- mod$ages.lab
 x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
 knitr::knit_print(x)
 ```
-$$\\[12pt]$$
+$$\\[3pt]$$
 ```{r, echo = F, eval = T}
 x<- round(exp(mod$rep$log_M_static)[,1,], 2)
 rownames(x) <- mod$input$stock_names
@@ -153,9 +178,29 @@ colnames(x) <- mod$ages.lab
 x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
 knitr::knit_print(x)
 ```
+$$\\[3pt]$$
+```{r, echo = F, eval = T}
+x<- round(rbind(mod$rep$mu_static[1,,10,1,2],mod$rep$mu_static[1,,1,2,1]) , 2)
+rownames(x) <- c("North to South", "South to North")
+colnames(x) <- mod$ages.lab
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+
+---
+
+# SSB and Yield at $F_{40}$
+
+* An average recruitment is multiplied with SSB/R and Y/R for stock $i$
+$$\widetilde {\text{SSB}}_i = \overline R_i \widetilde {\mathbf{O}}_i\left({\widetilde F},r = r(s_i), r' = r(s_i)\right)$$
+* For yield in from stock $i$ in fleet $f$
+$$\widetilde {Y}_{i,f} = \overline R_i \widetilde {\mathbf{Y}}_i\left({\widetilde F},r = r(s_i), r' = r_f\right)$$
+
 ---
 
 # Unfished equlibrium survival for black sea bass BRPs (North)
+
+$$\mathbf{O}_{s,a}\left({\widetilde F}= 0\right)$$
 
 .pull-left[
 Recruits
@@ -199,6 +244,8 @@ knitr::knit_print(x)
 
 # Unfished equlibrium survival for black sea bass BRPs (North)
 
+$$\mathbf{O}_{s,a}\left({\widetilde F}= 0\right)$$
+
 .pull-left[
 Age 5
 ```{r, echo = F, eval = T}
@@ -227,9 +274,96 @@ colnames(x) <- mod$input$region_names
 x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
 knitr::knit_print(x)
 ```
-Age 8
+Age 8+
 ```{r, echo = F, eval = T}
 x<- round(mod$rep$NAAPR0_static[1,8,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+]
+
+---
+
+# Equlibrium survival at $F_{40}$ for black sea bass BRPs (North)
+
+
+.pull-left[
+Recruits
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR_FXSPR_static[1,1,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+Age 2
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR_FXSPR_static[1,2,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+]
+
+.pull-right[
+Age 3
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR_FXSPR_static[1,3,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+Age 4
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR_FXSPR_static[1,4,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+]
+
+---
+
+# Equlibrium survival at $F_{40}$ for black sea bass BRPs (North)
+
+$$\mathbf{O}_{s,a}\left({\widetilde F}= 0\right)$$
+
+.pull-left[
+Age 5
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR_FXSPR_static[1,5,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+Age 6
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR_FXSPR_static[1,6,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+]
+
+.pull-right[
+Age 7
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR_FXSPR_static[1,7,,], 2)
+rownames(x) <- mod$input$region_names
+colnames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
+knitr::knit_print(x)
+```
+Age 8+
+```{r, echo = F, eval = T}
+x<- round(mod$rep$NAAPR_FXSPR_static[1,8,,], 2)
 rownames(x) <- mod$input$region_names
 colnames(x) <- mod$input$region_names
 x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
@@ -265,6 +399,106 @@ mtext(side = 2, outer = T, "Proportion", line = 2.5)
 ```
 
 ---
+
+# $F_{40}$
+
+* Total FAA (across all 4 fleets) : 
+
+```{r, echo = F, eval = T}
+x <- round(exp(mod$rep$log_FAA_XSPR_static)[7,],2)
+names(x) <- mod$ages.lab
+x <- knitr::kable(rbind(x), booktabs = T, escape=F, row.names = F)
+knitr::knit_print(x)
+```
+
+* FAA by region
+
+```{r, echo = F, eval = T}
+x <- round(exp(mod$rep$log_FAA_XSPR_static)[5:6,],2)
+colnames(x) <- mod$ages.lab
+rownames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = F)
+knitr::knit_print(x)
+```
+---
+
+# $F_{40}$
+
+* FAA by region
+
+```{r, echo = F, eval = T}
+x <- round(exp(mod$rep$log_FAA_XSPR_static)[5:6,],2)
+colnames(x) <- mod$ages.lab
+rownames(x) <- mod$input$region_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = F)
+knitr::knit_print(x)
+```
+
+* FAA by fleet
+
+```{r, echo = F, eval = T}
+x <- round(exp(mod$rep$log_FAA_XSPR_static)[1:4,],2)
+colnames(x) <- mod$ages.lab
+rownames(x) <- mod$input$fleet_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = F)
+knitr::knit_print(x)
+```
+
+---
+
+# $F_{40}$
+
+* FAA by fleet
+```{r, echo = F, eval = T}
+x <- round(exp(mod$rep$log_FAA_XSPR_static)[1:4,],2)
+colnames(x) <- mod$ages.lab
+rownames(x) <- mod$input$fleet_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = F)
+knitr::knit_print(x)
+```
+
+* $\text{FAA}/(F_{40} = 1.03)$ = selectivity
+
+
+```{r, echo = F, eval = T}
+x <- round(exp(mod$rep$log_FAA_XSPR_static)[1:4,]/exp(mod$rep$log_FXSPR_static),2)
+colnames(x) <- mod$ages.lab
+rownames(x) <- mod$input$fleet_names
+x <- knitr::kable(x, booktabs = T, escape=F, row.names = F)
+knitr::knit_print(x)
+```
+
+
+---
+
+# Status relative to reference points
+
+* WHAM and Mult-WHAM can calculate joint uncertainty of status of current F and SSB relative to reference points
+
+```{r , echo = F, eval = T, fig.align = "center", out.width = "50%"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","ref_points","Kobe_status.png"))
+```
+
+---
+
+# Annual reference points
+
+* Can calculate reference points every year using annual inputs instead of last 5 years.
+
+```{r , echo = F, eval = T, fig.align = "center", out.width = "50%"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","ref_points","FSPR_absolute.png"))
+```
+
+---
+
+# Annual status
+
+```{r , echo = F, eval = T, fig.align = "center", out.width = "50%"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","ref_points","FSPR_relative.png"))
+```
+
+---
+
 
 layout: false
 class: middle, center

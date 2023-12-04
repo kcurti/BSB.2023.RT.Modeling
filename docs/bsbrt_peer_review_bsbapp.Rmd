@@ -60,6 +60,15 @@ options(knitr.kable.NA = '')
 
 library(here)
 
+colorize <- function(x, color) {
+  if (knitr::is_latex_output()) {
+    sprintf("\\textcolor{%s}{%s}", color, x)
+  } else if (knitr::is_html_output()) {
+    sprintf("<span style='color: %s;'>%s</span>", color,
+      x)
+  } else x
+}
+
 ```
 
 ```{r, echo = F, eval = T}
@@ -89,8 +98,8 @@ predR_ind <- which(rownames(std) == "log_SPR_FXSPR")
 #Outline <br>
 
 * Description of proposed base model
-* Results
 * Diagnostics
+* Results
 * Path to the base model
   * Initial bridge building
   * Progression of model development
@@ -125,6 +134,7 @@ layout: true
 * 2 Environmental processes (1959-2022)
   * Bottom temperature in North
   * Bottom temperature in South
+* Natural mortality = 0.4 all ages, components, regions
 
 ---
 
@@ -283,148 +293,18 @@ out %>% kable(format = type, booktabs = T, escape=F, row.names = F,
 
 * Included model-based bottom temperature observations in the BSB model.
 * Very small uncertainty in observations (SEs: 0.03 to 0.09).
-* Modeled latent covariate as AR1 process.
-* Fit models with and without effects on northern and southern recruitment $$\log R_y = \mu_R + \beta x_y + \epsilon_y.$$
+* State-space treatment: 
+  * Modeled latent covariate as AR1 process.
+$$X_y \sim N\left(\mu_X(1-\rho_X) + \rho_X X_{y-1}, \sigma_X^2\right)$$
+  * Observations of the latent covariate:
+$$x_y \sim N\left(X_{y}, \sigma_x^2\right)$$
+* Fit models with and without effects on northern and southern recruitment $$\log R_y = \mu_R + \beta X_y + \epsilon_y.$$
   * Examined AIC for full model and all retrospective peels.
 * Might be worth exploring an alternative effect on $M$ for age 1.
   * Would also affect reference points and projections differently.
 
 ---
 
-
-layout: false
-class: middle, center
-
-#Results
-
-
----
-
-layout: true
-
-.footnote[U.S. Department of Commerce | National Oceanic and Atmospheric Administration | National Marine Fisheries Service]
-
-
----
-
-# SSB, R: North
-
-```{r echo = FALSE, out.width="50%", fig.show = "hold", fig.align="center"}
-knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SSB_Rec_time_BSB_North.png"))
-```
----
-
-# SSB, R: South
-
-```{r echo = FALSE, out.width="50%", fig.show = "hold", fig.align="center"}
-knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SSB_Rec_time_BSB_South.png"))
-```
----
-
-# SSB, R: Total
-
-```{r echo = FALSE, out.width="50%", fig.show = "hold", fig.align="center"}
-knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SSB_Rec_time_total.png"))
-```
----
-
-# SSB, F
-
-```{r SSB-F, echo = FALSE, out.width="50%", fig.align="center"}
-knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SSB_F_trend.png"))
-```
----
-
-#F by fleet
-
-```{r F-by-fleet, echo = FALSE, out.width="50%", fig.align="center"}
-knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","F_byfleet.png"))
-```
----
-
-# Bottom temperature
-
-.pull-left[
-```{r echo = FALSE, out.width="100%", fig.align="center"}
-knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","Ecov_1_North_BT.png"))
-```
-]
-.pull-right[
-```{r echo = FALSE, out.width="100%", fig.align="center"}
-knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","Ecov_2_South_BT.png"))
-```
-]
----
-
-
-# Northern recruitment and bottom temperature
-
-```{r echo = F, eval = T, out.width = "50%", fig.align = "center"}
-std <- summary(Run34$sdrep, "fixed")
-inds <- list(ssb =which(rownames(std) == "log_SSB_all"))
-
-Ecov_est <- Run34$rep$Ecov_out_R[1,,1]
-Ecov <- seq(min(Ecov_est), max(Ecov_est), 0.01)
-ind_slope <-which(rownames(std) == "Ecov_beta_R")
-ind_int <- which(rownames(std) == "mean_rec_pars")[1] #north
-
-beta <- std[c(ind_int,ind_slope),1]
-cov.beta <- Run34$sdrep$cov.fixed[c(ind_int,ind_slope),c(ind_int,ind_slope)]
-X <- cbind(1, Ecov)
-pred.log.R <- c(X%*%beta)
-sd.pred.log.R <- diag(X %*% cov.beta %*% t(X))
-ci <- qnorm(0.975)*sd.pred.log.R
-ci <- pred.log.R + cbind(-ci,ci)
-plot(Ecov, exp(pred.log.R), type = 'l', xlab = "Bottom Temperature", ylab = bquote(North~hat(R)))
-polygon(c(Ecov, rev(Ecov)), exp(c(ci[,1],rev(ci[,2]))), col=adjustcolor("black", alpha.f=0.4), border = "transparent")
-
-```
----
-
-# NAA random effects deviations 
-
-```{r echo = FALSE, out.width="100%", fig.align="center"}
-knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","NAA_dev_tile.png"))
-```
----
-
-#Selectivity
-
-```{r selectivity, echo = FALSE, out.width="50%", fig.align="center"}
-knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SelAA_tile.png"))
-```
----
-
-# Prior and posterior movement rates
-
-```{r move-prior-posterior, fig.dim =c(14,7), echo = F, eval= T}
-dlogitnorm <- function(x, p, sigma){
-
-	y <- log(x/(1-x))
-	mu <- log(p/(1-p))
-	fx <- dnorm(y, mu, sigma, log = F) /(x*(1-x)) 
-	return(fx)
-}
-
-par(mfrow = c(1,2), mar = c(4,4,1,1), oma = c(1,1,1,1))
-ps <- seq(0,0.1,0.001)
-#prior for both north-south and south-north
-plot(ps, dlogitnorm(ps,0.02214863, 0.2), type = 'l', lwd = 2, xlab = "P(North to South)", ylab = "f(P)", ylim = c(0,300))
-abline(v=0.02214863, lwd =2)
-#posterior for north to south
-lines(ps, dlogitnorm(ps, p = Run34$rep$mu[1,8,8,1,1,2], sigma = TMB:::as.list.sdreport(Run34$sdrep, "Std")$mu_prior_re[1,8,1,1]), lwd = 2, col = "red")
-abline(v=Run34$rep$mu[1,8,8,1,1,2], col = "red", lwd = 2)
-
-ps <- seq(0,0.6,0.001)
-plot(ps, dlogitnorm(ps,0.3130358, 0.2), type = 'l', lwd = 2, xlab = "P(South to North)", ylab = "f(P)")
-abline(v=0.3130358, lwd =2)
-#posterior for north to south
-lines(ps, dlogitnorm(ps, p = Run34$rep$mu[1,8,1,1,2,1], sigma = TMB:::as.list.sdreport(Run34$sdrep, "Std")$mu_prior_re[1,8,2,1]), lwd = 2, col = "red")
-abline(v=Run34$rep$mu[1,8,1,1,2,1], col = "red", lwd = 2)
-
-```
-
----
 
 
 layout: false
@@ -536,13 +416,13 @@ mtext(side = 1, "Year", line = 2, outer = T)
 #MASE
 
 ```{r echo = FALSE, out.width = "50%", fig.align="center"}
-knitr::include_graphics(here::here("2023.RT.Runs","Run34","mase_WHAM for unnamed stock.png"))
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","mase_WHAM_for_unnamed_stock.png"))
 ```
 ---
 
 #MASE
 ```{r echo = FALSE, out.width="50%", fig.align="center"}
-knitr::include_graphics(here::here("2023.RT.Runs","Run34","predicted_vs_obs_WHAM for unnamed stock.png"))
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","predicted_vs_obs_WHAM_for_unnamed_stock.png"))
 ```
 ---
 
@@ -860,6 +740,140 @@ knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png", "retro","
 ]
 ---
 
+layout: false
+class: middle, center
+
+#Results
+
+
+---
+
+layout: true
+
+.footnote[U.S. Department of Commerce | National Oceanic and Atmospheric Administration | National Marine Fisheries Service]
+
+
+---
+
+# SSB, R: North
+
+```{r echo = FALSE, out.width="50%", fig.show = "hold", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SSB_Rec_time_BSB_North.png"))
+```
+---
+
+# SSB, R: South
+
+```{r echo = FALSE, out.width="50%", fig.show = "hold", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SSB_Rec_time_BSB_South.png"))
+```
+---
+
+# SSB, R: Total
+
+```{r echo = FALSE, out.width="50%", fig.show = "hold", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SSB_Rec_time_total.png"))
+```
+---
+
+# SSB, F
+
+```{r SSB-F, echo = FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SSB_F_trend.png"))
+```
+---
+
+#F by fleet
+
+```{r F-by-fleet, echo = FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","F_byfleet.png"))
+```
+---
+
+# Bottom temperature
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","Ecov_1_North_BT.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","Ecov_2_South_BT.png"))
+```
+]
+---
+
+
+# Northern recruitment and bottom temperature
+
+```{r echo = F, eval = T, out.width = "50%", fig.align = "center"}
+std <- summary(Run34$sdrep, "fixed")
+inds <- list(ssb =which(rownames(std) == "log_SSB_all"))
+
+Ecov_est <- Run34$rep$Ecov_out_R[1,,1]
+Ecov <- seq(min(Ecov_est), max(Ecov_est), 0.01)
+ind_slope <-which(rownames(std) == "Ecov_beta_R")
+ind_int <- which(rownames(std) == "mean_rec_pars")[1] #north
+
+beta <- std[c(ind_int,ind_slope),1]
+cov.beta <- Run34$sdrep$cov.fixed[c(ind_int,ind_slope),c(ind_int,ind_slope)]
+X <- cbind(1, Ecov)
+pred.log.R <- c(X%*%beta)
+sd.pred.log.R <- diag(X %*% cov.beta %*% t(X))
+ci <- qnorm(0.975)*sd.pred.log.R
+ci <- pred.log.R + cbind(-ci,ci)
+plot(Ecov, exp(pred.log.R), type = 'l', xlab = "Bottom Temperature", ylab = bquote(North~hat(R)))
+polygon(c(Ecov, rev(Ecov)), exp(c(ci[,1],rev(ci[,2]))), col=adjustcolor("black", alpha.f=0.4), border = "transparent")
+
+```
+---
+
+# NAA random effects deviations 
+
+```{r echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","NAA_dev_tile.png"))
+```
+---
+
+#Selectivity
+
+```{r selectivity, echo = FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","results","SelAA_tile.png"))
+```
+---
+
+# Prior and posterior movement rates
+
+```{r move-prior-posterior, fig.dim =c(14,7), echo = F, eval= T}
+dlogitnorm <- function(x, p, sigma){
+
+	y <- log(x/(1-x))
+	mu <- log(p/(1-p))
+	fx <- dnorm(y, mu, sigma, log = F) /(x*(1-x)) 
+	return(fx)
+}
+
+par(mfrow = c(1,2), mar = c(4,4,1,1), oma = c(1,1,1,1))
+ps <- seq(0,0.1,0.001)
+#prior for both north-south and south-north
+plot(ps, dlogitnorm(ps,0.02214863, 0.2), type = 'l', lwd = 2, xlab = "P(North to South)", ylab = "f(P)", ylim = c(0,300))
+abline(v=0.02214863, lwd =2)
+#posterior for north to south
+lines(ps, dlogitnorm(ps, p = Run34$rep$mu[1,8,8,1,1,2], sigma = TMB:::as.list.sdreport(Run34$sdrep, "Std")$mu_prior_re[1,8,1,1]), lwd = 2, col = "red")
+abline(v=Run34$rep$mu[1,8,8,1,1,2], col = "red", lwd = 2)
+
+ps <- seq(0,0.6,0.001)
+plot(ps, dlogitnorm(ps,0.3130358, 0.2), type = 'l', lwd = 2, xlab = "P(South to North)", ylab = "f(P)")
+abline(v=0.3130358, lwd =2)
+#posterior for north to south
+lines(ps, dlogitnorm(ps, p = Run34$rep$mu[1,8,1,1,2,1], sigma = TMB:::as.list.sdreport(Run34$sdrep, "Std")$mu_prior_re[1,8,2,1]), lwd = 2, col = "red")
+abline(v=Run34$rep$mu[1,8,1,1,2,1], col = "red", lwd = 2)
+
+```
+
+---
+
 
 layout: false
 class: middle, center
@@ -876,14 +890,16 @@ layout: true
 
 ---
 
-#Bridging from ASAP to WHAM
+#Comparing ASAP with standard WHAM and Multi-WHAM
 
 .pull-left[
-* Time series of observations not updated
-* Use previous fleet definitions.
-* Management track ASAP 
-* Separate fits in standard WHAM
-* Simultaneous (separate) fits in Multi-WHAM
+* Based on data used in last management track 
+  * Time series of observations not updated
+  * Use previous fleet definitions (Trawl and Non-Trawl).
+* Compared
+  * Management track ASAP 
+  * Separate fits in standard WHAM
+  * Simultaneous (separate) fits in Multi-WHAM
 ]
 
 .pull-right[
@@ -893,46 +909,289 @@ knitr::include_graphics(here::here("docs","plots","compare_one_stock_models.png"
 ]
 ---
 
-# Early runs (1-18)
+# Bridge runs
+
+Separate fits for north and south regions
+* 1: Turn off all indices but NEFSC Spring BTS and Rec CPA
+* 2: Update fishery catches, fishing fleets and catch WAA estimates to comm/rec fleets
+* 3: Update Spring BTS and Rec CPA
+* 4: Add 2020-2021
+* 5: Update maturity
+* 6: Add NEAMAP
+* 7: Update remaining spring state indices (added VAST as well but didn’t turn them on)
+* `r colorize("8: Rec CPA and both spring and fall VAST", gray(0.7))`
+* 9: Rec CPA and VAST spring only (also a combined stock run that matches the single stock results. This combined run will be used for later runs.)
+
+---
+
+# Bridge runs
+
+Separate fits for north and south regions
+* `r colorize("1: Turn off all indices but NEFSC Spring BTS and Rec CPA", "red")` 
+* `r colorize("2: Update fishery catches, fishing fleets and catch WAA estimates to comm/rec fleets", "red")`
+* `r colorize("3: Update Spring BTS and Rec CPA", "red")` 
+* 4: Add 2020-2021
+* 5: Update maturity
+* 6: Add NEAMAP
+* 7: Update remaining spring state indices (added VAST as well but didn’t turn them on)
+* `r colorize("8: Rec CPA and both spring and fall VAST", gray(0.7))`
+* 9: Rec CPA and VAST spring only (also a combined stock run that matches the single stock results. This combined run will be used for later runs.)
+
+---
+
+# Bridge runs 1, 2, and 3
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs1-3.north.F.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs1-3.south.F.png"))
+```
+]
+---
+
+# Bridge runs 1, 2, and 3
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs1-3.north.SSB.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs1-3.south.SSB.png"))
+```
+]
+---
+
+# Bridge runs 1, 2, and 3
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs1-3.north.Rect.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs1-3.south.Rect.png"))
+```
+]
+---
+
+# Bridge runs
+
+Separate fits for north and south regions
+* 1: Turn off all indices but NEFSC Spring BTS and Rec CPA
+* 2: Update fishery catches, fishing fleets and catch WAA estimates to comm/rec fleets
+* `r colorize("3: Update Spring BTS and Rec CPA", "red")`
+* `r colorize("4: Add 2020-2021", "red")`
+* 5: Update maturity
+* 6: Add NEAMAP
+* 7: Update remaining spring state indices (added VAST as well but didn’t turn them on)
+* 8: Rec CPA and both spring and fall VAST
+* 9: Rec CPA and VAST spring only (also a combined stock run that matches the single stock results. This combined run will be used for later runs.)
+
+---
+
+# Bridge runs 3 and 4
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs3-4.north.F.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs3-4.south.F.png"))
+```
+]
+---
+
+# Bridge runs 3 and 4
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs3-4.north.SSB.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs3-4.south.SSB.png"))
+```
+]
+---
+
+# Bridge runs 3 and 4
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs3-4.north.Rect.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs3-4.south.Rect.png"))
+```
+]
+---
+
+# Bridge runs
+
+Separate fits for north and south regions
+* 1: Turn off all indices but NEFSC Spring BTS and Rec CPA
+* 2: Update fishery catches, fishing fleets and catch WAA estimates to comm/rec fleets
+* 3: Update Spring BTS and Rec CPA
+* `r colorize("4: Add 2020-2021", "red")`
+* `r colorize("5: Update maturity", "red")`
+* `r colorize("6: Add NEAMAP", "red")`
+* `r colorize("7: Update remaining spring state indices (added VAST as well but didn’t turn them on)", "red")`
+* 8: Rec CPA and both spring and fall VAST
+* 9: Rec CPA and VAST spring only (also a combined stock run that matches the single stock results. This combined run will be used for later runs.)
+
+---
+
+# Bridge runs 4, 5, 6, and 7
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs4-7.north.F.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs4-7.south.F.png"))
+```
+]
+---
+
+# Bridge runs 4, 5, 6, and 7
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs4-7.north.SSB.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs4-7.south.SSB.png"))
+```
+]
+---
+
+# Bridge runs 4, 5, 6, and 7
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs4-7.north.Rect.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs4-7.south.Rect.png"))
+```
+]
+---
+
+# Bridge runs
+
+Separate fits for north and south regions
+* 1: Turn off all indices but NEFSC Spring BTS and Rec CPA
+* 2: Update fishery catches, fishing fleets and catch WAA estimates to comm/rec fleets
+* 3: Update Spring BTS and Rec CPA
+* 4: Add 2020-2021
+* 5: Update maturity
+* 6: Add NEAMAP
+* `r colorize("7: Update remaining spring state indices (added VAST as well but didn’t turn them on)", "red")`
+* `r colorize("8: Rec CPA and both spring and fall VAST", "red")`
+* `r colorize("9: Rec CPA and VAST spring only (also a combined stock run that matches the single stock results. This combined run will be used for later runs.)", "red")`
+
+---
+
+# Bridge runs 7, 8, and 9
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7-9.north.F.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7-9.south.F.png"))
+```
+]
+---
+
+# Bridge runs 7, 8, and 9
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7-9.north.SSB.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7-9.south.SSB.png"))
+```
+]
+---
+
+# Bridge runs 7, 8, and 9
+
+.pull-left[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "North"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7-9.north.Rect.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center", fig.cap = "South"}
+knitr::include_graphics(here::here("Bridge.Runs","Comparison_Figures", "Runs7-9.south.Rect.png"))
+```
+]
+---
+
+# Early research track runs (1-18)
 
 * See table in the working paper
-* used updated and new observations 
-* included surveys as either separate indices or combined in fall and spring VAST indices (other than the recreational CPA)
-* explored alternative selectivity and age comp likelihood assumptions: reduce patterns in age comp OSA residuals. 
+* Used updated and new observations 
+* Included surveys as either separate indices or combined in fall and spring VAST indices (other than the recreational CPA)
+* Explored alternative selectivity and age comp likelihood assumptions: reduce patterns in age comp OSA residuals. 
 * WG determined to use aggregate VAST indices that account for changes in catchability.
-* However, age comp for fall VAST and NEAMAP were incorrectly calculated
-* Runs 19+ only used the spring VAST and Rec CPA indices.
+* **However, age comp for fall VAST and NEAMAP were incorrectly calculated**
+* **Runs 19+ only used the spring VAST and Rec CPA indices.**
 
 ---
 
 # Middle runs (19-27)
 
-* issues with patterns in OSA residuals remained 
-* sometimes large retrospective patterns for the northern component. 
+* Issues with patterns in OSA residuals remained 
+* Sometimes large retrospective patterns for the northern component. 
 * After Run 27, we used separate models for north and south to more efficiently explore alternative assumptions about selectivity and age composition likelihoods
-* These analyses resulted in assumptions that remained the same across all later runs
-  * Different age composition model assumptions for some of the fleets and indices 
-  * Use of selectivity random effects for the northern fleets and indices. 
+* **These analyses resulted in assumptions that remained the same across all later runs**
+  * **Different age composition model assumptions for some of the fleets and indices.**
+  * **Use of selectivity random effects for the northern fleets and indices.** 
 
 ---
 
 # Late runs (28-34)
 
-* Corrected some previous assumptions about movement
-  * rates from SS were not corrected for differences in seasonal time steps
-  * rates of movement for northern component to and from north were both occurring over all seasonal intervals outside of spawning
-  * incorrect movement rate from south to north.
+* **Corrected some previous assumptions about movement.**
+  * Rates from SS were not corrected for differences in seasonal time steps
+  * Rates of movement for northern component to and from north were both occurring over all seasonal intervals outside of spawning
+  * Incorrect movement rate from south to north.
 * Runs 30+ assume negligible variance of survival random effects for northern origin fish occurring in the south on Jan 1.
-  * allows yearly AR1 correlation to be estimated.
+  * Allows yearly AR1 correlation to be estimated.
 * Runs that did not converge well:
   * Run 31 assumed temporal random effects on the movement rate from the north to the south
   * Run 32 assumed a Beverton-Holt stock recruit relationships for both the north and south components
 * Run 33 investigated bottom temperature effects on recruitment and we found evidence of an effect on northern recruitment.  
 * Run 34 relaxed estimated scalar for uncertainty in the Recreational CPA indices
-* After these runs we discovered a coding error in constructing initial numbers at age under an equilibrium assumption. 
-  * small changes in results Run 34: absolute differences in annual SSB estimates were less than 7%. 
-  * Refit Runs 30, 33, and 34 with the corrected model and 
-  * None of the choices among these models would have changed.
+* **After these runs we discovered a coding error in constructing initial numbers at age under an equilibrium assumption. 
+  * Small changes in results Run 34: absolute differences in annual SSB estimates were less than 7%. 
+  * **Refit Runs 30, 33, and 34 with the corrected model** 
+    * None of the choices among these models would have changed.
 
 
 ---
