@@ -40,15 +40,17 @@ pre {
   overflow-y: auto;
 }
 
+.small { font-size: 70% }
+
 ```
 
 
 ```{r setup, include=FALSE}
 #options(htmltools.dir.version = FALSE)
-#library(knitr)
+library(knitr)
 #knitr::opts_chunk$set(cache = TRUE)
 #knitr::opts_knit$set(root.dir = here::here())
-#library(kableExtra)
+library(kableExtra)
 #library(imager)
 #here::i_am("c:/work/BSB_RT")
 
@@ -62,6 +64,117 @@ library(here)
 ```
 
 ---
+
+# Outline
+
+* Brief description of standard WHAM package
+* New features of multi-stock, multi-region extension (Multi-WHAM)
+* Generalizing from univariate, to multivariate populations (i.e., survival by region, types of mortality)
+* Modeling dynamics of a multi-region populations and predictions for catch and index observations
+
+---
+
+# WHAM
+
+.pull-left[
+* Woods Hole Assessment Model (WHAM)
+* R package
+  .small[* `remotes::install_github("timjmiller/wham", dependencies=TRUE)`]
+* See [Stock and Miller 2021](https://www.sciencedirect.com/science/article/pii/S0165783621000953?via%3Dihub) for further details
+* "State-space" age-structured assessment model
+  * random effects optional in various aspects of the population dynamics
+  * Estimation by maximum marginal likelihood
+  * Estimation without random effects (traditional SCAA) is default
+* Has been recommended for management of 9 stocks in the Northeast US
+  * Atlantic butterfish
+  * Georges Bank and Eastern GB haddock
+  * Atlantic bluefish
+  * American plaice
+  * 4 Atlantic cod stocks
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots", "repo_snip1.png"))
+knitr::include_graphics(here::here("docs","plots", "repo_snip2.png"))
+```
+]
+---
+
+# WHAM: Stochastic processes
+
+.pull-left[
+* Random effects are Gaussian on transformed scale
+* Time and/or age varying random effects can be assumed in several parameters:
+    * Recruitment (time)
+        * log deviations are iid or AR1(year)
+    * Transitions in abundance by time step ("survival") (time and age)
+        * log deviations from deterministic transitions are iid or 2DAR1
+    * Selectivity for indices and fishing fleets (time and/or age)
+        * logit deviations are iid, AR1(age), AR1(year) or 2dAR1
+    * Natural mortality (time and/or age)
+        * log deviations are  iid, AR1(age), AR1(year) or 2dAR1
+    * Index catchability (time)
+        * logit deviations are iid, or AR1(year)
+]
+
+.pull-right[
+
+$$Cov\left(\epsilon_{a,y},\epsilon_{a',y'}\right) = \frac{\rho_{\mathcal{A}}^{|a-a'|}\rho_{\mathcal{Y}}^{|y-y'|}\sigma^2}{\left(1 - \rho_{\mathcal{A}}^2\right)\left(1 - \rho_{\mathcal{Y}}^2\right)}$$
+```{r echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots", "NAA_dev_snip.png"))
+```
+]
+---
+
+# WHAM: Environmental Covariates
+
+.pull-left[
+* State-space models for covariates
+  * Time series model for latent covariate random effects
+  * E.g. first order auto-regressive (AR1):
+$$X_{y}|X_{y-1} = \mu(1-\rho) + \rho X_{y-1} + \epsilon_y$$
+$$\epsilon_y \sim N(0,\sigma_X^2)$$
+  * Random walk $(\rho = 1)$ also an option
+  * Observations of covariate have error
+$$x_y|X_y \sim N(X_y, \sigma_x^2)$$
+* Latent covariate can affect:
+  * Recruitment
+  * Natural Mortality
+  * Index catchability
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots", "ecov_snip.png"))
+```
+]
+---
+
+# WHAM: Observations
+
+.pull-left[
+* Aggregate catch (by fleet)
+  * log-normal
+  * $\widehat C_{f,a} = N_{y,a}\frac{F_{f,y} s_{f,a}}{Z_{y,a}}\left(1-e^{-Z_{y,a}}\right) W_{f,y,a}$
+* Aggregate indices (biomass or abundance)
+  * log-normal
+  * $\widehat I_{i,a} = q_i s_{i,a} N_{y,a}e^{-Z_{y,a}\delta_{i,y}} W_{f,y,a}$
+* Index or catch age composition
+  * Multinomial
+  * Dirichlet-multinomial (estimated dispersion)
+  * logistic-normal (estimated dispersion)
+  * Dirichlet (estimated dispersion)
+  * Multivariate-Tweedie (estimated dispersion)
+* Environmental covariates
+  * normal
+]
+.pull-right[
+```{r echo = FALSE, out.width="55%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots", "OSA_resid_ex1.png"))
+knitr::include_graphics(here::here("docs","plots", "OSA_resid_ex2.png"))
+```
+]
+---
+
 
 #Multi-WHAM <br>
 
@@ -124,6 +237,19 @@ $$\mathbf{O}(t,\delta,a) = \mathbf{S}(t,\delta,a)\boldsymbol{\mu}(t,\delta,a).$$
   $$\mathbf{P}_{t,\delta,a} = e^{\mathbf{A}_{t,\delta, a}\delta}$$
 ---
 
+# Probability transition matrix example
+
+Northern stock, age 5, year 2021
+
+```{r eval = T, echo = F}
+mod <- readRDS(here::here("2023.RT.Runs","Run34","fit.RDS"))
+x <- round(mod$rep$annual_Ps[1,33,5,,],2)
+rownames(x) <- colnames(x) <- c("North", "South",mod$input$fleet_names, "M")
+x %>% kable(booktabs = T, escape=F, row.names = T, align = c(rep("l",3)))
+
+```
+
+---
 #Sequential survival and movement
 
 * $\mathbf{S}$ is a diagonal matrix of proportions surviving in each region (given they start in that region):
@@ -157,7 +283,7 @@ The rows sum to 1 and each of the $\mu_{r\rightarrow r'}$ parameters may be year
 #Movement parameters
 * Movement parameters can including both random and environmental effects: $$f(\mu_{r \rightarrow r',i,a,y}) = \theta_{r \rightarrow r',i} + \epsilon_{r \rightarrow r',i,a,y} + \sum^{n_E}_{k=1} \beta_{r \rightarrow r',i,k} E_{k,y}$$
 * **Multi-WHAM currently has no likelihood component for tagging observations, but priors can be configured from auxiliary movement parameter estimates.**
-* When prior distributions are used, the (mean) movement parameters are random effects with the mean defined by the user-defined fixed effect counterpart and standard deviation $$\gamma_{r \rightarrow r',i} \sim \text{N}\left(\theta_{r \rightarrow r',i}, \sigma^2_{r \rightarrow r',i}\right)$$  and the transformed movement parameter is defined instead as $$f(\mu_{r \rightarrow r',i,a,y}) = \gamma_{r \rightarrow r',i} + \epsilon_{r \rightarrow r',i,a,y} + \sum^{n_E}_{k=1} \beta_{r \rightarrow r',i,k} E_{k,y}$$.
+    * When prior distributions are used, the (mean) movement parameters are random effects with the mean defined by the user-defined fixed effect counterpart and standard deviation $$\gamma_{r \rightarrow r',i} \sim \text{N}\left(\theta_{r \rightarrow r',i}, \sigma^2_{r \rightarrow r',i}\right)$$  and the transformed movement parameter is defined instead as $$f(\mu_{r \rightarrow r',i,a,y}) = \gamma_{r \rightarrow r',i} + \epsilon_{r \rightarrow r',i,a,y} + \sum^{n_E}_{k=1} \beta_{r \rightarrow r',i,k} E_{k,y}$$.
 
 ---
 
@@ -247,6 +373,6 @@ $$F_{\text{total},y} = \underset{a}{\arg\max} F_{\text{total},a,y}$$
 
 * The likelihood equations for catch and index observations are the same as the standard WHAM package.
 * The predicted catch is a function of the abundance at age of each stock and probabilities of capture in each fleet.
-* The predicted catch biomass at age for fleet $f$: $$\widehat{C}_{f,a,y} = \left(\sum^{n_S}_{s=1} \sum^{n_R}_{r=1} \widehat H_{s,a,y}(r,f) \widehat N_{s,r,a,y}\right) c_{f,a,y}.$$ where $\widehat H_{s,a,y}(r,f)$ element of the matrix representing the probability of capture by fleet $f$ over year $y$ for fish of age $a$ beginning the year in region $r$ and $c_{f,a,y}$ is the weight at age and year in fleet $f$.  
-* For index $i$ that occurs at $\delta_i$ within each year, the predicted index at age is $$\widehat{I}_{a,y,i} = \widehat q_i \widehat s_{a,y,i} W_{a,y,i} \sum^{n_S}_{s = 1} \sum^{n_R}_{r=1}\widehat N_{s,r,a,y} \widehat {\mathbf{O}}_{s,a,y}(\delta_i,r,r_i).$$ where $q_i$ is the catchability, $s_{a,y,i}$ is the selectivitity at age, $W_{a,y,i}$ is the weight at age (if the index is measured in biomass) and $\widehat {\mathbf{O}}_{s,a,y}(\delta_i,r,r_i)$ is the component of the survival and movement matrix over the interval up to the time of the survey that corresponds to starting in region $r$ and is alive in region $r_i$ where the survey occurs.
+* The predicted catch biomass at age for fleet $f$: $$\widehat{C}_{f,a,y} = \left(\sum^{n_S}_{s=1} \sum^{n_R}_{r=1} \mathbf{H}_{s,a,y}(r,f) N_{s,r,a,y}\right) c_{f,a,y}.$$ where $\mathbf{H}_{s,a,y}(r,f)$ element of the matrix representing the probability of capture by fleet $f$ over year $y$ for fish of age $a$ beginning the year in region $r$ and $c_{f,a,y}$ is the weight at age and year in fleet $f$.  
+* For index $i$ that occurs at $\delta_i$ within each year, the predicted index at age is $$\widehat{I}_{a,y,i} = q_i s_{a,y,i} W_{a,y,i} \sum^{n_S}_{s = 1} \sum^{n_R}_{r=1} N_{s,r,a,y} {\mathbf{O}}_{s,a,y}(\delta_i,r,r_i).$$ where $q_i$ is the catchability, $s_{a,y,i}$ is the selectivitity at age, $W_{a,y,i}$ is the weight at age (if the index is measured in biomass) and ${\mathbf{O}}_{s,a,y}(\delta_i,r,r_i)$ is the component of the survival and movement matrix over the interval up to the time of the survey that corresponds to starting in region $r$ and is alive in region $r_i$ where the survey occurs.
 * Predicted age composition observations are the same functions of the predicted catch or indices at age as the standard WHAM package.

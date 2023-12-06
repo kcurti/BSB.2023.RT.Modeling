@@ -99,9 +99,25 @@ where ${\bf c}_a$ is the vector of catch weight at age for each fleet, and ${\bf
 $$\widetilde {\mathcal{S}}\left({\widetilde F}\right) = \sum^{n_S}_{i=1} \omega_{i} \widetilde {\mathbf{O}}_i\left({\widetilde F},r = r(s_i), r' = r(s_i)\right)$$
 * weights can be user-specified or as a function of average recruitment for the different stocks:
 $$\omega_i = \frac{\overline R_i}{\sum^{n_S}_{i = 1} \overline R_i}$$
+* $F_{40}$ is the value ${\widetilde F}^*$ such that
+$$\widetilde {\mathcal{S}}\left({\widetilde F}^*\right) = 0.4 \widetilde {\mathcal{S}}\left({\widetilde F}=0\right)$$
+* Same Newton methods as the standard WHAM package are used to solve for $F_{40}$ internally
+  * Internal calculations allow propagation of parameter uncertainty into that of the reference points.
 
 ---
 
+# SSB and Yield at $F_{40}$
+
+* An average recruitment is multiplied with SSB/R and Y/R for stock $i$
+$$\widetilde {\text{SSB}}_i = \overline R_i \widetilde {\mathbf{O}}_i\left({\widetilde F},r = r(s_i), r' = r(s_i)\right)$$
+* For yield from stock $i$ in fleet $f$: 
+$$\widetilde {Y}_{i,f} = \overline R_i \widetilde {\mathbf{Y}}_i\left({\widetilde F},r = r(s_i), f\right)$$
+* The total yield for fleet $f$ is just the sum across stocks:
+$$\widetilde {Y}_{f} = \sum^{n_S}_{i=1} \widetilde {Y}_{i,f}$$
+* User specifies the years to include for $\overline R_i$
+  * We used years 2000-2021 for black sea bass as in previous assessments.
+
+---
 
 # Average FAA for black sea bass BRPs 
 
@@ -186,15 +202,6 @@ colnames(x) <- mod$ages.lab
 x <- knitr::kable(x, booktabs = T, escape=F, row.names = T)
 knitr::knit_print(x)
 ```
-
----
-
-# SSB and Yield at $F_{40}$
-
-* An average recruitment is multiplied with SSB/R and Y/R for stock $i$
-$$\widetilde {\text{SSB}}_i = \overline R_i \widetilde {\mathbf{O}}_i\left({\widetilde F},r = r(s_i), r' = r(s_i)\right)$$
-* For yield in from stock $i$ in fleet $f$
-$$\widetilde {Y}_{i,f} = \overline R_i \widetilde {\mathbf{Y}}_i\left({\widetilde F},r = r(s_i), r' = r_f\right)$$
 
 ---
 
@@ -373,7 +380,7 @@ knitr::knit_print(x)
 
 ---
 
-# Proportions at age
+# January 1 proportions at age in spawning region
 ```{r, echo = FALSE, fig.dim =c(8,5), fig.align="center"}
 par(mfrow = c(1,2), oma = c(4,4,0,0),mar = c(1,2,3,1))
 stock <- c("North", "South")
@@ -475,7 +482,7 @@ knitr::knit_print(x)
 
 * WHAM and Mult-WHAM can calculate joint uncertainty of status of current F and SSB relative to reference points
 
-```{r , echo = F, eval = T, fig.align = "center", out.width = "50%"}
+```{r , echo = F, eval = T, fig.align = "center", out.width = "45%"}
 knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","ref_points","Kobe_status.png"))
 ```
 
@@ -485,7 +492,7 @@ knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","ref_point
 
 * Can calculate reference points every year using annual inputs instead of last 5 years.
 
-```{r , echo = F, eval = T, fig.align = "center", out.width = "50%"}
+```{r , echo = F, eval = T, fig.align = "center", out.width = "45%"}
 knitr::include_graphics(here::here("2023.RT.Runs","Run34","plots_png","ref_points","FSPR_absolute.png"))
 ```
 
@@ -512,3 +519,78 @@ layout: true
 
 
 ---
+
+# Projection options
+
+* Multi-WHAM has the same options as the standard WHAM package
+* Continues time series models for some random effects:
+  * Recruitment
+  * Survival/movement transitions 
+  * Environmental covariates
+  * Optional for M, and movement
+  * Uncertainty in these estimates grows in projection years moving away from observations
+  * **Under AR1 model projected random effects converge to the mean of the process** 
+* For other dynamics user specifies years to average (default is the same as that for prevailing BRPs).
+* Various options for projected (year-specific) fully-selected F or FAA:
+  * Status quo
+  * $F_{40}$ (or some other percentage)
+  * $F_{\text{MSY}}$ (if a S-R function is used)
+  * user-specified fully-selected F
+  * user-specified total Catch (appropriate FAA is calculated internally)
+  
+---
+
+# 3-year projection example: 
+
+* Total Catch = 10 kmt in 2022
+* Fully-selected total F = $F_{40}$ in 2023, 2024
+* Bottom temperature: 
+  * AR1 process random effects are forecast for 2022 and 2024 (observations end after 2022)
+* 2DAR1 process random effects for recruitment and survival are forecast
+
+---
+
+# Bottom temperature in the North
+
+```{r bottom-temp-proj, echo = FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","projections","plots_png","results","Ecov_1_North_BT.png"))
+```
+---
+
+# Survival/movement deviation random effects
+
+```{r NAA-devs-proj, echo = FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs", "Run34", "projections", "plots_png", "results", "NAA_dev_tile.png"))
+```
+---
+
+# SSB and recruitment
+
+.pull-left[
+```{r SSB-R-time-proj, echo = FALSE, out.width="100%"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","projections", "plots_png","results","SSB_Rec_time_BSB_North.png"))
+```
+]
+.pull-right[
+```{r echo = FALSE, out.width="100%"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","projections", "plots_png","results","SSB_Rec_time_BSB_South.png"))
+```
+]
+---
+
+# SSB and F
+```{r SSB-F-proj, echo = FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","projections", "plots_png","results","SSB_F_trend.png"))
+```
+---
+
+# fleet-specific F
+```{r F-by-fleet-proj, echo = FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34","projections", "plots_png","results","F_byfleet.png"))
+```
+---
+
+# Projected status
+```{r kobe-status-proj, echo = FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics(here::here("2023.RT.Runs","Run34", "projections", "plots_png","ref_points","Kobe_status.png"))
+```
