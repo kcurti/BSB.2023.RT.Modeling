@@ -1455,3 +1455,10 @@ plot(Run33$years_full, sd34/sd33, ylab = bquote(SE[1](hat(R))*"/"*SE[2](hat(R)))
 mtext(side = 1, "Year", outer = T, line = 2)
 abline(h = 1, lty = 2, col = "red")
 ```
+---
+
+# SSB across all runs:
+
+```{r echo = FALSE, out.width="70%", fig.align="center"}
+knitr::include_graphics(here::here("docs","plots", "SSB_all_runs.png"))
+```

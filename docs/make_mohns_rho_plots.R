@@ -50,3 +50,26 @@ png(here::here("docs", "plots", "late_RTRuns_mohns_rho_north_SSB.png"), width=8,
 plot(28:34, RT.ssb.rhos[,1], ylab = "Mohns rho(north SSB)", xlab = "Run", pch = 19, cex = 2, col = c("black","red")[(28:34 %in% c(30,33,34))+1], ylim = c(-1,0))
 dev.off()
 
+
+runs <- paste0("Run",1:34)
+SSB <- NULL
+for(i in 1:length(runs)){
+	#SSB.rhos <- rbind(SSB.rhos, rep(NA,2))
+	fit <- try(readRDS(here::here("2023.RT.Runs", runs[i], "fit.RDS")))
+	if(!is.character(fit)) if(fit$is_sdrep) {
+		if(is.null(SSB)) SSB <- cbind.data.frame(Run = i, Year = fit$years, stock = rep(c("North", "South"), each = length(fit$years)), SSB = c(fit$rep$SSB))
+		else SSB <- rbind(SSB, cbind.data.frame(Run = i, Year = fit$years, stock = rep(c("North", "South"), each = length(fit$years)), SSB = c(fit$rep$SSB)))
+	}
+	print(i)
+ 	if(i == 2) print(SSB)
+	remove(fit)
+}
+library(ggplot2)
+SSB$Run <- factor(SSB$Run)
+plt <- SSB %>% ggplot(aes(Year, SSB)) + facet_grid(~stock) +
+  geom_line(aes(color=Run)) + scale_colour_viridis_d() + 
+  ylab("SSB (mt)")
+ggsave(here::here("docs", "plots", "SSB_all_runs.png"), plt, width = 8, height = 5)
+
+
+plot(1:34, RT.ssb.rhos[,1], ylab = "Mohns rho(north SSB)", xlab = "Run", pch = 19, cex = 2, col = c("black","red")[(RT.ssb.rhos[,1]< -0.2)+1], ylim = c(-1,0))
