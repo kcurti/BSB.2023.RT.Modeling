@@ -10,10 +10,10 @@ rm(list=ls())
 ls()
 
 comp.dir <- '2023.RT.Runs'
-run.nos <- c(29)
+run.nos <- c(20:23)
 run.list <- paste("Run",run.nos,sep='')
   names(run.nos) <- run.list
-fig.basename <- 'Runs29'
+fig.basename <- 'Runs20-23'
 reg <- 'south'
 
 F.yr <- tibble()
