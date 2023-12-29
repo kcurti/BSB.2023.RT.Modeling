@@ -1,5 +1,5 @@
-this_run <- "Run34"
-#like run 30, but fit models with and without temperature effects on recruitment
+this_run <- "Run37"
+#like run 34, but with individual indices instead of VAST indices
 
 #pkgbuild::compiler_flags(debug =FALSE) #doesn't do anything about file size/too many sections error.
 #---------------
@@ -19,20 +19,95 @@ this_run <- "Run34"
 library(wham, lib.loc = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/multi_wham")
 
 library(here)
-asap <- read_asap3_dat(c(here("Bridge.runs", "Run9", "NORTH.RUN.9.DAT"),here("Bridge.runs", "Run9", "SOUTH.RUN.9.DAT")))
+# asap <- read_asap3_dat(c(here("Bridge.runs", "Run9", "NORTH.RUN.9.DAT"),here("Bridge.runs", "Run9", "SOUTH.RUN.9.DAT")))
+asap <- read_asap3_dat(c(here("Bridge.runs", "Run7", "NORTH.BRIDGE.RUN.7.DAT"),here("Bridge.runs", "Run7", "SOUTH.BRIDGE.RUN.7.DAT")))
+
 #adjust input Neff for D-M
 change_max_Neff_fn <- function(asap, max_Neff = 1000){
-	for(i in 1:length(asap)) {
-		asap[[i]]$dat$catch_Neff[] <- max_Neff
-		asap[[i]]$dat$IAA_mats <- lapply(asap[[i]]$dat$IAA_mats, function(x) {
-			out <- x
-			out[which(out[,NCOL(out)]>0),NCOL(out)] <- max_Neff
-			return(out)
-		})
-	}
-	return(asap)
+  for(i in 1:length(asap)) {
+    asap[[i]]$dat$catch_Neff[] <- max_Neff
+    asap[[i]]$dat$IAA_mats <- lapply(asap[[i]]$dat$IAA_mats, function(x) {
+      out <- x
+      out[which(out[,NCOL(out)]>0),NCOL(out)] <- max_Neff
+      return(out)
+    })
+  }
+  return(asap)
 }
 asap_alt <- change_max_Neff_fn(asap, 1000)
+
+#Bridge Run 7 but combined and in multi_wham (no movement, environmental effects, or random effects)
+#------------
+#Change back all the effective sample sizes for the indices that are still fit via multinomial (all except rec CPA in N and S)
+for(i in c(1:6,8:15,17)) asap_alt$dat$IAA_mats[[i]] <- asap$dat$IAA_mats[[i]]
+NAA_re = list(N1_model = rep("equilibrium",2))
+basic_info <- list(region_names = c("North", "South"), stock_names = paste0("BSB_", c("North", "South"))) #, NAA_where = array(1, dim = c(2,2,6)))
+sel <- list(model = rep(c("age-specific","logistic","age-specific","age-specific"),
+                        c(2,2,4,8+9)))
+sel$initial_pars <- list(
+  rep(c(0.5,1),c(3,5)), #north comm
+  rep(c(0.5,1),c(6,2)), #north rec
+  c(5,1), #south comm
+  c(5,1),	#south rec
+  rep(0.5,8), #not used
+  rep(0.5,8), #not used 
+  rep(0.5,8), #not used
+  rep(0.5,8), #not used
+  c(rep(c(0.5,1), c(1,7))), #north spring Alb
+  c(rep(c(0.5,1), c(3,5))), #north neamap
+  c(rep(c(0.5,1), c(2,6))), #north MA
+  c(rep(c(0.5,1), c(2,6))), #north RI
+  c(rep(c(0.5,1), c(2,6))), #north CT
+  c(rep(c(1,0), c(1,7))), #north NY
+  c(rep(c(0.5,1,1),c(1,1,6))), #north rec cpa
+  c(rep(c(0.5,1), c(1,7))), #north Bigelow
+  c(rep(c(0.5,1), c(3,5))), #south spring alb
+  c(rep(c(1,0), c(1,7))), #south neamap
+  c(rep(c(0.5,1), c(1,7))), #south NJ
+  c(rep(c(1,0), c(1,7))), #south DE
+  c(rep(c(1,0), c(1,7))), #south MD
+  c(rep(c(1,0), c(1,7))), #south VIMS
+  c(rep(c(0.5,1), c(2,6))), #south winter
+  c(rep(c(0.5,1,1),c(2,4,2))), #south rec cpa (like bridge 7 but replaced with values in run 34)
+  c(rep(c(0.5,1), c(1,7))) #south bigelow
+)
+sel$fix_pars <- list(
+  4:8, #north comm
+  7:8, #north rec
+  NULL, #south comm
+  NULL, #south rec
+  1:8, #not used
+  1:8, #not used
+  1:8, #not used
+  1:8, #not used
+  2:8, #north spring alb
+  4:8, #north neamap
+  3:8, #north MA
+  3:8, #north RI
+  3:8, #north CT
+  1:8, #north NY
+  2:8, #north rec cpa
+  2:8, #north bigelow
+  4:8, #south spring alb
+  1:8, #south neamap
+  2:8, #south NJ
+  1:8, #south DE
+  1:8, #south MD
+  1:8, #south VIMS
+  3:8, #south winter
+  3:8, #south rec cpa
+  2:8 #south bigelow
+)
+temp <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info)
+
+temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, 
+                           age_comp = list(
+                             fleets = c("dir-mult","logistic-normal-miss0","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0"), 
+                             indices = rep(c("multinomial","logistic-normal-miss0","multinomial","logistic-normal-ar1-miss0","multinomial"),c(6,1,8,1,1))))
+
+tfit <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
+fit <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T)
+#-----------
 
 # north_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp-nmab.csv"))
 # south_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp-smab.csv"))
@@ -51,9 +126,9 @@ ecov$recruitment_how <- matrix(c("controlling-lag-0-linear","none","none","none"
 
 NAA_re = list(sigma = list("rec+1","rec+1"), cor = list("2dar1","2dar1"), N1_model = rep("equilibrium",2))
 basic_info <- list(region_names = c("North", "South"), stock_names = paste0("BSB_", c("North", "South"))) #, NAA_where = array(1, dim = c(2,2,6)))
-
 temp <- prepare_wham_input(asap_alt, ecov = ecov, NAA_re = NAA_re, basic_info = basic_info)
 # temp <- prepare_wham_input(asap_alt, NAA_re = NAA_re, basic_info = basic_info)
+
 
 #11 seasons each 1 month long except a 2 month interval in the model (June,July)
 seasons = c(rep(1,5),2,rep(1,5))/12
@@ -93,8 +168,10 @@ move$prior_sigma <- array(0, dim = c(2,length(seasons),2,1))
 move$prior_sigma[1,1,1,1] <- 0.2
 move$prior_sigma[1,1,2,1] <- 0.2
 
+
+
 sel <- list(model = rep(c("age-specific","logistic","age-specific","age-specific"),
-	c(2,2,4+3,1)))
+	c(2,2,4,8+9)))
 sel$initial_pars <- list(
 	rep(c(0.5,1),c(3,5)), #north comm
 	rep(c(0.5,1),c(6,2)), #north rec
@@ -104,10 +181,23 @@ sel$initial_pars <- list(
 	rep(0.5,8), #not used 
 	rep(0.5,8), #not used
 	rep(0.5,8), #not used
-	rep(c(0.5,1,1),c(1,1,6)), #north rec cpa
-	rep(c(0.5,1),c(4,4)), #north vast
-	rep(c(0.5,1,1),c(2,4,2)), #south rec cpa
-	rep(c(0.5,1),c(1,7)) #south vast
+	c(rep(c(0.5,1), c(1,7))), #north spring Alb
+	c(rep(c(0.5,1), c(3,5))), #north neamap
+	c(rep(c(0.5,1), c(2,6))), #north MA
+	c(rep(c(0.5,1), c(2,6))), #north RI
+	c(rep(c(0.5,1), c(2,6))), #north CT
+	c(rep(c(1,0), c(1,7))), #north NY
+	c(rep(c(0.5,1,1),c(1,1,6))), #north rec cpa
+	c(rep(c(0.5,1), c(1,7))), #north Bigelow
+	c(rep(c(0.5,1), c(3,5))), #south spring alb
+	c(rep(c(1,0), c(1,7))), #south neamap
+	c(rep(c(0.5,1), c(1,7))), #south NJ
+	c(rep(c(1,0), c(1,7))), #south DE
+	c(rep(c(1,0), c(1,7))), #south MD
+	c(rep(c(1,0), c(1,7))), #south VIMS
+	c(rep(c(0.5,1), c(2,6))), #south winter
+	c(rep(c(0.5,1,1),c(2,4,2))), #south rec cpa (like bridge 7 but replaced with values in run 34)
+	c(rep(c(0.5,1), c(1,7))) #south bigelow
 )
 sel$fix_pars <- list(
 	4:8, #north comm
@@ -118,24 +208,39 @@ sel$fix_pars <- list(
 	1:8, #not used
 	1:8, #not used
 	1:8, #not used
+	2:8, #north spring alb
+	4:8, #north neamap
+	3:8, #north MA
+	3:8, #north RI
+	3:8, #north CT
+	1:8, #north NY
 	2:8, #north rec cpa
-	5:8, #north vast
-	3:8, #south rec cpa
-	2:8 #south vast
+	2:8, #north bigelow
+	4:8, #south spring alb
+	1:8, #south neamap
+	2:8, #south NJ
+	1:8, #south DE
+	1:8, #south MD
+	1:8, #south VIMS
+	3:8, #south winter
+  3:8, #south rec cpa
+	2:8 #south bigelow
 )
-sel$re <- rep(c("2dar1","2dar1","none","ar1_y","2dar1","none"), c(1,1,2+4,1,1,2))
+sel$re <- rep(c("2dar1","2dar1","none","ar1_y","none"), c(1,1,2+4+6,1,10))
 temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, ecov = ecov,
 	age_comp = list(
 		fleets = c("dir-mult","logistic-normal-miss0","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0"), 
-		indices = c("logistic-normal-miss0","dir-mult","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0")))
+		indices = rep(c("multinomial","logistic-normal-miss0","multinomial","logistic-normal-ar1-miss0","multinomial"),c(6,1,8,1,1))))
+		# indices = rep(c("dir-mult","logistic-normal-miss0","dir-mult","logistic-normal-ar1-miss0","dir-mult"),c(6,1,8,1,1))))
 temp$fleet_names = paste0(rep(c("North_", "South_"),each = 2), temp$fleet_names)
-temp$index_names = paste0(rep(c("North_", "South_"),c(2,2)), temp$index_names)
+temp$index_names = paste0(rep(c("North_", "South_"),c(8,9)), temp$index_names)
 temp$map$trans_mu <- factor(rep(NA,length(temp$par$trans_mu)))
 temp$data$selblock_pointer_fleets[] <- rep(1:4, each = length(temp$years))
 temp <- wham:::set_selectivity(temp,sel)
 #temp$data$agg_index_sigma[,c(1,3)] <- 5*temp$data$agg_index_sigma[,c(1,3)]
-temp$par$log_index_sig_scale[c(1,3)] <- log(5)
-temp$map$log_index_sig_scale  <- factor(c(1,NA,2,NA))
+#estimate log_index_sig_scale for the rec CPA indices
+temp$par$log_index_sig_scale[c(7,16)] <- log(5)
+temp$map$log_index_sig_scale  <- factor(c(NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,NA,NA,2,NA))
 x <- array(as.integer(temp$map$log_NAA_sigma), dim = dim(temp$par$log_NAA_sigma))
 x[1,2,2:8] <- NA #allow sigmas to be different for the two regions for north pop
 temp$map$log_NAA_sigma <- factor(x)
@@ -144,15 +249,11 @@ x <- array(as.integer(temp$map$trans_NAA_rho), dim = dim(temp$par$trans_NAA_rho)
 x[1,2,] <- NA #don't estimate AR1 cor parameters for north population in the south.
 temp$map$trans_NAA_rho <- factor(x)
 
-tfit <- fit_wham(temp, do.sdrep = T, do.osa = F, do.retro = F)
+tfit <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
+
 saveRDS(tfit, here("2023.RT.Runs",this_run, "tfit.RDS"))
-
-# Commenting this out because I don't have it in my repo
-# Run33 <- readRDS(here("2023.RT.Runs","Run33", "fit.RDS"))
+Run33 <- readRDS(here("2023.RT.Runs","Run33", "fit.RDS"))
 temp$par <- tfit$parList
-make_osa_residuals(tfit)
-
-# fit <- fit_wham(temp, do.sdrep = T, do.osa = F, do.retro = F)
 
 fit <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 mohns_rho(fit)
