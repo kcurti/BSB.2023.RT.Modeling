@@ -17,6 +17,10 @@ this_run <- "Run37"
 #Emily:
 # remotes::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/multi_wham", INSTALL_opts=c("--no-multiarch"))
 library(wham, lib.loc = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/multi_wham")
+# remotes::install_github("timjmiller/wham", dependencies=TRUE, lib = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/wham", INSTALL_opts=c("--no-multiarch"))
+library(wham, lib.loc = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/wham")
+
+#Kiersten, load your versions of wham or multi wham here
 
 library(here)
 # asap <- read_asap3_dat(c(here("Bridge.runs", "Run9", "NORTH.RUN.9.DAT"),here("Bridge.runs", "Run9", "SOUTH.RUN.9.DAT")))
@@ -36,18 +40,18 @@ change_max_Neff_fn <- function(asap, max_Neff = 1000){
 }
 asap_alt <- change_max_Neff_fn(asap, 1000)
 
-#Bridge Run 7 but combined and in multi_wham (no movement, environmental effects, or random effects)
-#------------
-#Change back all the effective sample sizes for the indices that are still fit via multinomial (all except rec CPA in N and S)
-for(i in c(1:6,8:15,17)) asap_alt$dat$IAA_mats[[i]] <- asap$dat$IAA_mats[[i]]
+
+#Model 0 ---------------------------
+#Bridge Run 7 exactly but in spatial WHAM (age comps all multinomial):
+#old Bigelow selectivity pattern
 NAA_re = list(N1_model = rep("equilibrium",2))
 basic_info <- list(region_names = c("North", "South"), stock_names = paste0("BSB_", c("North", "South"))) #, NAA_where = array(1, dim = c(2,2,6)))
-sel <- list(model = rep(c("age-specific","logistic","age-specific","age-specific"),
-                        c(2,2,4,8+9)))
+sel <- list(model = rep(c("logistic","age-specific","logistic","age-specific"),
+                        c(2,1,1,4+8+9)))
 sel$initial_pars <- list(
-  rep(c(0.5,1),c(3,5)), #north comm
-  rep(c(0.5,1),c(6,2)), #north rec
-  c(5,1), #south comm
+  c(5,1), #north comm
+  c(5,1), #north rec
+  rep(c(0.5,1), c(1,7)), #south comm
   c(5,1),	#south rec
   rep(0.5,8), #not used
   rep(0.5,8), #not used 
@@ -68,13 +72,13 @@ sel$initial_pars <- list(
   c(rep(c(1,0), c(1,7))), #south MD
   c(rep(c(1,0), c(1,7))), #south VIMS
   c(rep(c(0.5,1), c(2,6))), #south winter
-  c(rep(c(0.5,1,1),c(2,4,2))), #south rec cpa (like bridge 7 but replaced with values in run 34)
+  c(rep(c(0.5,1), c(1,7))), #south rec cpa 
   c(rep(c(0.5,1), c(1,7))) #south bigelow
 )
 sel$fix_pars <- list(
-  4:8, #north comm
-  7:8, #north rec
-  NULL, #south comm
+  NULL, #north comm
+  NULL, #north rec
+  2:8, #south comm
   NULL, #south rec
   1:8, #not used
   1:8, #not used
@@ -98,16 +102,94 @@ sel$fix_pars <- list(
   3:8, #south rec cpa
   2:8 #south bigelow
 )
+#Without selectivity specified:
+# temp <- prepare_wham_input(asap, NAA_re = NAA_re, basic_info = basic_info)
+#With selectivity specified:
 temp <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info)
+#Fit without sdrep
+tfit0 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
+#tfit0$parList$logit_selpars
+saveRDS(tfit0,"tfit0.RDS")
+#Fit with sdrep
+fit0 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T)
+#fit0$parList$logit_selpars
+saveRDS(fit0,"tfit0.RDS")
+#End Model 0 ---------------------------
 
+
+#Model 1 ---------------------------
+#With correct age comps for fleets and indices
+#------------
+#Change back all the effective sample sizes for the indices that are still fit via multinomial (all except rec CPA in N and S)
+for(i in c(1:6,8:15,17)) asap_alt$dat$IAA_mats[[i]] <- asap$dat$IAA_mats[[i]]
+NAA_re = list(N1_model = rep("equilibrium",2))
+basic_info <- list(region_names = c("North", "South"), stock_names = paste0("BSB_", c("North", "South"))) #, NAA_where = array(1, dim = c(2,2,6)))
+sel <- list(model = rep(c("logistic","age-specific","logistic","age-specific"),
+                        c(2,1,1,4+8+9)))
+sel$initial_pars <- list(
+  c(5,1), #north comm
+  c(5,1), #north rec
+  rep(c(0.5,1), c(1,7)), #south comm
+  c(5,1),	#south rec
+  rep(0.5,8), #not used
+  rep(0.5,8), #not used 
+  rep(0.5,8), #not used
+  rep(0.5,8), #not used
+  c(rep(c(0.5,1), c(1,7))), #north spring Alb
+  c(rep(c(0.5,1), c(3,5))), #north neamap
+  c(rep(c(0.5,1), c(2,6))), #north MA
+  c(rep(c(0.5,1), c(2,6))), #north RI
+  c(rep(c(0.5,1), c(2,6))), #north CT
+  c(rep(c(1,0), c(1,7))), #north NY
+  c(rep(c(0.5,1,1),c(1,1,6))), #north rec cpa
+  c(rep(c(0.5,1), c(1,7))), #north Bigelow
+  c(rep(c(0.5,1), c(3,5))), #south spring alb
+  c(rep(c(1,0), c(1,7))), #south neamap
+  c(rep(c(0.5,1), c(1,7))), #south NJ
+  c(rep(c(1,0), c(1,7))), #south DE
+  c(rep(c(1,0), c(1,7))), #south MD
+  c(rep(c(1,0), c(1,7))), #south VIMS
+  c(rep(c(0.5,1), c(2,6))), #south winter
+  c(rep(c(0.5,1), c(1,7))), #south rec cpa 
+  c(rep(c(0.5,1), c(1,7))) #south bigelow
+)
+sel$fix_pars <- list(
+  NULL, #north comm
+  NULL, #north rec
+  2:8, #south comm
+  NULL, #south rec
+  1:8, #not used
+  1:8, #not used
+  1:8, #not used
+  1:8, #not used
+  2:8, #north spring alb
+  4:8, #north neamap
+  3:8, #north MA
+  3:8, #north RI
+  3:8, #north CT
+  1:8, #north NY
+  2:8, #north rec cpa
+  2:8, #north bigelow
+  4:8, #south spring alb
+  1:8, #south neamap
+  2:8, #south NJ
+  1:8, #south DE
+  1:8, #south MD
+  1:8, #south VIMS
+  3:8, #south winter
+  3:8, #south rec cpa
+  2:8 #south bigelow
+)
 temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, 
                            age_comp = list(
                              fleets = c("dir-mult","logistic-normal-miss0","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0"), 
                              indices = rep(c("multinomial","logistic-normal-miss0","multinomial","logistic-normal-ar1-miss0","multinomial"),c(6,1,8,1,1))))
 
-tfit <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
-fit <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T)
-#-----------
+tfit1 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
+#tfit$parList$logit_selpars
+
+fit1 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T)
+#End Model 1 ---------------------------
 
 # north_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp-nmab.csv"))
 # south_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp-smab.csv"))

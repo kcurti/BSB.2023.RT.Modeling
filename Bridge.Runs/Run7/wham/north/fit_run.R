@@ -1,7 +1,11 @@
 #devtools::install_github("timjmiller/wham", dependencies=TRUE)
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "~/tmiller_net/work/wham_packages/multi_wham")
 #devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "c:/work/wham/old_packages/multi_wham", INSTALL_opts=c("--no-multiarch"))
-library(wham, lib.loc = "c:/work/wham/old_packages/multi_wham")
+#Tim:
+# library(wham, lib.loc = "c:/work/wham/old_packages/multi_wham")
+#Emily:
+library(wham, lib.loc = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/multi_wham")
+
 library(here)
 north <- read_asap3_dat(here("Bridge.runs", "Run7", "NORTH.BRIDGE.RUN.7.DAT"))
 temp <- prepare_wham_input(north, NAA_re = list(N1_model = "equilibrium"))
