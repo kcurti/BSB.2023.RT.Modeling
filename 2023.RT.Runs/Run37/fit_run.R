@@ -1,8 +1,8 @@
 this_run <- "Run37"
 #like run 34, but with individual indices instead of VAST indices
+#Start Introduction ---------------------------
 
 #pkgbuild::compiler_flags(debug =FALSE) #doesn't do anything about file size/too many sections error.
-#---------------
 #Tim:
 # pkgbuild::compile_dll("c:/work/wham/wham", debug = FALSE)
 # pkgload::load_all("c:/work/wham/wham")
@@ -13,12 +13,11 @@ this_run <- "Run37"
 # library(wham, lib.loc = "c:/work/wham/old_packages/multi_wham")
 #library(wham, lib.loc = "~/tmiller_net/work/wham_packages/multi_wham")
 
-#---------------
 #Emily:
 # remotes::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/multi_wham", INSTALL_opts=c("--no-multiarch"))
 library(wham, lib.loc = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/multi_wham")
 # remotes::install_github("timjmiller/wham", dependencies=TRUE, lib = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/wham", INSTALL_opts=c("--no-multiarch"))
-library(wham, lib.loc = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/wham")
+# library(wham, lib.loc = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/wham")
 
 #Kiersten, load your versions of wham or multi wham here
 
@@ -39,6 +38,7 @@ change_max_Neff_fn <- function(asap, max_Neff = 1000){
   return(asap)
 }
 asap_alt <- change_max_Neff_fn(asap, 1000)
+#End Introduction ---------------------------
 
 
 #Model 0 ---------------------------
@@ -108,18 +108,18 @@ sel$fix_pars <- list(
 temp <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info)
 #Fit without sdrep
 tfit0 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
+saveRDS(tfit0, here("2023.RT.Runs",this_run, "tfit0.RDS"))
+# plot_wham_output(tfit0,dir.main=paste0(getwd(),"/2023.RT.Runs/",this_run),out.type = "png")
 #tfit0$parList$logit_selpars
-saveRDS(tfit0,"tfit0.RDS")
 #Fit with sdrep
 fit0 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T)
 #fit0$parList$logit_selpars
-saveRDS(fit0,"tfit0.RDS")
+saveRDS(fit0, here("2023.RT.Runs",this_run, "fit0.RDS"))
+# plot_wham_output(fit0,dir.main=paste0(getwd(),"/2023.RT.Runs/",this_run),out.type = "png")
 #End Model 0 ---------------------------
-
 
 #Model 1 ---------------------------
 #With correct age comps for fleets and indices
-#------------
 #Change back all the effective sample sizes for the indices that are still fit via multinomial (all except rec CPA in N and S)
 for(i in c(1:6,8:15,17)) asap_alt$dat$IAA_mats[[i]] <- asap$dat$IAA_mats[[i]]
 NAA_re = list(N1_model = rep("equilibrium",2))
@@ -191,6 +191,9 @@ tfit1 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
 fit1 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T)
 #End Model 1 ---------------------------
 
+#Model 2 ---------------------------
+#With: environmental covariates, movement, random effects
+for(i in c(1:6,8:15,17)) asap_alt$dat$IAA_mats[[i]] <- asap$dat$IAA_mats[[i]]
 # north_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp-nmab.csv"))
 # south_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp-smab.csv"))
 north_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp_nmab_1959-2022.csv"))
@@ -249,8 +252,6 @@ move$use_prior[1,1,2,1] <- 1
 move$prior_sigma <- array(0, dim = c(2,length(seasons),2,1))
 move$prior_sigma[1,1,1,1] <- 0.2
 move$prior_sigma[1,1,2,1] <- 0.2
-
-
 
 sel <- list(model = rep(c("age-specific","logistic","age-specific","age-specific"),
 	c(2,2,4,8+9)))
@@ -331,18 +332,164 @@ x <- array(as.integer(temp$map$trans_NAA_rho), dim = dim(temp$par$trans_NAA_rho)
 x[1,2,] <- NA #don't estimate AR1 cor parameters for north population in the south.
 temp$map$trans_NAA_rho <- factor(x)
 
+tfit2 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
+saveRDS(tfit2, here("2023.RT.Runs",this_run, "tfit2.RDS"))
+# Run37 <- readRDS(here("2023.RT.Runs","Run37", "fit.RDS"))
+# temp$par <- tfit$parList
+
+# fit <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
+# mohns_rho(fit)
+# saveRDS(fit2, here("2023.RT.Runs",this_run, "fit2.RDS"))
+# setwd(here("2023.RT.Runs",this_run))
+# plot_wham_output(fit)
+# x <- TMB:::as.list.sdreport(fit, report=TRUE, what = "Std")$
+#End Model 2 ---------------------------
+
+#Model 3 ---------------------------
+#Same as above, but with all surveys having logistic selectivity
+for(i in c(1:6,8:15,17)) asap_alt$dat$IAA_mats[[i]] <- asap$dat$IAA_mats[[i]]
+# north_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp-nmab.csv"))
+# south_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp-smab.csv"))
+north_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp_nmab_1959-2022.csv"))
+south_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp_smab_1959-2022.csv"))
+
+ecov <- list(label = c("North_BT","South_BT"))
+ecov$mean <- cbind(north_bt[,'mean'], south_bt[,'mean'])
+ecov$logsigma <- log(cbind(north_bt[,'se'], south_bt[,'se']))
+ecov$year <- north_bt[,'year']
+ecov$use_obs <- matrix(1, NROW(ecov$mean),NCOL(ecov$mean))
+#ecov$lag <- 1
+ecov$process_model <- "ar1"
+ecov$process_mean_vals <- apply(ecov$mean, 2, mean)
+ecov$recruitment_how <- matrix(c("controlling-lag-0-linear","none","none","none"), 2,2)
+
+NAA_re = list(sigma = list("rec+1","rec+1"), cor = list("2dar1","2dar1"), N1_model = rep("equilibrium",2))
+basic_info <- list(region_names = c("North", "South"), stock_names = paste0("BSB_", c("North", "South"))) #, NAA_where = array(1, dim = c(2,2,6)))
+temp <- prepare_wham_input(asap_alt, ecov = ecov, NAA_re = NAA_re, basic_info = basic_info)
+# temp <- prepare_wham_input(asap_alt, NAA_re = NAA_re, basic_info = basic_info)
+
+
+#11 seasons each 1 month long except a 2 month interval in the model (June,July)
+seasons = c(rep(1,5),2,rep(1,5))/12
+basic_info$fracyr_seasons <- seasons
+#each age other than 1 (recruitment) for north stock can be in either region on Jan 1 
+basic_info$NAA_where <- array(1, dim = c(2,2,8))
+basic_info$NAA_where[1,2,1] = 0 #stock 1, age 1 can't be in region 2 
+basic_info$NAA_where[2,1,] = 0 #stock 2, any age can't be in region 1 (stock 2 doesn't move) 
+
+#average recruitment over years 2000+ for SSB40 BRPs
+basic_info$XSPR_R_avg_yrs <- which(temp$years>1999)
+basic_info$XSPR_R_opt <- 2 #use average of recruitments (random effects), not expected/predicted given last time step
+
+move = list(stock_move = c(TRUE,FALSE), separable = TRUE) #north moves, south doesn't
+
+move$must_move = array(0,dim = c(2,length(seasons),2))	
+
+#if north stock in region 2 (south) must move back to region 1 (north) at the end of interval 5 right before spawning
+move$must_move[1,5,2] <- 1 
+move$can_move = array(0, dim = c(2,length(seasons),2,2))
+move$can_move[1,c(1:4),2,1] <- 1 #only north stock can move and in seasons prior to spawning and after spawning
+move$can_move[1,c(7:11),1,2] <- 1 #only north stock can move and in seasons prior to spawning and after spawning
+move$can_move[1,5,2,] <- 1 #north stock can (and must) move in last season prior to spawning back to north 
+
+mus <- array(0, dim = c(2,length(seasons),2,1))
+mus[1,1:11,1,1] <- 0.02214863 #see here("2023.RT.Runs","transform_SS_move_rates.R") for how these numbers are derived.
+mus[1,1:11,2,1] <- 0.3130358
+move$mean_vals <- mus 
+
+move$mean_model = matrix("stock_constant", 2,1)
+
+#prior distribution on movement parameters 
+move$use_prior <- array(0, dim = c(2,length(seasons),2,1))
+move$use_prior[1,1,1,1] <- 1
+move$use_prior[1,1,2,1] <- 1
+move$prior_sigma <- array(0, dim = c(2,length(seasons),2,1))
+move$prior_sigma[1,1,1,1] <- 0.2
+move$prior_sigma[1,1,2,1] <- 0.2
+
+sel <- list(model = rep(c("age-specific","logistic","age-specific","logistic","age-specific","logistic","age-specific","logistic"),
+                        c(2,2,4,6,1,8,1,1)))
+sel$initial_pars <- list(
+  rep(c(0.5,1),c(3,5)), #north comm
+  rep(c(0.5,1),c(6,2)), #north rec
+  c(5,1), #south comm
+  c(5,1),	#south rec
+  rep(0.5,8), #not used
+  rep(0.5,8), #not used 
+  rep(0.5,8), #not used
+  rep(0.5,8), #not used
+  c(5,1), #north spring Alb
+  c(5,1), #north neamap
+  c(5,1), #north MA
+  c(5,1), #north RI
+  c(5,1), #north CT
+  c(5,1), #north NY
+  c(rep(c(0.5,1,1),c(1,1,6))), #north rec cpa
+  c(5,1), #north Bigelow
+  c(5,1), #south spring alb
+  c(5,1), #south neamap
+  c(5,1), #south NJ
+  c(5,1), #south DE
+  c(5,1), #south MD
+  c(5,1), #south VIMS
+  c(5,1), #south winter
+  c(rep(c(0.5,1,1),c(2,4,2))), #south rec cpa (like bridge 7 but replaced with values in run 34)
+  c(5,1) #south bigelow
+)
+sel$fix_pars <- list(
+  4:8, #north comm
+  7:8, #north rec
+  NULL, #south comm
+  NULL, #south rec
+  1:8, #not used
+  1:8, #not used
+  1:8, #not used
+  1:8, #not used
+  NULL, #north spring alb
+  NULL, #north neamap
+  NULL, #north MA
+  NULL, #north RI
+  NULL, #north CT
+  NULL, #north NY
+  2:8, #north rec cpa
+  NULL, #north bigelow
+  NULL, #south spring alb
+  NULL, #south neamap
+  NULL, #south NJ
+  NULL, #south DE
+  NULL, #south MD
+  NULL, #south VIMS
+  NULL, #south winter
+  3:8, #south rec cpa
+  NULL #south bigelow
+)
+sel$re <- rep(c("2dar1","2dar1","none","ar1_y","none"), c(1,1,2+4+6,1,10))
+temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, ecov = ecov,
+                           age_comp = list(
+                             fleets = c("dir-mult","logistic-normal-miss0","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0"), 
+                             indices = rep(c("multinomial","logistic-normal-miss0","multinomial","logistic-normal-ar1-miss0","multinomial"),c(6,1,8,1,1))))
+# indices = rep(c("dir-mult","logistic-normal-miss0","dir-mult","logistic-normal-ar1-miss0","dir-mult"),c(6,1,8,1,1))))
+temp$fleet_names = paste0(rep(c("North_", "South_"),each = 2), temp$fleet_names)
+temp$index_names = paste0(rep(c("North_", "South_"),c(8,9)), temp$index_names)
+temp$map$trans_mu <- factor(rep(NA,length(temp$par$trans_mu)))
+temp$data$selblock_pointer_fleets[] <- rep(1:4, each = length(temp$years))
+temp <- wham:::set_selectivity(temp,sel)
+#temp$data$agg_index_sigma[,c(1,3)] <- 5*temp$data$agg_index_sigma[,c(1,3)]
+#estimate log_index_sig_scale for the rec CPA indices
+temp$par$log_index_sig_scale[c(7,16)] <- log(5)
+temp$map$log_index_sig_scale  <- factor(c(NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,NA,NA,2,NA))
+x <- array(as.integer(temp$map$log_NAA_sigma), dim = dim(temp$par$log_NAA_sigma))
+x[1,2,2:8] <- NA #allow sigmas to be different for the two regions for north pop
+temp$map$log_NAA_sigma <- factor(x)
+temp$par$log_NAA_sigma[1,2,2:8] <- log(0.05) #fix sigmas to be very low (~SCAA) for north population in the south
+x <- array(as.integer(temp$map$trans_NAA_rho), dim = dim(temp$par$trans_NAA_rho))
+x[1,2,] <- NA #don't estimate AR1 cor parameters for north population in the south.
+temp$map$trans_NAA_rho <- factor(x)
+
 tfit <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
 
 saveRDS(tfit, here("2023.RT.Runs",this_run, "tfit.RDS"))
-Run33 <- readRDS(here("2023.RT.Runs","Run33", "fit.RDS"))
-temp$par <- tfit$parList
-
-fit <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
-mohns_rho(fit)
-saveRDS(fit, here("2023.RT.Runs",this_run, "fit.RDS"))
-setwd(here("2023.RT.Runs",this_run))
-plot_wham_output(fit)
-# x <- TMB:::as.list.sdreport(fit, report=TRUE, what = "Std")$log_SSB
+#End Model 3 ---------------------------
 
 # x <- readRDS(here("2023.RT.Runs",this_run, "fit.RDS"))
 # source(here("2023.RT.Runs", "kobe.plot.R"))
