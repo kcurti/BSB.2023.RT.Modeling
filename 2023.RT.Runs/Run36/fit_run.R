@@ -4,7 +4,7 @@ this_run <- "Run36"
 #pkgbuild::compiler_flags(debug =FALSE) #doesn't do anything about file size/too many sections error.
 # pkgbuild::compile_dll("c:/work/wham/wham", debug = FALSE)
 # pkgload::load_all("c:/work/wham/wham")
-#remotes::install_github("timjmiller/wham", dependencies=TRUE, ref = "devel", INSTALL_opts=c("--no-multiarch"))
+remotes::install_github("timjmiller/wham", dependencies=TRUE, ref = "devel", INSTALL_opts=c("--no-multiarch"))
 #remotes::install_github("timjmiller/wham", dependencies=TRUE)
 #remotes::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "~/tmiller_net/work/wham_packages/multi_wham")
 #remotes::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "c:/work/wham/old_packages/multi_wham", INSTALL_opts=c("--no-multiarch"))

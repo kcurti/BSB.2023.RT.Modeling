@@ -8,6 +8,12 @@
 library(wham, lib.loc = "c:/work/wham/old_packages/multi_wham")
 library(here)
 asap <- read_asap3_dat(c(here("Bridge.runs", "Run9", "NORTH.RUN.9.DAT"), here("Bridge.runs", "Run9", "SOUTH.RUN.9.DAT")))
+
+asap <- read_asap3_dat(c("~/GitHub/BSB.2023.RT.Modeling/Bridge.Runs/Run9/NORTH.RUN.9.DAT", "~/GitHub/BSB.2023.RT.Modeling/Bridge.Runs/Run9/SOUTH.RUN.9.DAT"))
+
+asap <- read_asap3_dat(c("~/GitHub/BSB.2023.RT.Modeling/2023.RT.Fixed.Data.Runs/NORTH.FIXED.DATA.RUN.1.DAT", "~/GitHub/BSB.2023.RT.Modeling/2023.RT.Fixed.Data.Runs/SOUTH.FIXED.DATA.RUN.1.DAT"))
+
+
 temp <- prepare_wham_input(asap)
 NAA_re = list(sigma = list("rec+1","rec+1"), N1_model = rep("equilibrium",2))
 basic_info <- list(region_names = c("North", "South"), stock_names = paste0("BSB_", c("North", "South"))) #, NAA_where = array(1, dim = c(2,2,6)))
@@ -36,32 +42,36 @@ mus[1,,2,1] <- 0.02647096
 move$mean_vals <- mus #movement rate is 0.1 (for now)
 
 sel <- list(model = rep(c("logistic","logistic"),
-	c(8,4)))
+	c(8,6)))
+
+
 sel$initial_pars <- c(
 	rep(list(c(5,1)),8), #fleets
-	rep(list(c(5,1)),4))
+	rep(list(c(5,1)),6))
 sel$fix_pars <- c(
 	rep(list(NULL),8), 
-	rep(list(NULL),4)
+	rep(list(NULL),6)
 )
 
 temp <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, age_comp = "dirichlet-miss0")
 temp$fleet_names = paste0(rep(c("North_", "South_"),each = 2), temp$fleet_names)
 temp$index_names = paste0(rep(c("North_", "South_"),c(2,2)), temp$index_names)
-est_mu_map <- temp$map$trans_mu #try to estimate in a second phase
-temp$map$trans_mu <- factor(rep(NA,length(temp$par$trans_mu)))
-temp$map$log_index_sig_scale <- factor(c(1,NA, 4, NA)) #try to estimate CVs
+#est_mu_map <- temp$map$trans_mu #try to estimate in a second phase
+#temp$map$trans_mu <- factor(rep(NA,length(temp$par$trans_mu)))
+#temp$map$log_index_sig_scale <- factor(c(1,NA, 4, NA)) #try to estimate CVs
 tfit1 <- fit_wham(temp, do.retro=F, do.osa=F, do.sdrep =F)
 saveRDS(tfit1,here("2023.RT.Runs","Run19","phase1.RDS"))
 t(sapply(tfit1$rep$selAA, function(x) x[1,])) #north Rec CPA index and south VAST need to be flat-topped age-specific
 
-sel <- list(model = rep(c("logistic","age-specific","logistic","logistic","age-specific"),
-	c(8,1,1,1,1)))
+sel <- list(model = rep(c("logistic","age-specific","logistic","logistic","age-specific","age-specific","age-specific"),
+	c(8,1,1,1,1,1,1)))
 sel$initial_pars <- c(
 	rep(list(c(5,1)),8), #fleets
 	list(rep(c(0.5,1),c(1,7))), #north rec cpa
 	rep(list(c(5,1)),1),
 	rep(list(c(5,1)),1),
+	list(rep(c(0.5,1),c(1,7))), #south vast
+	list(rep(c(0.5,1),c(1,7))), #south vast
 	list(rep(c(0.5,1),c(1,7))) #south vast
 )
 sel$fix_pars <- c(
@@ -69,15 +79,17 @@ sel$fix_pars <- c(
 	list(2:8),
 	list(NULL),
 	list(NULL),
+	list(2:8),
+	list(2:8),
 	list(2:8)
 )
 
 temp <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, age_comp = "dirichlet-miss0")
 temp$fleet_names = paste0(rep(c("North_", "South_"),each = 2), temp$fleet_names)
-temp$index_names = paste0(rep(c("North_", "South_"),c(2,2)), temp$index_names)
+#temp$index_names = paste0(rep(c("North_", "South_"),c(2,2)), temp$index_names)
 est_mu_map <- temp$map$trans_mu #try to estimate in a second phase
 temp$map$trans_mu <- factor(rep(NA,length(temp$par$trans_mu)))
-temp$map$log_index_sig_scale <- factor(c(1,NA, 4, NA)) #try to estimate CVs
+#temp$map$log_index_sig_scale <- factor(c(1,NA, 4, NA)) #try to estimate CVs
 tfit2 <- fit_wham(temp, do.retro=F, do.osa=F, do.sdrep =F)
 saveRDS(tfit2,here("2023.RT.Runs","Run19","phase2.RDS"))
 
