@@ -157,7 +157,7 @@ sel$fix_pars <- list(
   2:8 #south bigelow
 )
 # sel$re <- rep(c("2dar1","2dar1","none","none","none"), c(1,1,2+4+6,1,10))
-sel$re <- rep(c("2dar1","2dar1","none","none","ar1_y","none"), c(1,1,2+4,2,1,6))
+sel$re <- rep(c("2dar1","2dar1","none","2dar1","ar1_y","2dar1","none"), c(1,1,2+4,2,1,1,6))
 temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, ecov = ecov,
                            age_comp = list(
                              fleets = c("dir-mult","logistic-normal-miss0","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0"), 
