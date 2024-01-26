@@ -189,8 +189,8 @@ fit1 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 
 #Compare Model Objects -----------------
 Run34 <- readRDS(here("2023.RT.Runs","Run34", "fit.RDS"))
-Run37.10 <- readRDS(here("2023.RT.Runs",this_run, "fit10.RDS"))
-mods <- list(Run34=Run34,Run37.10=Run37.10)
+Run38 <- readRDS(here("2023.RT.Runs",this_run, "fit1.RDS"))
+mods <- list(Run34=Run34,Run38=Run38)
 compare_wham_models(mods=mods,plot.opts = list(which=c(1,2,3,5,6,7,8,9,10)))
 #End Compare Model Objects
 
