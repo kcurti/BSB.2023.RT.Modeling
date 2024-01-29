@@ -6,6 +6,8 @@ saveandplot <- function(fitobj,fitobjname)
   plot_wham_output(fitobj,dir.main=paste0(getwd(),"/2023.RT.Runs/",this_run,"/",fitobjname),out.type = "png")
   setwd(here())
 }
+library("kableExtra")
+library("tinytex")
 #like run 34, but with individual indices instead of VAST indices
 #Start Introduction ---------------------------
 
@@ -138,30 +140,30 @@ sel$initial_pars <- list(
   c(rep(c(0.5,1), c(1,7))) #south bigelow
 )
 sel$fix_pars <- list(
-  4:8, #north comm
-  7:8, #north rec
-  NULL, #south comm
-  NULL, #south rec
-  1:8, #not used
-  1:8, #not used
-  1:8, #not used
-  1:8, #not used
-  2:8, #north spring alb
-  4:8, #north neamap
-  2:8, #north rec cpa
-  2:8, #north bigelow
+  4:8, #north comm        #2dar1
+  7:8, #north rec      #2dar1
+  NULL, #south comm    #none
+  NULL, #south rec     #none
+  1:8, #not used       #none
+  1:8, #not used       #none
+  1:8, #not used       #none
+  1:8, #not used#none
+  2:8, #north spring alb   #none
+  4:8, #north neamap       #2dar1
+  2:8, #north rec cpa      #ar1_y
+  2:8, #north bigelow      #none
   4:8, #south spring alb
   1:8, #south neamap
   3:8, #south winter
   3:8, #south rec cpa
   2:8 #south bigelow
 )
-# sel$re <- rep(c("2dar1","2dar1","none","none","none"), c(1,1,2+4+6,1,10))
-sel$re <- rep(c("2dar1","2dar1","none","2dar1","ar1_y","2dar1","none"), c(1,1,2+4,2,1,1,6))
+# sel$re <- rep(c("2dar1","2dar1","none","2dar1","ar1_y","2dar1","none"), c(1,1,2+4,2,1,1,5))
+# sel$re <- rep(c("2dar1","2dar1","none","none","none","ar1_y","none","none"), c(1,1,2+4,1,1,1,1,5))
 temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, ecov = ecov,
                            age_comp = list(
                              fleets = c("dir-mult","logistic-normal-miss0","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0"), 
-                             indices = rep(c("dir-mult","logistic-normal-miss0","logistic-normal-ar1-miss0"),c(2,1,6))))
+                             indices = rep(c("dir-mult","logistic-normal-miss0","dir-mult","logistic-normal-ar1-miss0"),c(2,1,1,5))))
 # indices = rep(c("dir-mult","logistic-normal-miss0","dir-mult","logistic-normal-ar1-miss0","dir-mult"),c(6,1,8,1,1))))
 temp$fleet_names = paste0(rep(c("North_", "South_"),each = 2), temp$fleet_names)
 temp$index_names = paste0(rep(c("North_", "South_"),c(8,9)), temp$index_names)
@@ -181,10 +183,10 @@ x[1,2,] <- NA #don't estimate AR1 cor parameters for north population in the sou
 temp$map$trans_NAA_rho <- factor(x)
 
 tfit1 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
-saveandplot(tfit10,"tfit10")
+saveandplot(tfit1,"tfit1")
 
 fit1 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
-# saveandplot(fit10,"fit10")
+# saveandplot(fit1,"fit1")
 #End Model 10 ---------------------------
 
 #Compare Model Objects -----------------

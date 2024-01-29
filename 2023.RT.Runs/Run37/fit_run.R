@@ -2330,7 +2330,7 @@ Run37.12 <- readRDS(here("2023.RT.Runs",this_run, "fit12.RDS"))
 Run37.13 <- readRDS(here("2023.RT.Runs",this_run, "fit13.RDS"))
 Run37.14 <- readRDS(here("2023.RT.Runs",this_run, "fit14.RDS"))
 # mods <- list(Run34=Run34,Run37.10=Run37.10,Run37.11=Run37.11,Run37.12=Run37.12,Run37.13=Run37.13)
-mods <- list(Run34=Run34,Run37.10=Run37.10,Run37.13=Run37.13)
+mods <- list(Run34=Run34,Run37.14=Run37.14)
 compare_wham_models(mods=mods,plot.opts = list(which=c(1,2,3,5,6,7,8,9,10)))
 #End Compare Model Objects
 
