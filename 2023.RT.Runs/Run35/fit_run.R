@@ -1,16 +1,37 @@
 this_run <- "Run35"
+saveandplot <- function(fitobj,fitobjname)
+{
+  setwd(here())
+  saveRDS(fitobj, file=paste0(getwd(),"/2023.RT.Runs/",this_run,"/",fitobjname,".RDS"))
+  plot_wham_output(fitobj,dir.main=paste0(getwd(),"/2023.RT.Runs/",this_run,"/",fitobjname),out.type = "png")
+  setwd(here())
+}
+library("kableExtra")
+library("tinytex")
 #like run 30, but fit models with and without temperature effects on recruitment
-
 #pkgbuild::compiler_flags(debug =FALSE) #doesn't do anything about file size/too many sections error.
+#Tim:
 # pkgbuild::compile_dll("c:/work/wham/wham", debug = FALSE)
 # pkgload::load_all("c:/work/wham/wham")
 #remotes::install_github("timjmiller/wham", dependencies=TRUE, ref = "devel", INSTALL_opts=c("--no-multiarch"))
 #remotes::install_github("timjmiller/wham", dependencies=TRUE)
 #remotes::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "~/tmiller_net/work/wham_packages/multi_wham")
-#remotes::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "c:/work/wham/old_packages/multi_wham", INSTALL_opts=c("--no-multiarch"))
+#remotes::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "~/tmiller_net/work/wham_packages/multi_wham", INSTALL_opts=c("--no-multiarch"))
+# library(wham, lib.loc = "c:/work/wham/old_packages/multi_wham")
 #library(wham, lib.loc = "~/tmiller_net/work/wham_packages/multi_wham")
-library(wham, lib.loc = "c:/work/wham/old_packages/multi_wham")
+
+#Emily:
+# remotes::install_github("timjmiller/wham", dependencies=TRUE, ref = "lab", lib = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/multi_wham", INSTALL_opts=c("--no-multiarch"))
+# Specific commit:
+# remotes::install_github("timjmiller/wham@29e90c5", dependencies=TRUE, ref = "lab", lib = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/multi_wham", INSTALL_opts=c("--no-multiarch"))
+library(wham, lib.loc = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/multi_wham")
+# remotes::install_github("timjmiller/wham", dependencies=TRUE, lib = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/wham", INSTALL_opts=c("--no-multiarch"))
+# library(wham, lib.loc = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4.3.1/library/wham")
+
+
+#Kiersten, load your versions of wham or multi wham here
 library(here)
+
 asap <- read_asap3_dat(c(here("Bridge.runs", "Run9", "NORTH.RUN.9.DAT"),here("Bridge.runs", "Run9", "SOUTH.RUN.9.DAT")))
 #adjust input Neff for D-M
 change_max_Neff_fn <- function(asap, max_Neff = 1000){
@@ -142,6 +163,7 @@ temp$map$trans_NAA_rho <- factor(x)
 Run34 <- readRDS(here("2023.RT.Runs","Run34","fit.RDS"))
 temp$par <- Run34$parList
 temp$map$Mpars <- factor(rep(1,length(temp$par$Mpars)))
+
 tfit <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
 tfit$sdrep <- TMB::sdreport(tfit)
 
@@ -153,4 +175,13 @@ setwd(here("2023.RT.Runs",this_run))
 plot_wham_output(fit)
 # x <- TMB:::as.list.sdreport(fit, report=TRUE, what = "Std")$log_SSB
 
+
 compare_wham_models(list(Run34 = Run34, Run35 = fit))
+
+#Compare Model Objects -----------------
+Run34 <- readRDS(here("2023.RT.Runs","Run34", "fit.RDS"))
+Run35 <- readRDS(here("2023.RT.Runs",this_run, "fit.RDS"))
+mods <- list(Run34=Run34,Run35=Run35)
+compare_wham_models(mods=mods)
+# compare_wham_models(mods=mods,plot.opts = list(which=c(1,2,3,5,6,7,8,9,10)))
+#End Compare Model Objects

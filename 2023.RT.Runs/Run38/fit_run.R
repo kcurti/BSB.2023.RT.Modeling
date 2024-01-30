@@ -147,9 +147,9 @@ sel$fix_pars <- list(
   1:8, #not used       #none
   1:8, #not used       #none
   1:8, #not used       #none
-  1:8, #not used#none
+  1:8, #not used       #none
   2:8, #north spring alb   #none
-  4:8, #north neamap       #2dar1
+  4:8, #north neamap spring   #2dar1
   2:8, #north rec cpa      #ar1_y
   2:8, #north bigelow      #none
   4:8, #south spring alb
@@ -158,7 +158,9 @@ sel$fix_pars <- list(
   3:8, #south rec cpa
   2:8 #south bigelow
 )
-# sel$re <- rep(c("2dar1","2dar1","none","2dar1","ar1_y","2dar1","none"), c(1,1,2+4,2,1,1,5))
+#Error:
+sel$re <- rep(c("2dar1","2dar1","none","2dar1","ar1_y","2dar1","none"), c(1,1,2+4,2,1,1,5))
+#No Error:
 # sel$re <- rep(c("2dar1","2dar1","none","none","none","ar1_y","none","none"), c(1,1,2+4,1,1,1,1,5))
 temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, ecov = ecov,
                            age_comp = list(
