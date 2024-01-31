@@ -140,3 +140,21 @@ Run 32: Run 30, but estimate B-H SR curves for North and South Populations. Conv
 Run 33: Run 30, but estimate temperature effects on recruitment. Fit with no effect (but temp included) complete, temp effect on NORTH is best.
 
 Run 34: Run 33, but Estimate log Rec CPA index sd scalars. PROPOSED BASE MODEL
+
+Run 35: Run 34, but one M estimated for both regions
+
+Run 36: Run 34, but two M estimated (one for each region)
+
+Run 37: Run 34, but VAST index in north and south are replaced with BTS, NEAMAP and state indices
+
+Run 38: Run 34, but VAST index in north and south are replaced with BTS and NEAMAP
+
+Run 39: Run 34, but M fixed at 0.6 (rather than 0.4)
+
+Run 40: Run 34, but M fixed at 0.2 (rather than 0.4)
+
+Run 41: Run 34, but Initial F set to estimated values
+
+Run 42: Run 34, but initial F set to values at 95% CI lower than estimated
+
+Run 43: Run 34, but initial F set to values at 95% CI higher than estimated

@@ -1,4 +1,4 @@
-this_run <- "Run39"
+this_run <- "Run40"
 saveandplot <- function(fitobj,fitobjname)
 {
   setwd(here())
@@ -179,9 +179,12 @@ plot_wham_output(fit)
 compare_wham_models(list(Run34 = Run34, Run35 = fit))
 
 #Compare Model Objects -----------------
+#Compare final model with M estimated (35), M fixed at 0.6 (39) and fixed at 0.2 (40)
 Run34 <- readRDS(here("2023.RT.Runs","Run34", "fit.RDS"))
-Run35 <- readRDS(here("2023.RT.Runs",this_run, "fit.RDS"))
-mods <- list(Run34=Run34,Run35=Run35)
+Run35 <- readRDS(here("2023.RT.Runs","Run35", "fit.RDS"))
+Run39 <- readRDS(here("2023.RT.Runs","Run39", "fit.RDS"))
+Run40 <- readRDS(here("2023.RT.Runs","Run40", "fit.RDS"))
+mods <- list(Run34=Run34,Run35=Run35,Run39=Run39,Run40=Run40)
 compare_wham_models(mods=mods)
 # compare_wham_models(mods=mods,plot.opts = list(which=c(1,2,3,5,6,7,8,9,10)))
 #End Compare Model Objects

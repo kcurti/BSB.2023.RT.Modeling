@@ -175,4 +175,14 @@ setwd(here("2023.RT.Runs",this_run))
 plot_wham_output(fit)
 # x <- TMB:::as.list.sdreport(fit, report=TRUE, what = "Std")$log_SSB
 
-compare_wham_models(list(Run34 = Run34, Run36 = fit))
+
+# compare_wham_models(list(Run34 = Run34, Run36 = fit))
+
+#Compare Model Objects -----------------
+Run34 <- readRDS(here("2023.RT.Runs","Run34", "fit.RDS"))
+Run35 <- readRDS(here("2023.RT.Runs","Run35", "fit.RDS"))
+Run36 <- readRDS(here("2023.RT.Runs","Run36", "fit.RDS"))
+mods <- list(Run34=Run34,Run35=Run35,Run36=Run36)
+compare_wham_models(mods=mods)
+# compare_wham_models(mods=mods,plot.opts = list(which=c(1,2,3,5,6,7,8,9,10)))
+#End Compare Model Objects
