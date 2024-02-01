@@ -2161,9 +2161,14 @@ saveandplot(tfit14,"tfit14")
 
 fit14 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit14,"fit14")
+saveandplot(Run37.14,"fit14")
 # fit14 <-readRDS("fit14.RDS")
 
-View(Run37.14)
+Run37.14$opt$par
+Run37.14$input$log$selectivity
+
+
+View(Run37.14$input$log)
 #End Model 14 ---------------------------
 
 #Compare Model Objects -----------------
