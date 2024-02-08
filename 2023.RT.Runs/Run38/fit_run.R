@@ -35,7 +35,7 @@ library(wham, lib.loc = "C:/Users/emily.liljestrand/AppData/Local/Programs/R/R-4
 
 library(here)
 #Made new "Run 9" files that only have BTS, NEAMAP, Rec CPA
-asap <- read_asap3_dat(c(here("2023.RT.Runs", this_run, "NORTH.RUN.9.DAT"),here("2023.RT.Runs", this_run, "SOUTH.RUN.9.DAT")))
+asap <- read_asap3_dat(c(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs", this_run, "NORTH.RUN.9.DAT"),here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs", this_run, "SOUTH.RUN.9.DAT")))
 
 #adjust input Neff for D-M
 change_max_Neff_fn <- function(asap, max_Neff = 1000){
@@ -57,8 +57,8 @@ asap_alt <- change_max_Neff_fn(asap, 1000)
 # for(i in c(1:6,8:15,17)) asap_alt$dat$IAA_mats[[i]] <- asap$dat$IAA_mats[[i]]
 # north_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp-nmab.csv"))
 # south_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp-smab.csv"))
-north_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp_nmab_1959-2022.csv"))
-south_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp_smab_1959-2022.csv"))
+north_bt <- read.csv(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs","Run33","bsb_bt_temp_nmab_1959-2022.csv"))
+south_bt <- read.csv(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs","Run33","bsb_bt_temp_smab_1959-2022.csv"))
 
 ecov <- list(label = c("North_BT","South_BT"))
 ecov$mean <- cbind(north_bt[,'mean'], south_bt[,'mean'])
@@ -159,9 +159,9 @@ sel$fix_pars <- list(
   2:8 #south bigelow
 )
 #Error:
-sel$re <- rep(c("2dar1","2dar1","none","2dar1","ar1_y","2dar1","none"), c(1,1,2+4,2,1,1,5))
+# sel$re <- rep(c("2dar1","2dar1","none","2dar1","ar1_y","2dar1","none"), c(1,1,2+4,2,1,1,5))
 #No Error:
-sel$re <- rep(c("2dar1","2dar1","none","none","none","ar1_y","none","none"), c(1,1,2+4,1,1,1,1,5))
+sel$re <- rep(c("2dar1","2dar1","none","none","ar1_y","none","none","none"), c(1,1,2+4,1,1,1,1,5))
 temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, ecov = ecov,
                            age_comp = list(
                              fleets = c("dir-mult","logistic-normal-miss0","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0"), 
@@ -185,15 +185,16 @@ x[1,2,] <- NA #don't estimate AR1 cor parameters for north population in the sou
 temp$map$trans_NAA_rho <- factor(x)
 
 tfit1 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
-saveandplot(tfit1,"tfit1")
+# saveandplot(tfit1,"tfit1")
 
 fit1 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
+check_convergence(fit1)
 # saveandplot(fit1,"fit1")
 #End Model 10 ---------------------------
 
 #Compare Model Objects -----------------
-Run34 <- readRDS(here("2023.RT.Runs","Run34", "fit.RDS"))
-Run38 <- readRDS(here("2023.RT.Runs",this_run, "fit1.RDS"))
+Run34 <- readRDS(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs","Run34", "fit.RDS"))
+Run38 <- readRDS(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run, "fit1.RDS"))
 mods <- list(Run34=Run34,Run38=Run38)
 compare_wham_models(mods=mods,plot.opts = list(which=c(1,2,3,5,6,7,8,9,10)))
 #End Compare Model Objects
