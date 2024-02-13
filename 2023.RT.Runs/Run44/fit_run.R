@@ -2,8 +2,8 @@ this_run <- "Run44"
 saveandplot <- function(fitobj,fitobjname)
 {
   setwd(here())
-  saveRDS(fitobj, file=paste0(getwd(),"/2023.RT.Runs/",this_run,"/",fitobjname,".RDS"))
-  plot_wham_output(fitobj,dir.main=paste0(getwd(),"/2023.RT.Runs/",this_run,"/",fitobjname),out.type = "png")
+  saveRDS(fitobj, file=paste0(getwd(),"GitHub/BSB.2023.RT.Modeling/2023.RT.Runs/",this_run,"/",fitobjname,".RDS"))
+  plot_wham_output(fitobj,dir.main=paste0(getwd(),"GitHub/BSB.2023.RT.Modeling/2023.RT.Runs/",this_run,"/",fitobjname),out.type = "png")
   setwd(here())
 }
 library("kableExtra")
@@ -197,6 +197,10 @@ fit1 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 check_convergence(fit1)
 saveandplot(fit1,"fit1")
 
+fit1 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit1.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit1"), showWarnings = FALSE)
+plot_wham_output(fit1,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit1"))
+
 # View(fit1)
 
 #End Model 1 ---------------------------
@@ -345,6 +349,10 @@ saveandplot(tfit2,"tfit2")
 
 fit2 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit2,"fit2")
+
+fit2 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit2.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit2"), showWarnings = FALSE)
+plot_wham_output(fit2,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit2"))
 #End Model 2 ---------------------------
 
 #Model 3 North Bigelow Removed ---------------------------
@@ -491,6 +499,10 @@ saveandplot(tfit3,"tfit3")
 
 fit3 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit3,"fit3")
+
+fit3 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit3.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit3"), showWarnings = FALSE)
+plot_wham_output(fit3,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit3"))
 
 #End Model 3 ---------------------------
 
@@ -639,6 +651,9 @@ saveandplot(tfit4,"tfit4")
 fit4 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fi14,"fit4")
 
+fit4 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit4.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit4"), showWarnings = FALSE)
+plot_wham_output(fit4,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit4"))
 
 #End Model 4 ---------------------------
 
@@ -788,6 +803,11 @@ fit5 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit5,"fit5")
 
 check_convergence(fit5)
+
+fit5 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit5.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit5"), showWarnings = FALSE)
+plot_wham_output(fit5,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit5"))
+
 #End Model 5 ---------------------------
 
 #Model 6 RI Removed ---------------------------
@@ -935,6 +955,11 @@ saveandplot(tfit6,"tfit6")
 fit6 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit6,"fit6")
 check_convergence(fit6)
+
+fit6 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit6.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit6"), showWarnings = FALSE)
+plot_wham_output(fit6,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit6"))
+
 #End Model 6 ---------------------------
 
 #Model 7 CT Removed---------------------------
@@ -1077,11 +1102,16 @@ x <- array(as.integer(temp$map$trans_NAA_rho), dim = dim(temp$par$trans_NAA_rho)
 x[1,2,] <- NA #don't estimate AR1 cor parameters for north population in the south.
 temp$map$trans_NAA_rho <- factor(x)
 
-tfit14 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
-saveandplot(tfit14,"tfit14")
+tfit7 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
+saveandplot(tfit7,"tfit7")
 
-fit14 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
-saveandplot(fit14,"fit14")
+fit7 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
+saveandplot(fit7,"fit7")
+
+fit7 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit7.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit7"), showWarnings = FALSE)
+plot_wham_output(fit7,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit7"))
+
 #End Model 7 ---------------------------
 
 #Model 8 NY Removed ---------------------------
@@ -1229,6 +1259,11 @@ saveandplot(tfit8,"tfit8")
 fit8 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit8,"fit8")
 
+fit8 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit8.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit8"), showWarnings = FALSE)
+plot_wham_output(fit8,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit8"))
+
+
 #End Model 8 ---------------------------
 
 #Model 9 South BTS Removed ---------------------------
@@ -1375,6 +1410,11 @@ fit9 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit9,"fit9")
 
 check_convergence(fit9)
+
+fit9 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit9.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit9"), showWarnings = FALSE)
+plot_wham_output(fit9,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit9"))
+
 #End Model 9 ---------------------------
 
 #Model 10 South Albatross Removed ---------------------------
@@ -1523,6 +1563,11 @@ fit10 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit10,"fit10")
 
 check_convergence(fit10)
+
+fit10 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit10.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit10"), showWarnings = FALSE)
+plot_wham_output(fit10,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit10"))
+
 #End Model 10 ---------------------------
 
 #Model 11 South Bigelow Removed ---------------------------
@@ -1671,6 +1716,11 @@ fit11 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit11,"fit11")
 
 check_convergence(fit11)
+
+fit11 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit11.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit11"), showWarnings = FALSE)
+plot_wham_output(fit11,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit11"))
+
 #End Model 11 ---------------------------
 
 #Model 12 South NEAMAP Removed ---------------------------
@@ -1819,6 +1869,11 @@ fit12 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit12,"fit12")
 
 check_convergence(fit12)
+
+fit12 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit12.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit12"), showWarnings = FALSE)
+plot_wham_output(fit12,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit12"))
+
 #End Model 12 ---------------------------
 
 #Model 13 NJ Removed---------------------------
@@ -1967,6 +2022,11 @@ fit13 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit13,"fit13")
 
 check_convergence(fit13)
+
+fit13 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit13.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit13"), showWarnings = FALSE)
+plot_wham_output(fit13,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit13"))
+
 #End Model 13 ---------------------------
 
 #Model 14 DE Removed ---------------------------
@@ -2115,6 +2175,11 @@ fit14 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit14,"fit14")
 
 check_convergence(fit14)
+
+fit14 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit14.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit14"), showWarnings = FALSE)
+plot_wham_output(fit14,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit14"))
+
 #End Model 14 ---------------------------
 
 #Model 15 MD Removed ---------------------------
@@ -2263,6 +2328,11 @@ fit15 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit15,"fit15")
 
 check_convergence(fit15)
+
+fit15 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit15.RDS"))
+dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit15"), showWarnings = FALSE)
+plot_wham_output(fit15,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit15"))
+
 #End Model 15 ---------------------------
 
 #Model 16 VIMS Removed ---------------------------
@@ -2388,7 +2458,7 @@ temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_i
                              indices = rep(c("dir-mult","logistic-normal-miss0","dir-mult","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0"),c(6,1,1,6,1,1))))
 # indices = rep(c("dir-mult","logistic-normal-miss0","dir-mult","logistic-normal-ar1-miss0","dir-mult"),c(6,1,8,1,1))))
 temp$fleet_names = paste0(rep(c("North_", "South_"),each = 2), temp$fleet_names)
-temp$index_names = paste0(rep(c("North_", "South_"),c(8,9)), temp$index_names)
+temp$index_names = paste0(rep(c("North_", "South_"),c(8,8)), temp$index_names)
 temp$map$trans_mu <- factor(rep(NA,length(temp$par$trans_mu)))
 temp$data$selblock_pointer_fleets[] <- rep(1:4, each = length(temp$years))
 temp <- wham:::set_selectivity(temp,sel)
@@ -2406,18 +2476,25 @@ temp$map$trans_NAA_rho <- factor(x)
 
 tfit16 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
 saveandplot(tfit16,"tfit16")
+# saveRDS(tfit16, file=paste0(getwd(),"GitHub/BSB.2023.RT.Modeling/2023.RT.Runs/",this_run,"/","tfit16.RDS"))
+# saveRDS(tfit16,file="tfit16.RDS")
 
 fit16 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit16,"fit16")
+saveRDS(fit16,file="fit16.RDS")
 
 check_convergence(fit16)
+
+fit16 <- readRDS(file=here("2023.RT.Runs",this_run,"fit16.RDS"))
+dir.create(file.path(here("2023.RT.Runs",this_run),"fit16"), showWarnings = FALSE)
+plot_wham_output(fit16,dir.main = here("2023.RT.Runs",this_run,"fit16"))
 #End Model 16 ---------------------------
 
 #Model 17 Winter BTS Removed ---------------------------
-asap <- read_asap3_dat(c(here("2023.RT.Runs",this_run, "NORTH.BRIDGE.RUN.7.DAT"),here("2023.RT.Runs",this_run, "SOUTH.RUN.7.WIN.DAT")))
+asap <- read_asap3_dat(c(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run, "NORTH.BRIDGE.RUN.7.DAT"),here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run, "SOUTH.RUN.7.WIN.DAT")))
 asap_alt <- change_max_Neff_fn(asap, 1000)
-north_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp_nmab_1959-2022.csv"))
-south_bt <- read.csv(here("2023.RT.Runs","Run33","bsb_bt_temp_smab_1959-2022.csv"))
+north_bt <- read.csv(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs","Run33","bsb_bt_temp_nmab_1959-2022.csv"))
+south_bt <- read.csv(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs","Run33","bsb_bt_temp_smab_1959-2022.csv"))
 
 ecov <- list(label = c("North_BT","South_BT"))
 ecov$mean <- cbind(north_bt[,'mean'], south_bt[,'mean'])
@@ -2554,18 +2631,42 @@ temp$map$trans_NAA_rho <- factor(x)
 
 tfit17 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
 saveandplot(tfit17,"tfit17")
+# saveRDS(tfit17,file="tfit17.RDS")
 
 fit17 <- fit_wham(temp, do.sdrep = T, do.osa = T, do.retro = T, do.brps = T)
 saveandplot(fit17,"fit17")
+# saveRDS(fit17,file="fit17.RDS")
 
 check_convergence(fit17)
+
+fit17 <- readRDS(file=here("2023.RT.Runs",this_run,"fit17.RDS"))
+dir.create(file.path(here("2023.RT.Runs",this_run),"fit17"), showWarnings = FALSE)
+plot_wham_output(fit17,dir.main = here("2023.RT.Runs",this_run,"fit17"))
 #End Model 17 ---------------------------
 
 #Compare Model Objects -----------------
-Run34 <- readRDS(here("2023.RT.Runs","Run34", "fit.RDS"))
+Run37 <- readRDS(here("2023.RT.Runs","Run37", "fit14.RDS"))
 Run44.1 <- readRDS(here("2023.RT.Runs",this_run, "fit1.RDS"))
-mods <- list(Run34=Run34,NorthBTS=Run44.1)
+Run44.2 <- readRDS(here("2023.RT.Runs",this_run, "fit2.RDS"))
+Run44.3 <- readRDS(here("2023.RT.Runs",this_run, "fit3.RDS"))
+Run44.4 <- readRDS(here("2023.RT.Runs",this_run, "fit4.RDS"))
+Run44.5 <- readRDS(here("2023.RT.Runs",this_run, "fit5.RDS"))
+Run44.6 <- readRDS(here("2023.RT.Runs",this_run, "fit6.RDS"))
+Run44.7 <- readRDS(here("2023.RT.Runs",this_run, "fit7.RDS"))
+Run44.8 <- readRDS(here("2023.RT.Runs",this_run, "fit8.RDS"))
+Run44.9 <- readRDS(here("2023.RT.Runs",this_run, "fit9.RDS"))
+Run44.10 <- readRDS(here("2023.RT.Runs",this_run, "fit10.RDS"))
+Run44.11 <- readRDS(here("2023.RT.Runs",this_run, "fit11.RDS"))
+Run44.12 <- readRDS(here("2023.RT.Runs",this_run, "fit12.RDS"))
+Run44.13 <- readRDS(here("2023.RT.Runs",this_run, "fit13.RDS"))
+Run44.14 <- readRDS(here("2023.RT.Runs",this_run, "fit14.RDS"))
+Run44.15 <- readRDS(here("2023.RT.Runs",this_run, "fit15.RDS"))
+Run44.16 <- readRDS(here("2023.RT.Runs",this_run, "fit16.RDS"))
+Run44.17 <- readRDS(here("2023.RT.Runs",this_run, "fit17.RDS"))
+mods <- list(All=Run37,NBTS=Run44.1,NALB=Run44.2,NBIG=Run44.3,NNEA=Run44.4,MA=Run44.5,RI=Run44.6,CT=Run44.7,NY=Run44.9)
+mods <- list(All=Run37,SBTS=Run44.9,SALB=Run44.10,SBIG=Run44.11,SNEA=Run44.12,NJ=Run44.13,DE=Run44.14,MD=Run44.15,VIMS=Run44.16,WIN=Run44.17)
 compare_wham_models(mods=mods,plot.opts = list(which=c(1,2,3,5,6,7,8,9,10)))
+compare_wham_models(mods=mods)
 #End Compare Model Objects
 
 #Leftover Code from Run34 ---------------------------
