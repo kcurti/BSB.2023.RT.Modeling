@@ -804,7 +804,7 @@ saveandplot(fit5,"fit5")
 
 check_convergence(fit5)
 
-fit5 <- readRDS(file=here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit5.RDS"))
+fit5 <- readRDS(file=here("2023.RT.Runs",this_run,"fit5.RDS"))
 dir.create(file.path(here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run),"fit5"), showWarnings = FALSE)
 plot_wham_output(fit5,dir.main = here("GitHub","BSB.2023.RT.Modeling","2023.RT.Runs",this_run,"fit5"))
 
