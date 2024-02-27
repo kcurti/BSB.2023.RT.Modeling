@@ -1,0 +1,978 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{caption,graphics}
+\usepackage{makecell}
+\usepackage{lscape}
+\renewcommand\figurename{Fig.}
+\captionsetup{labelsep=period, singlelinecheck=false}
+\newcommand{\changesize}[1]{\fontsize{#1pt}{#1pt}\selectfont}
+\renewcommand{\arraystretch}{1.5}
+\renewcommand\theadfont{}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={WHAM figures and tables},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{WHAM figures and tables}
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+\maketitle
+
+\hypertarget{diagnostics}{%
+\subsubsection{Diagnostics}\label{diagnostics}}
+
+\hypertarget{results}{%
+\subsubsection{Results}\label{results}}
+
+\hypertarget{tables}{%
+\subsection{Tables}\label{tables}}
+
+\hypertarget{parameter-estimates}{%
+\subsubsection{Parameter estimates}\label{parameter-estimates}}
+
+--\textgreater{}
+
+\begin{landscape}
+\begin{longtable}[t]{lrrrr}
+\caption{\label{tab:par-table}Parameter estimates, standard errors, and confidence intervals. Rounded to 3 decimal places.}\\
+\toprule
+  & Estimate & Std. Error & 95\% CI lower & 95\% CI upper\\
+\midrule
+\endfirsthead
+\caption[]{Parameter estimates, standard errors, and confidence intervals. Rounded to 3 decimal places. \textit{(continued)}}\\
+\toprule
+  & Estimate & Std. Error & 95\% CI lower & 95\% CI upper\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+BSB North mean log(R) intercept & $5.667$ & $0.988$ & $3.730$ & $7.604$\\
+BSB North in North NAA $\sigma$ (age 1) & $0.777$ & $0.111$ & $0.587$ & $1.028$\\
+BSB North in North NAA $\sigma$ (ages 2-8+) & $0.879$ & $0.054$ & $0.779$ & $0.992$\\
+BSB North in South NAA $\sigma$ (age 1) & $0.777$ & $0.111$ & $0.587$ & $1.028$\\
+BSB North  in North  NAA AR1 $\rho$ age & $0.087$ & $0.100$ & $-0.109$ & $0.277$\\
+\addlinespace
+BSB North  in North  NAA AR1 $\rho$ year & $0.277$ & $0.089$ & $0.095$ & $0.441$\\
+BSB South Mean Recruitment & $20432.290$ & $4810.614$ & $12879.786$ & $32413.463$\\
+BSB South in North NAA $\sigma$ (age 1) & $0.472$ & $0.070$ & $0.353$ & $0.631$\\
+BSB South in North NAA $\sigma$ (ages 2-8+) & $0.350$ & $0.059$ & $0.251$ & $0.488$\\
+BSB South in South NAA $\sigma$ (age 1) & $0.472$ & $0.070$ & $0.353$ & $0.631$\\
+\addlinespace
+BSB South in South NAA $\sigma$ (ages 2-8+) & $0.350$ & $0.059$ & $0.251$ & $0.488$\\
+BSB South  in North  NAA AR1 $\rho$ age & $-0.285$ & $0.139$ & $-0.530$ & $0.003$\\
+BSB South  in North  NAA AR1 $\rho$ year & $0.600$ & $0.103$ & $0.361$ & $0.764$\\
+BSB South  in South  NAA AR1 $\rho$ age & $-0.285$ & $0.139$ & $-0.530$ & $0.003$\\
+BSB South  in South  NAA AR1 $\rho$ year & $0.600$ & $0.103$ & $0.361$ & $0.764$\\
+\addlinespace
+North NEFSC Spring Alb fully selected q & $2.728\times 10^{-5}$ & $5.221\times 10^{-6}$ & $1.874\times 10^{-5}$ & $3.969\times 10^{-5}$\\
+North NEAMAP fully selected q & $6.332\times 10^{-5}$ & $1.276\times 10^{-5}$ & $4.265\times 10^{-5}$ & $9.400\times 10^{-5}$\\
+North MADMF fully selected q & $9.630\times 10^{-5}$ & $1.553\times 10^{-5}$ & $7.021\times 10^{-5}$ & $1.321\times 10^{-4}$\\
+North RI fully selected q & $2.652\times 10^{-5}$ & $4.338\times 10^{-6}$ & $1.925\times 10^{-5}$ & $3.654\times 10^{-5}$\\
+North CT fully selected q & $4.289\times 10^{-5}$ & $7.086\times 10^{-6}$ & $3.103\times 10^{-5}$ & $5.929\times 10^{-5}$\\
+\addlinespace
+North NY fully selected q & $1.369\times 10^{-5}$ & $3.388\times 10^{-6}$ & $8.425\times 10^{-6}$ & $2.223\times 10^{-5}$\\
+North REC CPA fully selected q & $9.601\times 10^{-5}$ & $1.597\times 10^{-5}$ & $6.929\times 10^{-5}$ & $1.330\times 10^{-4}$\\
+North Bigelow fully selected q & $4.121\times 10^{-5}$ & $7.954\times 10^{-6}$ & $2.823\times 10^{-5}$ & $6.016\times 10^{-5}$\\
+South NEFSC spring Alb fully selected q & $1.420\times 10^{-4}$ & $3.174\times 10^{-5}$ & $9.162\times 10^{-5}$ & $2.201\times 10^{-4}$\\
+South NEAMAP fully selected q & $4.167\times 10^{-6}$ & $9.448\times 10^{-7}$ & $2.672\times 10^{-6}$ & $6.499\times 10^{-6}$\\
+\addlinespace
+South NJ fully selected q & $1.241\times 10^{-4}$ & $1.646\times 10^{-5}$ & $9.568\times 10^{-5}$ & $1.609\times 10^{-4}$\\
+South DE fully selected q & $2.604\times 10^{-5}$ & $4.728\times 10^{-6}$ & $1.824\times 10^{-5}$ & $3.717\times 10^{-5}$\\
+South MD fully selected q & $3.762\times 10^{-5}$ & $6.071\times 10^{-6}$ & $2.742\times 10^{-5}$ & $5.162\times 10^{-5}$\\
+South VIMS fully selected q & $2.731\times 10^{-5}$ & $4.927\times 10^{-6}$ & $1.918\times 10^{-5}$ & $3.890\times 10^{-5}$\\
+South NEFSC winter fully selected q & $0.266$ & $0.057$ & $0.174$ & $0.406$\\
+\addlinespace
+South REC CPA fully selected q & $1.477\times 10^{-4}$ & $2.155\times 10^{-5}$ & $1.109\times 10^{-4}$ & $1.966\times 10^{-4}$\\
+South BIGELOW fully selected q & $1.931\times 10^{-4}$ & $3.217\times 10^{-5}$ & $1.393\times 10^{-4}$ & $2.677\times 10^{-4}$\\
+Block 1: North Commercial Mean Selectivity for age 1 & $0.015$ & $0.010$ & $0.004$ & $0.056$\\
+Block 1: North Commercial Mean Selectivity for age 2 & $0.320$ & $0.146$ & $0.112$ & $0.636$\\
+Block 1: North Commercial Mean Selectivity for age 3 & $0.835$ & $0.100$ & $0.550$ & $0.955$\\
+\addlinespace
+Block 1: North Commercial Mean Selectivity for age 4 & $1.000$ & -- & -- & --\\
+Block 1: North Commercial Mean Selectivity for age 5 & $1.000$ & -- & -- & --\\
+Block 1: North Commercial Mean Selectivity for age 6 & $1.000$ & -- & -- & --\\
+Block 1: North Commercial Mean Selectivity for age 7 & $1.000$ & -- & -- & --\\
+Block 1: North Commercial Mean Selectivity for age 8+ & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 2: North Recreational Mean Selectivity for age 1 & $0.028$ & $0.020$ & $0.007$ & $0.106$\\
+Block 2: North Recreational Mean Selectivity for age 2 & $0.334$ & $0.157$ & $0.112$ & $0.668$\\
+Block 2: North Recreational Mean Selectivity for age 3 & $0.585$ & $0.174$ & $0.256$ & $0.852$\\
+Block 2: North Recreational Mean Selectivity for age 4 & $0.785$ & $0.124$ & $0.463$ & $0.939$\\
+Block 2: North Recreational Mean Selectivity for age 5 & $0.881$ & $0.081$ & $0.619$ & $0.971$\\
+\addlinespace
+Block 2: North Recreational Mean Selectivity for age 6 & $0.941$ & $0.048$ & $0.744$ & $0.989$\\
+Block 2: North Recreational Mean Selectivity for age 7 & $1.000$ & -- & -- & --\\
+Block 2: North Recreational Mean Selectivity for age 8+ & $1.000$ & -- & -- & --\\
+Block 3: South Commercial $a_{50}$ & $2.325$ & $0.122$ & $2.093$ & $2.572$\\
+Block 3: South Commercial 1/slope (increasing) & $0.387$ & $0.035$ & $0.324$ & $0.460$\\
+\addlinespace
+Block 4: South Recreational $a_{50}$ & $2.421$ & $0.290$ & $1.893$ & $3.024$\\
+Block 4: South Recreational 1/slope (increasing) & $0.742$ & $0.131$ & $0.521$ & $1.042$\\
+Block 9: North NEFSC Spring Alb Mean Selectivity for age 1 & $0.089$ & $0.087$ & $0.012$ & $0.443$\\
+Block 9: North NEFSC Spring Alb Mean Selectivity for age 2 & $1.000$ & -- & -- & --\\
+Block 9: North NEFSC Spring Alb Mean Selectivity for age 3 & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 9: North NEFSC Spring Alb Mean Selectivity for age 4 & $1.000$ & -- & -- & --\\
+Block 9: North NEFSC Spring Alb Mean Selectivity for age 5 & $1.000$ & -- & -- & --\\
+Block 9: North NEFSC Spring Alb Mean Selectivity for age 6 & $1.000$ & -- & -- & --\\
+Block 9: North NEFSC Spring Alb Mean Selectivity for age 7 & $1.000$ & -- & -- & --\\
+Block 9: North NEFSC Spring Alb Mean Selectivity for age 8+ & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 10: North NEAMAP Mean Selectivity for age 1 & $0.023$ & $0.014$ & $0.007$ & $0.072$\\
+Block 10: North NEAMAP Mean Selectivity for age 2 & $0.476$ & $0.148$ & $0.221$ & $0.745$\\
+Block 10: North NEAMAP Mean Selectivity for age 3 & $1.000$ & $1.341\times 10^{-5}$ & $0.000$ & $1.000$\\
+Block 10: North NEAMAP Mean Selectivity for age 4 & $1.000$ & -- & -- & --\\
+Block 10: North NEAMAP Mean Selectivity for age 5 & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 10: North NEAMAP Mean Selectivity for age 6 & $1.000$ & -- & -- & --\\
+Block 10: North NEAMAP Mean Selectivity for age 7 & $1.000$ & -- & -- & --\\
+Block 10: North NEAMAP Mean Selectivity for age 8+ & $1.000$ & -- & -- & --\\
+Block 11: North MADMF Mean Selectivity for age 1 & $0.006$ & $0.002$ & $0.003$ & $0.011$\\
+Block 11: North MADMF Mean Selectivity for age 2 & $0.217$ & $0.040$ & $0.150$ & $0.305$\\
+\addlinespace
+Block 11: North MADMF Mean Selectivity for age 3 & $1.000$ & -- & -- & --\\
+Block 11: North MADMF Mean Selectivity for age 4 & $1.000$ & -- & -- & --\\
+Block 11: North MADMF Mean Selectivity for age 5 & $1.000$ & -- & -- & --\\
+Block 11: North MADMF Mean Selectivity for age 6 & $1.000$ & -- & -- & --\\
+Block 11: North MADMF Mean Selectivity for age 7 & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 11: North MADMF Mean Selectivity for age 8+ & $1.000$ & -- & -- & --\\
+Block 12: North RI Mean Selectivity for age 1 & $0.044$ & $0.036$ & $0.009$ & $0.195$\\
+Block 12: North RI Mean Selectivity for age 2 & $0.271$ & $0.164$ & $0.068$ & $0.655$\\
+Block 12: North RI Mean Selectivity for age 3 & $1.000$ & -- & -- & --\\
+Block 12: North RI Mean Selectivity for age 4 & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 12: North RI Mean Selectivity for age 5 & $1.000$ & -- & -- & --\\
+Block 12: North RI Mean Selectivity for age 6 & $1.000$ & -- & -- & --\\
+Block 12: North RI Mean Selectivity for age 7 & $1.000$ & -- & -- & --\\
+Block 12: North RI Mean Selectivity for age 8+ & $1.000$ & -- & -- & --\\
+Block 13: North CT Mean Selectivity for age 1 & $0.017$ & $0.011$ & $0.005$ & $0.058$\\
+\addlinespace
+Block 13: North CT Mean Selectivity for age 2 & $0.264$ & $0.120$ & $0.096$ & $0.546$\\
+Block 13: North CT Mean Selectivity for age 3 & $1.000$ & -- & -- & --\\
+Block 13: North CT Mean Selectivity for age 4 & $1.000$ & -- & -- & --\\
+Block 13: North CT Mean Selectivity for age 5 & $1.000$ & -- & -- & --\\
+Block 13: North CT Mean Selectivity for age 6 & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 13: North CT Mean Selectivity for age 7 & $1.000$ & -- & -- & --\\
+Block 13: North CT Mean Selectivity for age 8+ & $1.000$ & -- & -- & --\\
+Block 14: North NY Selectivity for age 1 & $1.000$ & -- & -- & --\\
+Block 14: North NY Selectivity for age 2 & $0.000$ & -- & -- & --\\
+Block 14: North NY Selectivity for age 3 & $0.000$ & -- & -- & --\\
+\addlinespace
+Block 14: North NY Selectivity for age 4 & $0.000$ & -- & -- & --\\
+Block 14: North NY Selectivity for age 5 & $0.000$ & -- & -- & --\\
+Block 14: North NY Selectivity for age 6 & $0.000$ & -- & -- & --\\
+Block 14: North NY Selectivity for age 7 & $0.000$ & -- & -- & --\\
+Block 14: North NY Selectivity for age 8+ & $0.000$ & -- & -- & --\\
+\addlinespace
+Block 15: North REC CPA Mean Selectivity for age 1 & $0.150$ & $0.055$ & $0.070$ & $0.292$\\
+Block 15: North REC CPA Mean Selectivity for age 2 & $1.000$ & -- & -- & --\\
+Block 15: North REC CPA Mean Selectivity for age 3 & $1.000$ & -- & -- & --\\
+Block 15: North REC CPA Mean Selectivity for age 4 & $1.000$ & -- & -- & --\\
+Block 15: North REC CPA Mean Selectivity for age 5 & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 15: North REC CPA Mean Selectivity for age 6 & $1.000$ & -- & -- & --\\
+Block 15: North REC CPA Mean Selectivity for age 7 & $1.000$ & -- & -- & --\\
+Block 15: North REC CPA Mean Selectivity for age 8+ & $1.000$ & -- & -- & --\\
+Block 16: North Bigelow Mean Selectivity for age 1 & $0.243$ & $0.075$ & $0.126$ & $0.417$\\
+Block 16: North Bigelow Mean Selectivity for age 2 & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 16: North Bigelow Mean Selectivity for age 3 & $1.000$ & -- & -- & --\\
+Block 16: North Bigelow Mean Selectivity for age 4 & $1.000$ & -- & -- & --\\
+Block 16: North Bigelow Mean Selectivity for age 5 & $1.000$ & -- & -- & --\\
+Block 16: North Bigelow Mean Selectivity for age 6 & $1.000$ & -- & -- & --\\
+Block 16: North Bigelow Mean Selectivity for age 7 & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 16: North Bigelow Mean Selectivity for age 8+ & $1.000$ & -- & -- & --\\
+Block 17: South NEFSC spring Alb Selectivity for age 1 & $0.077$ & $0.026$ & $0.039$ & $0.147$\\
+Block 17: South NEFSC spring Alb Selectivity for age 2 & $0.342$ & $0.099$ & $0.180$ & $0.552$\\
+Block 17: South NEFSC spring Alb Selectivity for age 3 & $0.656$ & $0.154$ & $0.333$ & $0.879$\\
+Block 17: South NEFSC spring Alb Selectivity for age 4 & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 17: South NEFSC spring Alb Selectivity for age 5 & $1.000$ & -- & -- & --\\
+Block 17: South NEFSC spring Alb Selectivity for age 6 & $1.000$ & -- & -- & --\\
+Block 17: South NEFSC spring Alb Selectivity for age 7 & $1.000$ & -- & -- & --\\
+Block 17: South NEFSC spring Alb Selectivity for age 8+ & $1.000$ & -- & -- & --\\
+Block 18: South NEAMAP Selectivity for age 1 & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 18: South NEAMAP Selectivity for age 2 & $0.000$ & -- & -- & --\\
+Block 18: South NEAMAP Selectivity for age 3 & $0.000$ & -- & -- & --\\
+Block 18: South NEAMAP Selectivity for age 4 & $0.000$ & -- & -- & --\\
+Block 18: South NEAMAP Selectivity for age 5 & $0.000$ & -- & -- & --\\
+Block 18: South NEAMAP Selectivity for age 6 & $0.000$ & -- & -- & --\\
+\addlinespace
+Block 18: South NEAMAP Selectivity for age 7 & $0.000$ & -- & -- & --\\
+Block 18: South NEAMAP Selectivity for age 8+ & $0.000$ & -- & -- & --\\
+Block 19: South NJ Selectivity for age 1 & $0.071$ & $0.016$ & $0.046$ & $0.110$\\
+Block 19: South NJ Selectivity for age 2 & $1.000$ & -- & -- & --\\
+Block 19: South NJ Selectivity for age 3 & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 19: South NJ Selectivity for age 4 & $1.000$ & -- & -- & --\\
+Block 19: South NJ Selectivity for age 5 & $1.000$ & -- & -- & --\\
+Block 19: South NJ Selectivity for age 6 & $1.000$ & -- & -- & --\\
+Block 19: South NJ Selectivity for age 7 & $1.000$ & -- & -- & --\\
+Block 19: South NJ Selectivity for age 8+ & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 20: South DE Selectivity for age 1 & $1.000$ & -- & -- & --\\
+Block 20: South DE Selectivity for age 2 & $0.000$ & -- & -- & --\\
+Block 20: South DE Selectivity for age 3 & $0.000$ & -- & -- & --\\
+Block 20: South DE Selectivity for age 4 & $0.000$ & -- & -- & --\\
+Block 20: South DE Selectivity for age 5 & $0.000$ & -- & -- & --\\
+\addlinespace
+Block 20: South DE Selectivity for age 6 & $0.000$ & -- & -- & --\\
+Block 20: South DE Selectivity for age 7 & $0.000$ & -- & -- & --\\
+Block 20: South DE Selectivity for age 8+ & $0.000$ & -- & -- & --\\
+Block 21: South MD Selectivity for age 1 & $1.000$ & -- & -- & --\\
+Block 21: South MD Selectivity for age 2 & $0.000$ & -- & -- & --\\
+\addlinespace
+Block 21: South MD Selectivity for age 3 & $0.000$ & -- & -- & --\\
+Block 21: South MD Selectivity for age 4 & $0.000$ & -- & -- & --\\
+Block 21: South MD Selectivity for age 5 & $0.000$ & -- & -- & --\\
+Block 21: South MD Selectivity for age 6 & $0.000$ & -- & -- & --\\
+Block 21: South MD Selectivity for age 7 & $0.000$ & -- & -- & --\\
+\addlinespace
+Block 21: South MD Selectivity for age 8+ & $0.000$ & -- & -- & --\\
+Block 22: South VIMS Selectivity for age 1 & $1.000$ & -- & -- & --\\
+Block 22: South VIMS Selectivity for age 2 & $0.000$ & -- & -- & --\\
+Block 22: South VIMS Selectivity for age 3 & $0.000$ & -- & -- & --\\
+Block 22: South VIMS Selectivity for age 4 & $0.000$ & -- & -- & --\\
+\addlinespace
+Block 22: South VIMS Selectivity for age 5 & $0.000$ & -- & -- & --\\
+Block 22: South VIMS Selectivity for age 6 & $0.000$ & -- & -- & --\\
+Block 22: South VIMS Selectivity for age 7 & $0.000$ & -- & -- & --\\
+Block 22: South VIMS Selectivity for age 8+ & $0.000$ & -- & -- & --\\
+Block 23: South NEFSC winter Selectivity for age 1 & $0.330$ & $0.085$ & $0.188$ & $0.512$\\
+\addlinespace
+Block 23: South NEFSC winter Selectivity for age 2 & $0.698$ & $0.130$ & $0.407$ & $0.886$\\
+Block 23: South NEFSC winter Selectivity for age 3 & $1.000$ & -- & -- & --\\
+Block 23: South NEFSC winter Selectivity for age 4 & $1.000$ & -- & -- & --\\
+Block 23: South NEFSC winter Selectivity for age 5 & $1.000$ & -- & -- & --\\
+Block 23: South NEFSC winter Selectivity for age 6 & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 23: South NEFSC winter Selectivity for age 7 & $1.000$ & -- & -- & --\\
+Block 23: South NEFSC winter Selectivity for age 8+ & $1.000$ & -- & -- & --\\
+Block 24: South REC CPA Selectivity for age 1 & $0.459$ & $0.087$ & $0.299$ & $0.627$\\
+Block 24: South REC CPA Selectivity for age 2 & $0.916$ & $0.109$ & $0.404$ & $0.994$\\
+Block 24: South REC CPA Selectivity for age 3 & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 24: South REC CPA Selectivity for age 4 & $1.000$ & -- & -- & --\\
+Block 24: South REC CPA Selectivity for age 5 & $1.000$ & -- & -- & --\\
+Block 24: South REC CPA Selectivity for age 6 & $1.000$ & -- & -- & --\\
+Block 24: South REC CPA Selectivity for age 7 & $1.000$ & -- & -- & --\\
+Block 24: South REC CPA Selectivity for age 8+ & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 25: South BIGELOW Selectivity for age 1 & $0.133$ & $0.035$ & $0.078$ & $0.216$\\
+Block 25: South BIGELOW Selectivity for age 2 & $1.000$ & -- & -- & --\\
+Block 25: South BIGELOW Selectivity for age 3 & $1.000$ & -- & -- & --\\
+Block 25: South BIGELOW Selectivity for age 4 & $1.000$ & -- & -- & --\\
+Block 25: South BIGELOW Selectivity for age 5 & $1.000$ & -- & -- & --\\
+\addlinespace
+Block 25: South BIGELOW Selectivity for age 6 & $1.000$ & -- & -- & --\\
+Block 25: South BIGELOW Selectivity for age 7 & $1.000$ & -- & -- & --\\
+Block 25: South BIGELOW Selectivity for age 8+ & $1.000$ & -- & -- & --\\
+Block 1: North Commercial Selectivity RE $\sigma$ & $0.421$ & $0.119$ & $0.242$ & $0.734$\\
+Block 1: North Commercial Selectivity RE AR1 $\rho$ (age) & $0.529$ & $0.109$ & $0.465$ & $0.952$\\
+\addlinespace
+Block 1: North Commercial Selectivity RE AR1 $\rho$ (year) & $0.522$ & $0.112$ & $0.453$ & $0.950$\\
+Block 2: North Recreational Selectivity RE $\sigma$ & $0.237$ & $0.038$ & $0.174$ & $0.324$\\
+Block 2: North Recreational Selectivity RE AR1 $\rho$ (age) & $0.512$ & $0.068$ & $0.628$ & $0.909$\\
+Block 2: North Recreational Selectivity RE AR1 $\rho$ (year) & $0.668$ & $0.037$ & $0.810$ & $0.970$\\
+Block 9: North NEFSC Spring Alb Selectivity RE $\sigma$ & $1.232$ & $0.563$ & $0.503$ & $3.016$\\
+\addlinespace
+Block 9: North NEFSC Spring Alb Selectivity RE AR1 $\rho$ (age) & $0.000$ & -- & -- & --\\
+Block 9: North NEFSC Spring Alb Selectivity RE AR1 $\rho$ (year) & $0.405$ & $0.228$ & $-0.008$ & $0.938$\\
+Block 10: North NEAMAP Selectivity RE $\sigma$ & $1.348$ & $0.399$ & $0.755$ & $2.407$\\
+Block 10: North NEAMAP Selectivity RE AR1 $\rho$ (year) & $0.104$ & $0.390$ & $-0.530$ & $0.764$\\
+Block 11: North MADMF Selectivity RE $\sigma$ & $0.932$ & $0.213$ & $0.596$ & $1.457$\\
+\addlinespace
+Block 11: North MADMF Selectivity RE AR1 $\rho$ (year) & $-0.012$ & $0.369$ & $-0.633$ & $0.604$\\
+Block 12: North RI Selectivity RE $\sigma$ & $1.190$ & $0.324$ & $0.698$ & $2.029$\\
+Block 12: North RI Selectivity RE AR1 $\rho$ (year) & $0.437$ & $0.222$ & $-0.006$ & $0.954$\\
+Block 13: North CT Selectivity RE $\sigma$ & $1.025$ & $0.263$ & $0.619$ & $1.696$\\
+Block 13: North CT Selectivity RE AR1 $\rho$ (year) & $0.412$ & $0.176$ & $0.190$ & $0.916$\\
+\addlinespace
+Block 15: North REC CPA Selectivity RE $\sigma$ & $0.363$ & $0.086$ & $0.228$ & $0.579$\\
+Block 15: North REC CPA Selectivity RE AR1 $\rho$ (year) & $0.561$ & $0.098$ & $0.510$ & $0.962$\\
+Block 16: North Bigelow Selectivity RE $\sigma$ & $0.429$ & $0.411$ & $0.065$ & $2.808$\\
+Block 16: North Bigelow Selectivity RE AR1 $\rho$ (age) & $0.000$ & -- & -- & --\\
+Block 16: North Bigelow Selectivity RE AR1 $\rho$ (year) & $-0.462$ & $0.362$ & $-0.991$ & $0.598$\\
+\addlinespace
+North Commercial in North age comp, Dirichlet-multinomial: dispersion ($\phi$) & $62.995$ & $7.999$ & $49.117$ & $80.796$\\
+North Recreational in North age comp, logistic-normal: $\sigma$ & $2.988$ & $0.382$ & $2.326$ & $3.838$\\
+South Commercial in South age comp, logistic-normal: $\sigma$ & $34.695$ & $3.331$ & $28.743$ & $41.880$\\
+South Commercial in South age comp, logistic-normal: $\rho$ & $0.755$ & $0.051$ & $0.641$ & $0.841$\\
+South Recreational in South age comp, logistic-normal: $\sigma$ & $33.194$ & $3.691$ & $26.693$ & $41.277$\\
+\addlinespace
+South Recreational in South age comp, logistic-normal: $\rho$ & $0.843$ & $0.036$ & $0.759$ & $0.901$\\
+North NEFSC Spring Alb in North age comp, Dirichlet-multinomial: dispersion ($\phi$) & $2.262$ & $0.537$ & $1.420$ & $3.601$\\
+North NEAMAP in North age comp, Dirichlet-multinomial: dispersion ($\phi$) & $19.243$ & $3.248$ & $13.823$ & $26.789$\\
+North MADMF in North age comp, Dirichlet-multinomial: dispersion ($\phi$) & $20.240$ & $2.302$ & $16.196$ & $25.294$\\
+North RI in North age comp, Dirichlet-multinomial: dispersion ($\phi$) & $4.361$ & $0.555$ & $3.398$ & $5.596$\\
+\addlinespace
+North CT in North age comp, Dirichlet-multinomial: dispersion ($\phi$) & $11.193$ & $1.208$ & $9.059$ & $13.829$\\
+North REC CPA in North age comp, logistic-normal: $\sigma$ & $4.589$ & $0.460$ & $3.771$ & $5.585$\\
+North Bigelow in North age comp, Dirichlet-multinomial: dispersion ($\phi$) & $12.726$ & $2.267$ & $8.976$ & $18.044$\\
+South NEFSC spring Alb in South age comp, logistic-normal: $\sigma$ & $46.954$ & $6.140$ & $36.338$ & $60.672$\\
+South NEFSC spring Alb in South age comp, logistic-normal: $\rho$ & $0.781$ & $0.065$ & $0.628$ & $0.883$\\
+\addlinespace
+South NJ in South age comp, logistic-normal: $\sigma$ & $60.542$ & $6.459$ & $49.119$ & $74.622$\\
+South NJ in South age comp, logistic-normal: $\rho$ & $0.844$ & $0.038$ & $0.755$ & $0.905$\\
+South NEFSC winter in South age comp, logistic-normal: $\sigma$ & $37.034$ & $5.274$ & $28.014$ & $48.959$\\
+South NEFSC winter in South age comp, logistic-normal: $\rho$ & $0.828$ & $0.055$ & $0.694$ & $0.910$\\
+South REC CPA in South age comp, logistic-normal: $\sigma$ & $31.438$ & $3.622$ & $25.084$ & $39.402$\\
+\addlinespace
+South REC CPA in South age comp, logistic-normal: $\rho$ & $0.844$ & $0.037$ & $0.756$ & $0.904$\\
+South BIGELOW in South age comp, logistic-normal: $\sigma$ & $27.853$ & $3.594$ & $21.629$ & $35.868$\\
+South BIGELOW in South age comp, logistic-normal: $\rho$ & $0.540$ & $0.134$ & $0.290$ & $0.771$\\
+stock BSB North $\mu$ from North to South (intercept) & $0.009$ & $0.001$ & $0.007$ & $0.012$\\
+stock BSB North $\mu$ from South to North (intercept) & $0.332$ & $0.043$ & $0.253$ & $0.422$\\
+\addlinespace
+North REC CPA log-index observation SD scalar & $10.749$ & $1.698$ & $7.887$ & $14.651$\\
+South REC CPA log-index observation SD scalar & $6.143$ & $1.182$ & $4.213$ & $8.956$\\
+Ecov North BT: $\mu$ & $6.803$ & $0.190$ & $6.431$ & $7.175$\\
+Ecov North BT: $\sigma$ & $1.131$ & $0.109$ & $0.937$ & $1.367$\\
+Ecov North BT: AR1 $\rho$ & $0.290$ & $0.121$ & $0.040$ & $0.506$\\
+\addlinespace
+Ecov South BT: $\mu$ & $7.606$ & $0.148$ & $7.316$ & $7.895$\\
+Ecov South BT: $\sigma$ & $1.017$ & $0.092$ & $0.852$ & $1.215$\\
+Ecov South BT: AR1 $\rho$ & $0.149$ & $0.124$ & $-0.099$ & $0.380$\\
+BSB North Recruitment Ecov: North BT $\beta_1$ & $0.535$ & $0.127$ & $0.286$ & $0.785$\\*
+\end{longtable}
+\end{landscape}
+
+\hypertarget{abundance-at-age}{%
+\subsubsection{Abundance at age}\label{abundance-at-age}}
+
+\begin{longtable}[t]{lrrrrrrrr}
+\caption{\label{tab:BSB_North-North-NAA-table}Abundance at age (1000s) for BSB North in North.}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endfirsthead
+\caption[]{Abundance at age (1000s) for BSB North in North. \textit{(continued)}}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+1989 & 3533 & 2228 & 1151 & 537 & 244 & 111 & 50 & 41\\
+1990 & 8175 & 2065 & 1646 & 317 & 184 & 11 & 3 & 14\\
+1991 & 5043 & 2304 & 401 & 538 & 87 & 19 & 1 & 18\\
+1992 & 2694 & 2840 & 171 & 57 & 184 & 10 & 3 & 75\\
+1993 & 1225 & 1424 & 362 & 296 & 15 & 259 & 2 & 13\\
+\addlinespace
+1994 & 7344 & 309 & 1058 & 108 & 138 & 13 & 19 & 7\\
+1995 & 19332 & 1925 & 634 & 114 & 104 & 6 & 2 & 32\\
+1996 & 18510 & 2708 & 618 & 171 & 41 & 76 & 8 & 12\\
+1997 & 4270 & 10101 & 864 & 190 & 24 & 7 & 14 & 5\\
+1998 & 1292 & 2029 & 466 & 392 & 63 & 83 & 2 & 32\\
+\addlinespace
+1999 & 26412 & 1872 & 648 & 358 & 133 & 72 & 11 & 12\\
+2000 & 28300 & 4162 & 661 & 608 & 126 & 148 & 8 & 26\\
+2001 & 11405 & 3577 & 2578 & 671 & 392 & 140 & 199 & 5\\
+2002 & 34719 & 7821 & 3825 & 2043 & 225 & 70 & 80 & 28\\
+2003 & 6370 & 3117 & 1600 & 1633 & 812 & 68 & 27 & 18\\
+\addlinespace
+2004 & 3995 & 2174 & 3183 & 630 & 975 & 245 & 2 & 17\\
+2005 & 4648 & 1274 & 405 & 798 & 367 & 275 & 61 & 21\\
+2006 & 22674 & 3341 & 808 & 848 & 1040 & 148 & 192 & 1\\
+2007 & 23089 & 5608 & 2172 & 643 & 418 & 440 & 193 & 26\\
+2008 & 29687 & 5147 & 2340 & 863 & 236 & 184 & 123 & 82\\
+\addlinespace
+2009 & 25320 & 5043 & 2784 & 2098 & 540 & 37 & 14 & 86\\
+2010 & 7527 & 2824 & 3253 & 2087 & 1265 & 190 & 9 & 10\\
+2011 & 25188 & 3561 & 2321 & 2036 & 802 & 521 & 70 & 11\\
+2012 & 125740 & 11257 & 5314 & 2791 & 2219 & 911 & 431 & 86\\
+2013 & 48653 & 21953 & 3790 & 3368 & 1992 & 1296 & 399 & 241\\
+\addlinespace
+2014 & 19527 & 10768 & 26690 & 4370 & 2479 & 1452 & 896 & 472\\
+2015 & 20744 & 11728 & 9898 & 15447 & 2907 & 1322 & 657 & 623\\
+2016 & 88765 & 18450 & 5461 & 5450 & 15782 & 1918 & 1204 & 821\\
+2017 & 35435 & 39483 & 8559 & 3860 & 4062 & 10040 & 721 & 591\\
+2018 & 10142 & 11716 & 20367 & 4392 & 1822 & 2252 & 6007 & 702\\
+\addlinespace
+2019 & 42264 & 6104 & 11025 & 18477 & 3796 & 1611 & 1441 & 4781\\
+2020 & 48721 & 13096 & 5407 & 9881 & 13005 & 2604 & 1247 & 4152\\
+2021 & 34615 & 14299 & 12871 & 4216 & 6181 & 10396 & 1602 & 4109\\*
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrrrr}
+\caption{\label{tab:BSB_North-South-NAA-table}Abundance at age (1000s) for BSB North in South.}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endfirsthead
+\caption[]{Abundance at age (1000s) for BSB North in South. \textit{(continued)}}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+1989 & 0 & 107 & 57 & 26 & 12 & 5 & 2 & 2\\
+1990 & 0 & 104 & 38 & 15 & 6 & 3 & 1 & 1\\
+1991 & 0 & 244 & 46 & 25 & 5 & 3 & 0 & 0\\
+1992 & 0 & 150 & 56 & 7 & 8 & 1 & 0 & 0\\
+1993 & 0 & 80 & 66 & 4 & 1 & 3 & 0 & 1\\
+\addlinespace
+1994 & 0 & 36 & 31 & 7 & 5 & 0 & 4 & 0\\
+1995 & 0 & 210 & 6 & 15 & 1 & 2 & 0 & 0\\
+1996 & 0 & 575 & 51 & 12 & 2 & 2 & 0 & 1\\
+1997 & 0 & 548 & 76 & 8 & 2 & 0 & 1 & 0\\
+1998 & 0 & 128 & 273 & 17 & 3 & 0 & 0 & 0\\
+\addlinespace
+1999 & 0 & 39 & 54 & 12 & 6 & 1 & 1 & 0\\
+2000 & 0 & 786 & 44 & 8 & 4 & 1 & 1 & 0\\
+2001 & 0 & 843 & 119 & 13 & 10 & 2 & 2 & 1\\
+2002 & 0 & 342 & 108 & 50 & 11 & 6 & 2 & 3\\
+2003 & 0 & 1047 & 217 & 82 & 37 & 4 & 1 & 2\\
+\addlinespace
+2004 & 0 & 192 & 108 & 37 & 28 & 13 & 1 & 1\\
+2005 & 0 & 121 & 64 & 71 & 11 & 16 & 4 & 0\\
+2006 & 0 & 139 & 34 & 7 & 8 & 3 & 2 & 1\\
+2007 & 0 & 685 & 93 & 17 & 13 & 14 & 2 & 3\\
+2008 & 0 & 696 & 163 & 43 & 10 & 6 & 7 & 3\\
+\addlinespace
+2009 & 0 & 894 & 153 & 49 & 14 & 4 & 3 & 3\\
+2010 & 0 & 760 & 149 & 54 & 32 & 8 & 1 & 1\\
+2011 & 0 & 225 & 85 & 54 & 25 & 14 & 2 & 0\\
+2012 & 0 & 765 & 102 & 53 & 39 & 15 & 9 & 1\\
+2013 & 0 & 3794 & 323 & 124 & 55 & 40 & 16 & 9\\
+\addlinespace
+2014 & 0 & 1474 & 718 & 101 & 73 & 40 & 26 & 12\\
+2015 & 0 & 593 & 347 & 715 & 103 & 55 & 31 & 29\\
+2016 & 0 & 630 & 347 & 270 & 372 & 64 & 28 & 27\\
+2017 & 0 & 2689 & 533 & 154 & 135 & 350 & 41 & 42\\
+2018 & 0 & 1072 & 1167 & 235 & 91 & 85 & 197 & 25\\
+\addlinespace
+2019 & 0 & 308 & 360 & 576 & 112 & 43 & 50 & 138\\
+2020 & 0 & 1282 & 179 & 301 & 466 & 90 & 34 & 118\\
+2021 & 0 & 1475 & 401 & 149 & 256 & 325 & 59 & 106\\*
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrrrr}
+\caption{\label{tab:BSB_South-North-NAA-table}Abundance at age (1000s) for BSB South in North.}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endfirsthead
+\caption[]{Abundance at age (1000s) for BSB South in North. \textit{(continued)}}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+1989 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+1990 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+1991 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+1992 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+1993 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\addlinespace
+1994 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+1995 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+1996 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+1997 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+1998 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\addlinespace
+1999 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2000 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2001 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2002 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2003 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\addlinespace
+2004 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2005 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2006 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2007 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2008 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\addlinespace
+2009 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2010 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2011 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2012 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2013 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\addlinespace
+2014 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2015 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2016 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2017 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2018 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\addlinespace
+2019 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2020 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+2021 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\*
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrrrr}
+\caption{\label{tab:BSB_South-South-NAA-table}Abundance at age (1000s) for BSB South in South.}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endfirsthead
+\caption[]{Abundance at age (1000s) for BSB South in South. \textit{(continued)}}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+1989 & 16557 & 10458 & 5683 & 2420 & 921 & 338 & 123 & 70\\
+1990 & 32672 & 11644 & 6385 & 1261 & 761 & 215 & 72 & 82\\
+1991 & 25220 & 25451 & 4394 & 1756 & 417 & 126 & 43 & 61\\
+1992 & 19991 & 27022 & 7112 & 1350 & 464 & 78 & 23 & 38\\
+1993 & 9519 & 21630 & 8998 & 1828 & 608 & 130 & 22 & 24\\
+\addlinespace
+1994 & 19350 & 6627 & 9177 & 2144 & 666 & 186 & 39 & 15\\
+1995 & 31091 & 12579 & 5279 & 2222 & 798 & 215 & 100 & 22\\
+1996 & 27134 & 17475 & 6637 & 1839 & 550 & 454 & 63 & 91\\
+1997 & 13071 & 22718 & 5685 & 1158 & 389 & 161 & 61 & 48\\
+1998 & 9352 & 14992 & 4977 & 1877 & 223 & 268 & 31 & 47\\
+\addlinespace
+1999 & 26829 & 7934 & 5110 & 1841 & 482 & 152 & 78 & 38\\
+2000 & 45596 & 21981 & 4363 & 2126 & 515 & 248 & 55 & 56\\
+2001 & 29622 & 40642 & 12535 & 2101 & 463 & 293 & 79 & 48\\
+2002 & 34496 & 22901 & 20517 & 6693 & 574 & 247 & 105 & 48\\
+2003 & 15567 & 30945 & 9954 & 7235 & 2834 & 159 & 121 & 61\\
+\addlinespace
+2004 & 10704 & 15006 & 12503 & 2958 & 3087 & 591 & 36 & 68\\
+2005 & 8518 & 12718 & 5893 & 4309 & 1763 & 621 & 141 & 27\\
+2006 & 14977 & 10080 & 3566 & 2515 & 2035 & 854 & 77 & 60\\
+2007 & 24957 & 9545 & 3383 & 1690 & 918 & 591 & 267 & 67\\
+2008 & 34552 & 12754 & 4970 & 1557 & 589 & 328 & 180 & 153\\
+\addlinespace
+2009 & 20458 & 16856 & 7877 & 2984 & 434 & 258 & 70 & 200\\
+2010 & 22529 & 10468 & 7917 & 4949 & 1031 & 285 & 39 & 233\\
+2011 & 17766 & 8972 & 5557 & 4496 & 1529 & 869 & 33 & 153\\
+2012 & 28930 & 5981 & 6606 & 3662 & 1554 & 982 & 316 & 66\\
+2013 & 20954 & 10982 & 4835 & 3869 & 1148 & 957 & 284 & 67\\
+\addlinespace
+2014 & 12811 & 9896 & 10509 & 2053 & 1433 & 652 & 247 & 78\\
+2015 & 16016 & 8054 & 6377 & 5233 & 892 & 763 & 157 & 108\\
+2016 & 38806 & 8147 & 4902 & 3209 & 3706 & 165 & 338 & 144\\
+2017 & 19851 & 18287 & 8809 & 2965 & 1136 & 1593 & 75 & 185\\
+2018 & 7806 & 15879 & 14123 & 5001 & 1064 & 431 & 667 & 125\\
+\addlinespace
+2019 & 22148 & 5827 & 13815 & 7614 & 2291 & 472 & 224 & 482\\
+2020 & 26938 & 12661 & 6369 & 7521 & 4043 & 930 & 270 & 502\\
+2021 & 14672 & 13547 & 13975 & 4483 & 2885 & 2349 & 440 & 511\\*
+\end{longtable}
+
+\hypertarget{fishing-mortality-at-age-by-region}{%
+\subsubsection{Fishing mortality at age by
+region}\label{fishing-mortality-at-age-by-region}}
+
+\begin{longtable}[t]{lrrrrrrrr}
+\caption{\label{tab:North-region-FAA-table}Total fishing mortality at age in North.}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endfirsthead
+\caption[]{Total fishing mortality at age in North. \textit{(continued)}}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+1989 & 0.038 & 0.710 & 0.993 & 1.058 & 1.068 & 1.074 & 1.087 & 1.087\\
+1990 & 0.015 & 0.359 & 0.691 & 0.749 & 0.752 & 0.754 & 0.759 & 0.759\\
+1991 & 0.013 & 0.318 & 0.687 & 0.758 & 0.764 & 0.768 & 0.773 & 0.773\\
+1992 & 0.018 & 0.335 & 0.597 & 0.637 & 0.640 & 0.642 & 0.645 & 0.645\\
+1993 & 0.042 & 0.398 & 0.519 & 0.556 & 0.562 & 0.566 & 0.571 & 0.571\\
+\addlinespace
+1994 & 0.069 & 0.599 & 0.845 & 0.894 & 0.901 & 0.905 & 0.912 & 0.912\\
+1995 & 0.020 & 0.231 & 0.447 & 0.477 & 0.479 & 0.480 & 0.482 & 0.482\\
+1996 & 0.018 & 0.226 & 0.970 & 1.135 & 1.138 & 1.140 & 1.142 & 1.142\\
+1997 & 0.010 & 0.135 & 0.486 & 0.566 & 0.572 & 0.576 & 0.580 & 0.580\\
+1998 & 0.012 & 0.200 & 0.708 & 0.815 & 0.822 & 0.827 & 0.833 & 0.833\\
+\addlinespace
+1999 & 0.026 & 0.301 & 1.101 & 1.311 & 1.320 & 1.326 & 1.333 & 1.333\\
+2000 & 0.025 & 0.263 & 0.557 & 0.644 & 0.655 & 0.663 & 0.672 & 0.672\\
+2001 & 0.020 & 0.256 & 0.555 & 0.677 & 0.699 & 0.714 & 0.728 & 0.728\\
+2002 & 0.013 & 0.149 & 0.427 & 0.605 & 0.634 & 0.656 & 0.676 & 0.676\\
+2003 & 0.013 & 0.167 & 0.440 & 0.667 & 0.717 & 0.758 & 0.792 & 0.792\\
+\addlinespace
+2004 & 0.009 & 0.121 & 0.361 & 0.713 & 0.741 & 0.762 & 0.780 & 0.780\\
+2005 & 0.023 & 0.259 & 0.763 & 1.406 & 1.514 & 1.598 & 1.670 & 1.670\\
+2006 & 0.012 & 0.145 & 0.461 & 0.822 & 0.887 & 0.932 & 0.971 & 0.971\\
+2007 & 0.014 & 0.173 & 0.500 & 0.756 & 0.798 & 0.823 & 0.845 & 0.845\\
+2008 & 0.012 & 0.154 & 0.466 & 0.714 & 0.774 & 0.804 & 0.831 & 0.831\\
+\addlinespace
+2009 & 0.017 & 0.219 & 0.558 & 0.787 & 0.857 & 0.887 & 0.916 & 0.916\\
+2010 & 0.021 & 0.288 & 0.734 & 1.074 & 1.190 & 1.235 & 1.277 & 1.277\\
+2011 & 0.009 & 0.139 & 0.358 & 0.547 & 0.614 & 0.638 & 0.659 & 0.659\\
+2012 & 0.010 & 0.130 & 0.293 & 0.486 & 0.564 & 0.590 & 0.613 & 0.613\\
+2013 & 0.009 & 0.088 & 0.209 & 0.387 & 0.467 & 0.495 & 0.518 & 0.518\\
+\addlinespace
+2014 & 0.008 & 0.078 & 0.159 & 0.304 & 0.380 & 0.408 & 0.430 & 0.430\\
+2015 & 0.010 & 0.091 & 0.159 & 0.315 & 0.413 & 0.450 & 0.481 & 0.481\\
+2016 & 0.011 & 0.099 & 0.145 & 0.275 & 0.376 & 0.420 & 0.455 & 0.455\\
+2017 & 0.011 & 0.102 & 0.158 & 0.310 & 0.431 & 0.514 & 0.587 & 0.587\\
+2018 & 0.010 & 0.092 & 0.137 & 0.245 & 0.326 & 0.405 & 0.483 & 0.483\\
+\addlinespace
+2019 & 0.011 & 0.103 & 0.148 & 0.237 & 0.314 & 0.432 & 0.581 & 0.581\\
+2020 & 0.012 & 0.097 & 0.132 & 0.191 & 0.239 & 0.346 & 0.524 & 0.524\\
+2021 & 0.012 & 0.099 & 0.141 & 0.196 & 0.241 & 0.341 & 0.488 & 0.488\\*
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrrrr}
+\caption{\label{tab:South-region-FAA-table}Total fishing mortality at age in South.}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endfirsthead
+\caption[]{Total fishing mortality at age in South. \textit{(continued)}}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+1989 & 0.090 & 0.316 & 0.683 & 0.854 & 0.905 & 0.919 & 0.923 & 0.924\\
+1990 & 0.095 & 0.366 & 0.823 & 1.017 & 1.070 & 1.085 & 1.088 & 1.089\\
+1991 & 0.117 & 0.414 & 0.897 & 1.120 & 1.186 & 1.205 & 1.210 & 1.211\\
+1992 & 0.080 & 0.310 & 0.702 & 0.865 & 0.909 & 0.921 & 0.924 & 0.925\\
+1993 & 0.097 & 0.350 & 0.763 & 0.950 & 1.006 & 1.021 & 1.025 & 1.026\\
+\addlinespace
+1994 & 0.083 & 0.297 & 0.646 & 0.805 & 0.853 & 0.865 & 0.869 & 0.870\\
+1995 & 0.094 & 0.316 & 0.667 & 0.839 & 0.894 & 0.909 & 0.913 & 0.914\\
+1996 & 0.137 & 0.513 & 1.139 & 1.411 & 1.489 & 1.509 & 1.515 & 1.516\\
+1997 & 0.106 & 0.353 & 0.739 & 0.932 & 0.994 & 1.011 & 1.016 & 1.017\\
+1998 & 0.053 & 0.225 & 0.527 & 0.644 & 0.673 & 0.680 & 0.682 & 0.683\\
+\addlinespace
+1999 & 0.045 & 0.185 & 0.428 & 0.524 & 0.548 & 0.555 & 0.557 & 0.557\\
+2000 & 0.054 & 0.188 & 0.401 & 0.503 & 0.535 & 0.543 & 0.546 & 0.546\\
+2001 & 0.042 & 0.138 & 0.288 & 0.364 & 0.388 & 0.395 & 0.397 & 0.398\\
+2002 & 0.034 & 0.110 & 0.229 & 0.289 & 0.309 & 0.314 & 0.316 & 0.316\\
+2003 & 0.047 & 0.156 & 0.329 & 0.414 & 0.441 & 0.449 & 0.451 & 0.451\\
+\addlinespace
+2004 & 0.033 & 0.128 & 0.289 & 0.356 & 0.375 & 0.380 & 0.381 & 0.382\\
+2005 & 0.035 & 0.131 & 0.290 & 0.359 & 0.379 & 0.385 & 0.386 & 0.386\\
+2006 & 0.034 & 0.130 & 0.291 & 0.360 & 0.379 & 0.384 & 0.385 & 0.386\\
+2007 & 0.045 & 0.158 & 0.342 & 0.427 & 0.453 & 0.460 & 0.462 & 0.462\\
+2008 & 0.055 & 0.187 & 0.397 & 0.499 & 0.530 & 0.539 & 0.541 & 0.542\\
+\addlinespace
+2009 & 0.046 & 0.146 & 0.297 & 0.378 & 0.405 & 0.413 & 0.415 & 0.415\\
+2010 & 0.051 & 0.163 & 0.332 & 0.422 & 0.452 & 0.460 & 0.463 & 0.463\\
+2011 & 0.020 & 0.080 & 0.183 & 0.225 & 0.236 & 0.239 & 0.240 & 0.240\\
+2012 & 0.049 & 0.154 & 0.315 & 0.400 & 0.429 & 0.437 & 0.439 & 0.439\\
+2013 & 0.037 & 0.128 & 0.273 & 0.343 & 0.364 & 0.370 & 0.371 & 0.372\\
+\addlinespace
+2014 & 0.024 & 0.086 & 0.185 & 0.231 & 0.245 & 0.249 & 0.250 & 0.250\\
+2015 & 0.017 & 0.061 & 0.132 & 0.165 & 0.175 & 0.178 & 0.178 & 0.178\\
+2016 & 0.023 & 0.077 & 0.162 & 0.204 & 0.217 & 0.221 & 0.222 & 0.222\\
+2017 & 0.036 & 0.114 & 0.232 & 0.296 & 0.317 & 0.323 & 0.324 & 0.325\\
+2018 & 0.022 & 0.071 & 0.145 & 0.184 & 0.197 & 0.200 & 0.201 & 0.201\\
+\addlinespace
+2019 & 0.020 & 0.070 & 0.150 & 0.187 & 0.199 & 0.202 & 0.203 & 0.203\\
+2020 & 0.026 & 0.091 & 0.194 & 0.243 & 0.259 & 0.263 & 0.264 & 0.264\\
+2021 & 0.046 & 0.148 & 0.306 & 0.388 & 0.414 & 0.422 & 0.424 & 0.424\\*
+\end{longtable}
+
+\hypertarget{fishing-mortality-at-age-by-fleet}{%
+\subsubsection{Fishing mortality at age by
+fleet}\label{fishing-mortality-at-age-by-fleet}}
+
+\begin{longtable}[t]{lrrrrrrrr}
+\caption{\label{tab:North_Commercial-fleet-FAA-table}Total fishing mortality at age in North Commercial.}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endfirsthead
+\caption[]{Total fishing mortality at age in North Commercial. \textit{(continued)}}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+1989 & 0.024 & 0.314 & 0.399 & 0.408 & 0.408 & 0.408 & 0.408 & 0.408\\
+1990 & 0.007 & 0.191 & 0.463 & 0.502 & 0.502 & 0.502 & 0.502 & 0.502\\
+1991 & 0.006 & 0.167 & 0.458 & 0.499 & 0.499 & 0.499 & 0.499 & 0.499\\
+1992 & 0.012 & 0.259 & 0.486 & 0.509 & 0.509 & 0.509 & 0.509 & 0.509\\
+1993 & 0.024 & 0.232 & 0.293 & 0.298 & 0.298 & 0.298 & 0.298 & 0.298\\
+\addlinespace
+1994 & 0.019 & 0.336 & 0.517 & 0.534 & 0.534 & 0.534 & 0.534 & 0.534\\
+1995 & 0.008 & 0.170 & 0.363 & 0.383 & 0.383 & 0.383 & 0.383 & 0.383\\
+1996 & 0.007 & 0.164 & 0.875 & 1.025 & 1.025 & 1.025 & 1.025 & 1.025\\
+1997 & 0.002 & 0.073 & 0.367 & 0.422 & 0.422 & 0.422 & 0.422 & 0.422\\
+1998 & 0.004 & 0.143 & 0.584 & 0.657 & 0.657 & 0.657 & 0.657 & 0.657\\
+\addlinespace
+1999 & 0.003 & 0.165 & 0.879 & 1.049 & 1.049 & 1.049 & 1.049 & 1.049\\
+2000 & 0.002 & 0.115 & 0.315 & 0.352 & 0.352 & 0.352 & 0.352 & 0.352\\
+2001 & 0.005 & 0.153 & 0.332 & 0.370 & 0.370 & 0.370 & 0.370 & 0.370\\
+2002 & 0.002 & 0.066 & 0.229 & 0.310 & 0.310 & 0.310 & 0.310 & 0.310\\
+2003 & 0.002 & 0.081 & 0.203 & 0.298 & 0.298 & 0.298 & 0.298 & 0.298\\
+\addlinespace
+2004 & 0.002 & 0.061 & 0.219 & 0.504 & 0.504 & 0.504 & 0.504 & 0.504\\
+2005 & 0.001 & 0.061 & 0.320 & 0.760 & 0.760 & 0.760 & 0.760 & 0.760\\
+2006 & 0.001 & 0.043 & 0.223 & 0.451 & 0.451 & 0.451 & 0.451 & 0.451\\
+2007 & 0.002 & 0.064 & 0.243 & 0.391 & 0.391 & 0.391 & 0.391 & 0.391\\
+2008 & 0.001 & 0.038 & 0.181 & 0.269 & 0.269 & 0.269 & 0.269 & 0.269\\
+\addlinespace
+2009 & 0.002 & 0.040 & 0.116 & 0.147 & 0.147 & 0.147 & 0.147 & 0.147\\
+2010 & 0.002 & 0.045 & 0.136 & 0.176 & 0.176 & 0.176 & 0.176 & 0.176\\
+2011 & 0.002 & 0.040 & 0.132 & 0.181 & 0.181 & 0.181 & 0.181 & 0.181\\
+2012 & 0.001 & 0.016 & 0.063 & 0.097 & 0.097 & 0.097 & 0.097 & 0.097\\
+2013 & 0.001 & 0.019 & 0.071 & 0.113 & 0.113 & 0.113 & 0.113 & 0.113\\
+\addlinespace
+2014 & 0.001 & 0.018 & 0.051 & 0.079 & 0.079 & 0.079 & 0.079 & 0.079\\
+2015 & 0.001 & 0.014 & 0.042 & 0.075 & 0.075 & 0.075 & 0.075 & 0.075\\
+2016 & 0.001 & 0.013 & 0.037 & 0.076 & 0.076 & 0.076 & 0.076 & 0.076\\
+2017 & 0.002 & 0.027 & 0.070 & 0.156 & 0.156 & 0.156 & 0.156 & 0.156\\
+2018 & 0.004 & 0.037 & 0.075 & 0.140 & 0.140 & 0.140 & 0.140 & 0.140\\
+\addlinespace
+2019 & 0.004 & 0.035 & 0.070 & 0.121 & 0.121 & 0.121 & 0.121 & 0.121\\
+2020 & 0.004 & 0.029 & 0.057 & 0.098 & 0.098 & 0.098 & 0.098 & 0.098\\
+2021 & 0.003 & 0.028 & 0.062 & 0.104 & 0.104 & 0.104 & 0.104 & 0.104\\*
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrrrr}
+\caption{\label{tab:North_Recreational-fleet-FAA-table}Total fishing mortality at age in North Recreational.}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endfirsthead
+\caption[]{Total fishing mortality at age in North Recreational. \textit{(continued)}}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+1989 & 0.014 & 0.397 & 0.594 & 0.650 & 0.660 & 0.665 & 0.679 & 0.679\\
+1990 & 0.008 & 0.168 & 0.228 & 0.247 & 0.250 & 0.252 & 0.257 & 0.257\\
+1991 & 0.008 & 0.151 & 0.229 & 0.259 & 0.265 & 0.268 & 0.274 & 0.274\\
+1992 & 0.006 & 0.077 & 0.110 & 0.128 & 0.131 & 0.133 & 0.136 & 0.136\\
+1993 & 0.018 & 0.166 & 0.226 & 0.258 & 0.264 & 0.268 & 0.274 & 0.274\\
+\addlinespace
+1994 & 0.050 & 0.263 & 0.328 & 0.361 & 0.367 & 0.371 & 0.378 & 0.378\\
+1995 & 0.012 & 0.061 & 0.084 & 0.094 & 0.096 & 0.097 & 0.099 & 0.099\\
+1996 & 0.011 & 0.062 & 0.095 & 0.110 & 0.113 & 0.115 & 0.118 & 0.118\\
+1997 & 0.008 & 0.062 & 0.119 & 0.145 & 0.151 & 0.154 & 0.159 & 0.159\\
+1998 & 0.008 & 0.057 & 0.124 & 0.158 & 0.165 & 0.170 & 0.175 & 0.175\\
+\addlinespace
+1999 & 0.023 & 0.137 & 0.222 & 0.262 & 0.271 & 0.277 & 0.284 & 0.284\\
+2000 & 0.023 & 0.148 & 0.243 & 0.292 & 0.303 & 0.312 & 0.321 & 0.321\\
+2001 & 0.015 & 0.103 & 0.223 & 0.307 & 0.329 & 0.344 & 0.359 & 0.359\\
+2002 & 0.011 & 0.083 & 0.198 & 0.294 & 0.324 & 0.346 & 0.365 & 0.365\\
+2003 & 0.011 & 0.086 & 0.236 & 0.370 & 0.420 & 0.461 & 0.494 & 0.494\\
+\addlinespace
+2004 & 0.007 & 0.060 & 0.143 & 0.209 & 0.237 & 0.258 & 0.276 & 0.276\\
+2005 & 0.022 & 0.198 & 0.442 & 0.646 & 0.754 & 0.838 & 0.910 & 0.910\\
+2006 & 0.011 & 0.102 & 0.238 & 0.371 & 0.436 & 0.481 & 0.520 & 0.520\\
+2007 & 0.012 & 0.108 & 0.257 & 0.365 & 0.407 & 0.432 & 0.454 & 0.454\\
+2008 & 0.011 & 0.116 & 0.286 & 0.446 & 0.506 & 0.535 & 0.562 & 0.562\\
+\addlinespace
+2009 & 0.015 & 0.179 & 0.442 & 0.640 & 0.710 & 0.740 & 0.769 & 0.769\\
+2010 & 0.019 & 0.244 & 0.598 & 0.898 & 1.015 & 1.059 & 1.101 & 1.101\\
+2011 & 0.008 & 0.098 & 0.226 & 0.366 & 0.433 & 0.457 & 0.478 & 0.478\\
+2012 & 0.010 & 0.114 & 0.230 & 0.389 & 0.468 & 0.494 & 0.516 & 0.516\\
+2013 & 0.008 & 0.069 & 0.139 & 0.274 & 0.354 & 0.382 & 0.405 & 0.405\\
+\addlinespace
+2014 & 0.007 & 0.060 & 0.108 & 0.226 & 0.302 & 0.329 & 0.352 & 0.352\\
+2015 & 0.009 & 0.077 & 0.117 & 0.240 & 0.338 & 0.375 & 0.406 & 0.406\\
+2016 & 0.010 & 0.086 & 0.107 & 0.199 & 0.300 & 0.344 & 0.379 & 0.379\\
+2017 & 0.009 & 0.076 & 0.087 & 0.154 & 0.274 & 0.358 & 0.430 & 0.430\\
+2018 & 0.006 & 0.055 & 0.063 & 0.106 & 0.187 & 0.265 & 0.343 & 0.343\\
+\addlinespace
+2019 & 0.007 & 0.068 & 0.079 & 0.116 & 0.193 & 0.311 & 0.460 & 0.460\\
+2020 & 0.007 & 0.069 & 0.075 & 0.093 & 0.141 & 0.248 & 0.426 & 0.426\\
+2021 & 0.009 & 0.071 & 0.080 & 0.092 & 0.137 & 0.237 & 0.384 & 0.384\\*
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrrrr}
+\caption{\label{tab:South_Commercial-fleet-FAA-table}Total fishing mortality at age in South Commercial.}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endfirsthead
+\caption[]{Total fishing mortality at age in South Commercial. \textit{(continued)}}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+1989 & 0.009 & 0.090 & 0.255 & 0.296 & 0.300 & 0.300 & 0.300 & 0.300\\
+1990 & 0.014 & 0.138 & 0.390 & 0.452 & 0.458 & 0.458 & 0.458 & 0.458\\
+1991 & 0.013 & 0.120 & 0.340 & 0.394 & 0.399 & 0.399 & 0.399 & 0.399\\
+1992 & 0.013 & 0.122 & 0.344 & 0.399 & 0.404 & 0.404 & 0.404 & 0.404\\
+1993 & 0.011 & 0.107 & 0.301 & 0.349 & 0.353 & 0.354 & 0.354 & 0.354\\
+\addlinespace
+1994 & 0.009 & 0.090 & 0.255 & 0.295 & 0.299 & 0.299 & 0.299 & 0.299\\
+1995 & 0.008 & 0.072 & 0.205 & 0.237 & 0.240 & 0.240 & 0.240 & 0.240\\
+1996 & 0.019 & 0.180 & 0.507 & 0.588 & 0.595 & 0.596 & 0.596 & 0.596\\
+1997 & 0.008 & 0.075 & 0.212 & 0.246 & 0.249 & 0.250 & 0.250 & 0.250\\
+1998 & 0.011 & 0.107 & 0.304 & 0.352 & 0.356 & 0.357 & 0.357 & 0.357\\
+\addlinespace
+1999 & 0.009 & 0.083 & 0.234 & 0.271 & 0.274 & 0.274 & 0.274 & 0.274\\
+2000 & 0.005 & 0.049 & 0.137 & 0.159 & 0.161 & 0.161 & 0.161 & 0.161\\
+2001 & 0.003 & 0.027 & 0.077 & 0.089 & 0.090 & 0.090 & 0.090 & 0.090\\
+2002 & 0.002 & 0.021 & 0.060 & 0.070 & 0.070 & 0.070 & 0.070 & 0.070\\
+2003 & 0.004 & 0.035 & 0.099 & 0.115 & 0.117 & 0.117 & 0.117 & 0.117\\
+\addlinespace
+2004 & 0.005 & 0.049 & 0.138 & 0.160 & 0.162 & 0.162 & 0.162 & 0.162\\
+2005 & 0.005 & 0.045 & 0.127 & 0.148 & 0.150 & 0.150 & 0.150 & 0.150\\
+2006 & 0.005 & 0.048 & 0.136 & 0.158 & 0.160 & 0.160 & 0.160 & 0.160\\
+2007 & 0.005 & 0.044 & 0.126 & 0.146 & 0.147 & 0.147 & 0.147 & 0.147\\
+2008 & 0.005 & 0.045 & 0.127 & 0.147 & 0.149 & 0.149 & 0.149 & 0.149\\
+\addlinespace
+2009 & 0.002 & 0.022 & 0.061 & 0.071 & 0.072 & 0.072 & 0.072 & 0.072\\
+2010 & 0.003 & 0.025 & 0.071 & 0.082 & 0.083 & 0.084 & 0.084 & 0.084\\
+2011 & 0.003 & 0.032 & 0.091 & 0.106 & 0.107 & 0.107 & 0.107 & 0.107\\
+2012 & 0.003 & 0.024 & 0.069 & 0.080 & 0.081 & 0.081 & 0.081 & 0.081\\
+2013 & 0.003 & 0.033 & 0.093 & 0.108 & 0.109 & 0.109 & 0.109 & 0.109\\
+\addlinespace
+2014 & 0.003 & 0.025 & 0.069 & 0.080 & 0.081 & 0.081 & 0.081 & 0.081\\
+2015 & 0.002 & 0.018 & 0.050 & 0.058 & 0.059 & 0.059 & 0.059 & 0.059\\
+2016 & 0.002 & 0.017 & 0.049 & 0.056 & 0.057 & 0.057 & 0.057 & 0.057\\
+2017 & 0.002 & 0.018 & 0.050 & 0.058 & 0.059 & 0.059 & 0.059 & 0.059\\
+2018 & 0.001 & 0.012 & 0.033 & 0.038 & 0.039 & 0.039 & 0.039 & 0.039\\
+\addlinespace
+2019 & 0.002 & 0.018 & 0.052 & 0.060 & 0.061 & 0.061 & 0.061 & 0.061\\
+2020 & 0.002 & 0.023 & 0.066 & 0.076 & 0.077 & 0.077 & 0.077 & 0.077\\
+2021 & 0.003 & 0.027 & 0.076 & 0.088 & 0.089 & 0.090 & 0.090 & 0.090\\*
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrrrr}
+\caption{\label{tab:South_Recreational-fleet-FAA-table}Total fishing mortality at age in South Recreational.}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endfirsthead
+\caption[]{Total fishing mortality at age in South Recreational. \textit{(continued)}}\\
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8+\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+1989 & 0.080 & 0.226 & 0.428 & 0.558 & 0.606 & 0.619 & 0.623 & 0.624\\
+1990 & 0.081 & 0.228 & 0.433 & 0.564 & 0.612 & 0.626 & 0.630 & 0.631\\
+1991 & 0.104 & 0.294 & 0.557 & 0.726 & 0.788 & 0.805 & 0.810 & 0.811\\
+1992 & 0.067 & 0.189 & 0.358 & 0.466 & 0.506 & 0.517 & 0.520 & 0.521\\
+1993 & 0.086 & 0.243 & 0.461 & 0.601 & 0.652 & 0.667 & 0.671 & 0.672\\
+\addlinespace
+1994 & 0.073 & 0.206 & 0.391 & 0.510 & 0.554 & 0.566 & 0.569 & 0.570\\
+1995 & 0.086 & 0.244 & 0.462 & 0.602 & 0.654 & 0.669 & 0.672 & 0.674\\
+1996 & 0.118 & 0.333 & 0.632 & 0.823 & 0.893 & 0.914 & 0.919 & 0.920\\
+1997 & 0.098 & 0.278 & 0.526 & 0.686 & 0.745 & 0.762 & 0.766 & 0.767\\
+1998 & 0.042 & 0.118 & 0.224 & 0.291 & 0.316 & 0.324 & 0.325 & 0.326\\
+\addlinespace
+1999 & 0.036 & 0.102 & 0.194 & 0.253 & 0.274 & 0.280 & 0.282 & 0.283\\
+2000 & 0.049 & 0.139 & 0.264 & 0.344 & 0.374 & 0.382 & 0.384 & 0.385\\
+2001 & 0.039 & 0.111 & 0.211 & 0.275 & 0.298 & 0.305 & 0.307 & 0.307\\
+2002 & 0.032 & 0.089 & 0.169 & 0.220 & 0.238 & 0.244 & 0.245 & 0.246\\
+2003 & 0.043 & 0.121 & 0.230 & 0.299 & 0.325 & 0.332 & 0.334 & 0.334\\
+\addlinespace
+2004 & 0.028 & 0.079 & 0.151 & 0.196 & 0.213 & 0.218 & 0.219 & 0.220\\
+2005 & 0.030 & 0.086 & 0.163 & 0.212 & 0.230 & 0.235 & 0.236 & 0.237\\
+2006 & 0.029 & 0.082 & 0.155 & 0.202 & 0.219 & 0.224 & 0.225 & 0.226\\
+2007 & 0.040 & 0.114 & 0.216 & 0.282 & 0.306 & 0.313 & 0.314 & 0.315\\
+2008 & 0.050 & 0.142 & 0.270 & 0.351 & 0.381 & 0.390 & 0.392 & 0.393\\
+\addlinespace
+2009 & 0.044 & 0.124 & 0.236 & 0.307 & 0.334 & 0.341 & 0.343 & 0.344\\
+2010 & 0.049 & 0.137 & 0.261 & 0.340 & 0.369 & 0.377 & 0.379 & 0.380\\
+2011 & 0.017 & 0.048 & 0.091 & 0.119 & 0.129 & 0.132 & 0.133 & 0.133\\
+2012 & 0.046 & 0.130 & 0.246 & 0.320 & 0.348 & 0.355 & 0.358 & 0.358\\
+2013 & 0.034 & 0.095 & 0.180 & 0.235 & 0.255 & 0.261 & 0.262 & 0.263\\
+\addlinespace
+2014 & 0.022 & 0.061 & 0.116 & 0.151 & 0.163 & 0.167 & 0.168 & 0.168\\
+2015 & 0.015 & 0.043 & 0.082 & 0.107 & 0.116 & 0.119 & 0.119 & 0.120\\
+2016 & 0.021 & 0.060 & 0.113 & 0.148 & 0.160 & 0.164 & 0.165 & 0.165\\
+2017 & 0.034 & 0.096 & 0.182 & 0.238 & 0.258 & 0.264 & 0.265 & 0.266\\
+2018 & 0.021 & 0.059 & 0.112 & 0.146 & 0.158 & 0.162 & 0.163 & 0.163\\
+\addlinespace
+2019 & 0.018 & 0.051 & 0.097 & 0.127 & 0.138 & 0.141 & 0.142 & 0.142\\
+2020 & 0.024 & 0.068 & 0.128 & 0.167 & 0.181 & 0.185 & 0.186 & 0.187\\
+2021 & 0.043 & 0.121 & 0.230 & 0.299 & 0.325 & 0.332 & 0.334 & 0.335\\*
+\end{longtable}
+
+\end{document}

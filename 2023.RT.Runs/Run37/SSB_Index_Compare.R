@@ -13,6 +13,7 @@ library(here)
 library(normalize)
 library(ggplot2)
 library(tidyr)
+library(corrplot)
 #-----------------Read in Index and Estimated SSB Values -----------------------
 
 # asap <- read_asap3_dat(c(here("Bridge.runs", "Run9", "NORTH.RUN.9.DAT"),here("Bridge.runs", "Run9", "SOUTH.RUN.9.DAT")))
@@ -75,6 +76,15 @@ for(i in south.indices.loc){
 }
 
 SSB_Index.df <- SSB_Index.df %>% drop_na(Value)
+SSB_Index.full.df <- tidyr::spread(SSB_Index.df, Index, Value)
+cor = cor(SSB_Index.full.df, use="pairwise.complete.obs")
+corrplot(cor,method="ellipse")
+
+SSB_Index.north.df <- subset(SSB_Index.df, Index %in% north.indices)
+SSB_Index.full.north.df <- tidyr::spread(SSB_Index.north.df, Index, Value)
+cor = cor(SSB_Index.full.df, use="pairwise.complete.obs")
+corrplot(cor,method="ellipse")
+
 # SSB_Index.df[!is.na(SSB_Index.df$Value),]
 
 #All Indices
