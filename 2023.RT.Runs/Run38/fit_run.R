@@ -162,6 +162,7 @@ sel$fix_pars <- list(
 sel$re <- rep(c("2dar1","2dar1","none","2dar1","ar1_y","2dar1","none"), c(1,1,2+4,2,1,1,5))
 #No Error:
 # sel$re <- rep(c("2dar1","2dar1","none","none","none","ar1_y","none","none"), c(1,1,2+4,1,1,1,1,5))
+sel$re <- rep(c("2dar1","2dar1","none","2dar1","ar1_y","2dar1","none"), c(1,1,2+5,1,1,1,5))
 temp <- prepare_wham_input(asap_alt, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, ecov = ecov,
                            age_comp = list(
                              fleets = c("dir-mult","logistic-normal-miss0","logistic-normal-ar1-miss0","logistic-normal-ar1-miss0"), 

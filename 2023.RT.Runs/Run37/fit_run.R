@@ -2156,6 +2156,8 @@ x <- array(as.integer(temp$map$trans_NAA_rho), dim = dim(temp$par$trans_NAA_rho)
 x[1,2,] <- NA #don't estimate AR1 cor parameters for north population in the south.
 temp$map$trans_NAA_rho <- factor(x)
 
+tfit14 <- fit_wham(temp, do.fit = F)
+
 tfit14 <- fit_wham(temp, do.sdrep = F, do.osa = F, do.retro = F)
 saveandplot(tfit14,"tfit14")
 
